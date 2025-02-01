@@ -1,0 +1,363 @@
+{
+  "$schema": "./mfjoystick.schema.json",
+  "InstanceName": "WINWING FMS - Copilot",
+  "VendorId": "0x4098",
+  "ProductId": "0xBB3D",
+  "Inputs": [
+    {
+      "Id": 1,
+      "Type": "Button",
+      "Label": "Line Select Key 1L"
+    },
+    {
+      "Id": 2,
+      "Type": "Button",
+      "Label": "Line Select Key 2L"
+    },
+    {
+      "Id": 3,
+      "Type": "Button",
+      "Label": "Line Select Key 3L"
+    },
+    {
+      "Id": 4,
+      "Type": "Button",
+      "Label": "Line Select Key 4L"
+    },
+    {
+      "Id": 5,
+      "Type": "Button",
+      "Label": "Line Select Key 5L"
+    },
+    {
+      "Id": 6,
+      "Type": "Button",
+      "Label": "Line Select Key 6L"
+    },
+    {
+      "Id": 7,
+      "Type": "Button",
+      "Label": "Line Select Key 1R"
+    },
+    {
+      "Id": 8,
+      "Type": "Button",
+      "Label": "Line Select Key 2R"
+    },
+    {
+      "Id": 9,
+      "Type": "Button",
+      "Label": "Line Select Key 3R"
+    },
+    {
+      "Id": 10,
+      "Type": "Button",
+      "Label": "Line Select Key 4R"
+    },
+    {
+      "Id": 11,
+      "Type": "Button",
+      "Label": "Line Select Key 5R"
+    },
+    {
+      "Id": 12,
+      "Type": "Button",
+      "Label": "Line Select Key 6R"
+    },
+    {
+      "Id": 13,
+      "Type": "Button",
+      "Label": "Init/Ref"
+    },
+    {
+      "Id": 14,
+      "Type": "Button",
+      "Label": "RTE"
+    },
+    {
+      "Id": 15,
+      "Type": "Button",
+      "Label": "CLB"
+    },
+    {
+      "Id": 16,
+      "Type": "Button",
+      "Label": "CRZ"
+    },
+    {
+      "Id": 17,
+      "Type": "Button",
+      "Label": "DES"
+    },
+    {
+      "Id": 18,
+      "Type": "Button",
+      "Label": "BRT-"
+    },
+    {
+      "Id": 19,
+      "Type": "Button",
+      "Label": "BRT+"
+    },
+    {
+      "Id": 20,
+      "Type": "Button",
+      "Label": "MENU"
+    },
+    {
+      "Id": 21,
+      "Type": "Button",
+      "Label": "LEGS"
+    },
+    {
+      "Id": 22,
+      "Type": "Button",
+      "Label": "DEP/ARR"
+    },
+    {
+      "Id": 23,
+      "Type": "Button",
+      "Label": "HOLD"
+    },
+    {
+      "Id": 24,
+      "Type": "Button",
+      "Label": "PROG"
+    },
+    {
+      "Id": 25,
+      "Type": "Button",
+      "Label": "EXEC"
+    },
+    {
+      "Id": 26,
+      "Type": "Button",
+      "Label": "N1/LIMIT"
+    },
+    {
+      "Id": 27,
+      "Type": "Button",
+      "Label": "FIX"
+    },
+    {
+      "Id": 28,
+      "Type": "Button",
+      "Label": "PREV PAGE"
+    },
+    {
+      "Id": 29,
+      "Type": "Button",
+      "Label": "NEXT PAGE"
+    },
+    {
+      "Id": 30,
+      "Type": "Button",
+      "Label": "1"
+    },
+    {
+      "Id": 31,
+      "Type": "Button",
+      "Label": "2"
+    },
+    {
+      "Id": 32,
+      "Type": "Button",
+      "Label": "3"
+    },
+    {
+      "Id": 33,
+      "Type": "Button",
+      "Label": "4"
+    },
+    {
+      "Id": 34,
+      "Type": "Button",
+      "Label": "5"
+    },
+    {
+      "Id": 35,
+      "Type": "Button",
+      "Label": "6"
+    },
+    {
+      "Id": 36,
+      "Type": "Button",
+      "Label": "7"
+    },
+    {
+      "Id": 37,
+      "Type": "Button",
+      "Label": "8"
+    },
+    {
+      "Id": 38,
+      "Type": "Button",
+      "Label": "9"
+    },
+    {
+      "Id": 39,
+      "Type": "Button",
+      "Label": "."
+    },
+    {
+      "Id": 40,
+      "Type": "Button",
+      "Label": "0"
+    },
+    {
+      "Id": 41,
+      "Type": "Button",
+      "Label": "+/-"
+    },
+    {
+      "Id": 42,
+      "Type": "Button",
+      "Label": "A"
+    },
+    {
+      "Id": 43,
+      "Type": "Button",
+      "Label": "B"
+    },
+    {
+      "Id": 44,
+      "Type": "Button",
+      "Label": "C"
+    },
+    {
+      "Id": 45,
+      "Type": "Button",
+      "Label": "D"
+    },
+    {
+      "Id": 46,
+      "Type": "Button",
+      "Label": "E"
+    },
+    {
+      "Id": 47,
+      "Type": "Button",
+      "Label": "F"
+    },
+    {
+      "Id": 48,
+      "Type": "Button",
+      "Label": "G"
+    },
+    {
+      "Id": 49,
+      "Type": "Button",
+      "Label": "H"
+    },
+    {
+      "Id": 50,
+      "Type": "Button",
+      "Label": "I"
+    },
+    {
+      "Id": 51,
+      "Type": "Button",
+      "Label": "J"
+    },
+    {
+      "Id": 52,
+      "Type": "Button",
+      "Label": "K"
+    },
+    {
+      "Id": 53,
+      "Type": "Button",
+      "Label": "L"
+    },
+    {
+      "Id": 54,
+      "Type": "Button",
+      "Label": "M"
+    },
+    {
+      "Id": 55,
+      "Type": "Button",
+      "Label": "N"
+    },
+    {
+      "Id": 56,
+      "Type": "Button",
+      "Label": "O"
+    },
+    {
+      "Id": 57,
+      "Type": "Button",
+      "Label": "P"
+    },
+    {
+      "Id": 58,
+      "Type": "Button",
+      "Label": "Q"
+    },
+    {
+      "Id": 59,
+      "Type": "Button",
+      "Label": "R"
+    },
+    {
+      "Id": 60,
+      "Type": "Button",
+      "Label": "S"
+    },
+    {
+      "Id": 61,
+      "Type": "Button",
+      "Label": "T"
+    },
+    {
+      "Id": 62,
+      "Type": "Button",
+      "Label": "U"
+    },
+    {
+      "Id": 63,
+      "Type": "Button",
+      "Label": "V"
+    },
+    {
+      "Id": 64,
+      "Type": "Button",
+      "Label": "W"
+    },
+    {
+      "Id": 65,
+      "Type": "Button",
+      "Label": "X"
+    },
+    {
+      "Id": 66,
+      "Type": "Button",
+      "Label": "Y"
+    },
+    {
+      "Id": 67,
+      "Type": "Button",
+      "Label": "Z"
+    },
+    {
+      "Id": 68,
+      "Type": "Button",
+      "Label": "SP"
+    },
+    {
+      "Id": 69,
+      "Type": "Button",
+      "Label": "DEL"
+    },
+    {
+      "Id": 70,
+      "Type": "Button",
+      "Label": "/"
+    },
+    {
+      "Id": 71,
+      "Type": "Button",
+      "Label": "CLR"
+    }
+  ]
+}

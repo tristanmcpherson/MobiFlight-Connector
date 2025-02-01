@@ -1,5 +1,6 @@
 ﻿using MobiFlight.Joysticks.Octavi;
-using MobiFlight.Joysticks.WinwingFcu;
+using MobiFlight.Joysticks.Winwing.Fcu;
+using MobiFlight.Joysticks.Winwing.Fms;
 using MobiFlight.Joysticks.VKB;
 using Newtonsoft.Json;
 using SharpDX.DirectInput;
@@ -180,6 +181,11 @@ namespace MobiFlight
                 {
                     var joystickDef = GetDefinitionByProductId(vendorId, productId);
                     js = new WinwingFcu(diJoystick, joystickDef, productId);
+                }
+                else if (vendorId == 0x4098 && (productId == 0xBB35 || productId == 0xBB39 || productId == 0xBB3D))
+                {
+                    var joystickDef = GetDefinitionByProductId(vendorId, productId);
+                    js = new WinwingFms(diJoystick, joystickDef, productId);
                 }
                 else if (vendorId == 0x231D)
                 {

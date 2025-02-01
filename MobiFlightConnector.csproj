@@ -297,8 +297,10 @@
     <Compile Include="MobiFlight\Joysticks\VKB\VKBHidReport.cs" />
     <Compile Include="MobiFlight\Joysticks\VKB\VKBLed.cs" />
     <Compile Include="MobiFlight\Joysticks\VKB\VKBLedContainer.cs" />
-    <Compile Include="MobiFlight\Joysticks\WinwingFcu\WinwingFcu.cs" />
-    <Compile Include="MobiFlight\Joysticks\WinwingFcu\WinwingFcuReport.cs" />
+    <Compile Include="MobiFlight\Joysticks\Winwing\Fcu\WinwingFcu.cs" />
+    <Compile Include="MobiFlight\Joysticks\Winwing\Fcu\WinwingFcuReport.cs" />
+    <Compile Include="MobiFlight\Joysticks\Winwing\Fms\WinwingFms.cs" />
+    <Compile Include="MobiFlight\Joysticks\Winwing\Fms\WinwingFmsReport.cs" />
     <Compile Include="MobiFlight\JsonBackedObject.cs" />
     <Compile Include="MobiFlight\MaximumDeviceNumberReachedMobiFlightException.cs" />
     <Compile Include="MobiFlight\MidiBoard\MidiBoard.cs" />
@@ -1243,6 +1245,15 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Joysticks\winwing_fcu_efisr.joystick.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Joysticks\winwing_fms_copilot.joystick.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Joysticks\winwing_fms_observer.joystick.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Joysticks\winwing_fms_captain.joystick.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="MidiBoards\BoardEditorConfigs\intechf44\Mobiflight-SessionProfile.json">

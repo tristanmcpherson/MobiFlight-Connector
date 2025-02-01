@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace MobiFlight.Joysticks.WinwingFcu
+namespace MobiFlight.Joysticks.Winwing.Fcu
 {
     internal class HidBuffer
     {
