@@ -9,8 +9,8 @@ using MobiFlight.xplane;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
-using System.Windows.Forms;
 
 
 namespace MobiFlight.Execution
@@ -341,7 +341,7 @@ namespace MobiFlight.Execution
                             break;
 
                         default: // LED Output
-                            int intState = (int)Convert.ToDouble(value);
+                            int intState = ParseValue(value);
                             byte state = (byte)Math.Max(Math.Min(255, intState), 0);
                             joystick.SetOutputDeviceState((cfg.Device as Output).DisplayPin, state);
                             joystick.UpdateOutputDeviceStates();
@@ -581,6 +581,20 @@ namespace MobiFlight.Execution
                 result = value;
             }
             return result;
+        }
+
+        internal static int ParseValue(string value)
+        {
+            double doubleState = 0;
+            if (value != "0")
+            {
+                if (!double.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out doubleState))
+                {
+                    doubleState = 1;
+                }
+            }
+
+            return (int)doubleState;
         }
     }
 }
