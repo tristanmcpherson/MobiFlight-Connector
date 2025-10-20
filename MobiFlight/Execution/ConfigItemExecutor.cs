@@ -343,7 +343,7 @@ namespace MobiFlight.Execution
                         default: // LED Output
                             int intState = ParseValue(value);
                             byte state = (byte)Math.Max(Math.Min(255, intState), 0);
-                            joystick.SetOutputDeviceState((cfg.Device as Output).DisplayPin, state);
+                            joystick.SetOutputDeviceState((cfg.Device as Output).Pin, state);
                             joystick.UpdateOutputDeviceStates();
                             joystick.Update();
                             break;
@@ -363,7 +363,7 @@ namespace MobiFlight.Execution
                 {
                     byte state = 0;
                     if (value != "0") state = 1;
-                    midiBoard.SetOutputDeviceState((cfg.Device as Output).DisplayPin, state);
+                    midiBoard.SetOutputDeviceState((cfg.Device as Output).Pin, state);
                 }
                 else
                 {
@@ -392,8 +392,8 @@ namespace MobiFlight.Execution
 
                     default:
                         arcazeCache.setValue(serial,
-                            (cfg.Device as Output).DisplayPin,
-                            (value != "0" ? (cfg.Device as Output).DisplayPinBrightness.ToString() : "0"));
+                            (cfg.Device as Output).Pin,
+                            (value != "0" ? (cfg.Device as Output).Brightness.ToString() : "0"));
                         break;
                 }
 #endif
@@ -538,11 +538,11 @@ namespace MobiFlight.Execution
                     case MobiFlightOutput.TYPE:
                         string outputValue = value;
 
-                        if (outputValue != "0" && !(cfg.Device as Output).DisplayPinPWM)
-                            outputValue = (cfg.Device as Output).DisplayPinBrightness.ToString();
+                        if (outputValue != "0" && !(cfg.Device as Output).PwmMode)
+                            outputValue = (cfg.Device as Output).Brightness.ToString();
 
                         mobiFlightCache.SetValue(serial,
-                            (cfg.Device as Output).DisplayPin,
+                            (cfg.Device as Output).Pin,
                             outputValue);
                         break;
                 }
