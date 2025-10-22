@@ -1,24 +1,38 @@
 import { toast as sonnerToast } from "sonner"
 import Toast, { ToastProps } from "./Toast"
+import { ToastProvider } from "./ToastContext"
 
 export const toast = (props: ToastProps) => {
-  const { button, options } = props
+  const { button, options, onCancel, ...otherProps } = props
 
   return sonnerToast.custom(
     (id) => {
-      const extendedButton = {
-        ...button!,
-        onClick: () => {
-          button!.onClick()
-          sonnerToast.dismiss(id)
-        },
+      const enhancedButton = button
+        ? {
+            ...button,
+            onClick: () => {
+              button.onClick()
+              sonnerToast.dismiss(id)
+            },
+          }
+        : undefined
 
-        onCancel: () => {
-          button!.onCancel?.()
-          sonnerToast.dismiss(id)
-        },
-      }
-      return <Toast {...props} button={extendedButton} />
+      const enhancedCancel = onCancel
+        ? () => {
+            onCancel()
+            sonnerToast.dismiss(id)
+          }
+        : undefined
+
+      return (
+        <ToastProvider toastId={id} dismiss={() => sonnerToast.dismiss(id)}>
+          <Toast
+            {...otherProps}
+            button={enhancedButton}
+            onCancel={enhancedCancel}
+          />
+        </ToastProvider>
+      )
     },
     { ...options },
   )
