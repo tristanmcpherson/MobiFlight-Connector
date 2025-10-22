@@ -3,7 +3,7 @@ import { Progress } from "../ui/progress"
 import { IconCircleCheckFilled, IconCircleXFilled } from "@tabler/icons-react"
 import { useEffect } from "react"
 import { useTranslation } from "react-i18next"
-import { useToastContext } from "../ui/ToastContext"
+import { useToastContext } from "@/lib/hooks/useToastContext"
 
 export type HubHopUpdateToastProps = {
   timeout?: number
