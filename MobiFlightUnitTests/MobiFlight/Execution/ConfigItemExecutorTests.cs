@@ -9,6 +9,7 @@ using MobiFlight.SimConnectMSFS;
 using MobiFlight.xplane;
 using Moq;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 
 namespace MobiFlight.Tests
@@ -66,7 +67,7 @@ namespace MobiFlight.Tests
         {
             // Arrange
             var cfg = new OutputConfigItem { Active = false };
-            var updatedValues = new Dictionary<string, IConfigItem>();
+            var updatedValues = new ConcurrentDictionary<string, IConfigItem>();
 
             // Act
             executor.Execute(cfg, updatedValues);
@@ -80,7 +81,7 @@ namespace MobiFlight.Tests
         {
             // Arrange
             var cfg = new OutputConfigItem { Active = true, Source = new FsuipcSource() };
-            var updatedValues = new Dictionary<string, IConfigItem>();
+            var updatedValues = new ConcurrentDictionary<string, IConfigItem>();
             mockFsuipcCache.Setup(c => c.IsConnected()).Returns(false);
 
             // Act
@@ -106,7 +107,7 @@ namespace MobiFlight.Tests
         {
             // Arrange
             var cfg = new OutputConfigItem { Active = true, Source = new SimConnectSource() };
-            var updatedValues = new Dictionary<string, IConfigItem>();
+            var updatedValues = new ConcurrentDictionary<string, IConfigItem>();
             mockSimConnectCache.Setup(c => c.IsConnected()).Returns(false);
 
             // Act
@@ -132,7 +133,7 @@ namespace MobiFlight.Tests
         {
             // Arrange
             var cfg = new OutputConfigItem { Active = true, Source = new XplaneSource() };
-            var updatedValues = new Dictionary<string, IConfigItem>();
+            var updatedValues = new ConcurrentDictionary<string, IConfigItem>();
             mockXplaneCache.Setup(c => c.IsConnected()).Returns(false);
 
             // Act
@@ -160,7 +161,7 @@ namespace MobiFlight.Tests
         {
             // Arrange
             var cfg = new OutputConfigItem { Active = true, Source = new ProSimSource() };
-            var updatedValues = new Dictionary<string, IConfigItem>();
+            var updatedValues = new ConcurrentDictionary<string, IConfigItem>();
             mockProSimCache.Setup(c => c.IsConnected()).Returns(false);
 
             // Act
@@ -195,7 +196,7 @@ namespace MobiFlight.Tests
                 }
             };
             cfg.Modifiers.Items.Add(new Transformation() { Active = true, Expression = "$+_1" });
-            var updatedValues = new Dictionary<string, IConfigItem>();
+            var updatedValues = new ConcurrentDictionary<string, IConfigItem>();
             mockMobiFlightCache.Setup(m => m.GetMobiFlightVariable(It.IsAny<string>())).Returns(variable);
 
             // Act
@@ -248,12 +249,12 @@ namespace MobiFlight.Tests
             var config = new OutputConfigItem { Active = true, Preconditions = new PreconditionList(), Value = "100" };
             configItems.Add(config);
 
-            var precondition = new Precondition() { PreconditionType = "config", PreconditionRef = config.GUID, PreconditionValue = "90", PreconditionOperand = "=" };
+            var precondition = new Precondition() { Type = "config", Ref = config.GUID, Value = "90", Operand = "=" };
             var preconditionList = new PreconditionList();
             preconditionList.Add(precondition);
 
             var cfg = new OutputConfigItem { Active = true, Preconditions = preconditionList };
-            var updatedValues = new Dictionary<string, IConfigItem>();
+            var updatedValues = new ConcurrentDictionary<string, IConfigItem>();
 
             // Act
             executor.Execute(cfg, updatedValues);
@@ -261,7 +262,7 @@ namespace MobiFlight.Tests
             // Assert
             Assert.AreEqual(1, updatedValues.Count);
             Assert.AreEqual("not satisfied", cfg.Status[ConfigItemStatusType.Precondition]);
-            precondition.PreconditionValue = "100";
+            precondition.Value = "100";
 
             // Act
             updatedValues.Clear();
@@ -281,12 +282,12 @@ namespace MobiFlight.Tests
             // create another config with different GUID
             config = new OutputConfigItem { Active = true, Preconditions = new PreconditionList(), Value = "100" };
 
-            var precondition = new Precondition() { PreconditionType = "config", PreconditionRef = config.GUID, PreconditionValue = "90", PreconditionOperand = "=" };
+            var precondition = new Precondition() { Type = "config", Ref = config.GUID, Value = "90", Operand = "=" };
             var preconditionList = new PreconditionList();
             preconditionList.Add(precondition);
 
             var cfg = new OutputConfigItem { Active = true, Preconditions = preconditionList };
-            var updatedValues = new Dictionary<string, IConfigItem>();
+            var updatedValues = new ConcurrentDictionary<string, IConfigItem>();
 
             // Act
             try
@@ -297,6 +298,30 @@ namespace MobiFlight.Tests
             {
                 Assert.AreEqual("Config reference not found", e.Message);
             }
+        }
+
+        [TestMethod]
+        [DataRow("something", 1)]
+        [DataRow("0", 0)]
+        [DataRow("0.0", 0)]
+        [DataRow("-3", -3)]
+        [DataRow("-3.5", -3)]
+        [DataRow("22", 22)]
+        [DataRow("4.22223", 4)]
+        [DataRow("-500.8", -500)]
+        [DataRow("40,8", 408)]
+        [DataRow("10000.00", 10000)]
+        public void ExecuteDisplay_ParseValue_ParseDifferentInputStringValues(
+            string inputValue,
+            int expectedValue)
+        {
+            // Arrange
+
+            // Act
+            var actualValue = ConfigItemExecutor.ParseValue(inputValue);
+
+            // Assert
+            Assert.AreEqual(expectedValue, actualValue);
         }
     }
 }

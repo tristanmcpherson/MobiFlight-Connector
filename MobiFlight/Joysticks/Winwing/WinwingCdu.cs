@@ -10,7 +10,6 @@ namespace MobiFlight.Joysticks.Winwing
 {
     internal class WinwingCdu : Joystick
     {
-        private JoystickDefinition Definition;
         private WinwingDisplayControl DisplayControl;
 
         private List<IBaseDevice> LcdDevices = new List<IBaseDevice>();
@@ -23,7 +22,6 @@ namespace MobiFlight.Joysticks.Winwing
         public WinwingCdu(SharpDX.DirectInput.Joystick joystick, JoystickDefinition def, int productId, WebSocketServer server) : base(joystick, def)
         {
             Log.Instance.log($"WinwingCdu - New WinwingCdu ProductId={productId.ToString("X")}", LogSeverity.Debug);
-            Definition = def;
             DisplayControl = new WinwingDisplayControl(productId, server);
             var displayNames = DisplayControl.GetDisplayNames();
             var ledNames = DisplayControl.GetLedNames();
@@ -93,6 +91,11 @@ namespace MobiFlight.Joysticks.Winwing
         protected override void SendData(byte[] data)
         {
             // do nothing, data is directly send in SetOutputDeviceState
+        }
+
+        public override void Stop()
+        {
+            DisplayControl.Stop();
         }
 
         public override void Shutdown()

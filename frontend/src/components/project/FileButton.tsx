@@ -1,10 +1,6 @@
 import { ConfigFile } from "@/types"
 import { VariantProps } from "class-variance-authority"
-import {
-  IconDotsVertical,
-  IconEdit,
-  IconTrash,
-} from "@tabler/icons-react"
+import { IconDotsVertical, IconPencil, IconTrash } from "@tabler/icons-react"
 import { publishOnMessageExchange } from "@/lib/hooks/appMessage"
 import { CommandFileContextMenu } from "@/types/commands"
 import { Button } from "@/components/ui/button"
@@ -15,10 +11,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { buttonVariants } from "@/components/ui/variants"
-import { Input } from "../ui/input"
 import { useEffect, useRef, useState } from "react"
 import { cn } from "@/lib/utils"
 import { useTranslation } from "react-i18next"
+import { InlineEditLabel, InlineEditLabelRef } from "../InlineEditLabel"
+import { useDroppable } from "@dnd-kit/core"
 
 export interface FileButtonProps extends VariantProps<typeof buttonVariants> {
   file: ConfigFile
@@ -32,83 +29,79 @@ const FileButton = ({
   variant,
   selectActiveFile: onSelectActiveFile,
 }: FileButtonProps) => {
-
   const { t } = useTranslation()
   const { publish } = publishOnMessageExchange()
-  const [ isEditing, setIsEditing ] = useState(false)
-  const [ label, setLabel ] = useState(file.Label ?? file.FileName)
-  const inputRef = useRef<HTMLInputElement>(null)
+  const inlineEditRef = useRef<InlineEditLabelRef>(null)
+  const label = file.Label ?? file.FileName
+  const [ optimisticLabel, setOptimisticLabel ] = useState(label)
+
+  const isActiveTab = variant === "tabActive"
 
   useEffect(() => {
-    if (isEditing && inputRef.current) {
-      setTimeout(() => { inputRef?.current?.focus() }, 300)
-    }
-  }, [isEditing])
+    setOptimisticLabel(label)
+  }, [label])
 
-  useEffect(() => {
-    setLabel(file.Label ?? file.FileName)
-  }, [file.Label, file.FileName])
+  const onSave = (newLabel: string) => {
+    setOptimisticLabel(newLabel)
+    publish({
+      key: "CommandFileContextMenu",
+      payload: {
+        action: "rename",
+        index: index,
+        file: {
+          ...file,
+          Label: newLabel,
+        },
+      },
+    } as CommandFileContextMenu)
+  }
+  
+  const groupHoverStyle =
+    variant === "tabActive"
+      ? "group-hover:bg-primary group-hover:text-primary-foreground"
+      : "group-hover:bg-accent group-hover:text-accent-foreground"
 
-  const groupHoverStyle = variant === "default" ? "group-hover:bg-primary/90" : "group-hover:bg-accent group-hover:text-accent-foreground"
+  const { setNodeRef } = useDroppable({
+    id: `file-button-${index}`,
+    data: {
+      type: `tab`,
+      index: index,
+    },
+  })
 
   return (
-    <div className="flex justify-center group" role="tab">
+    <div
+      className="group flex justify-center"
+      ref={setNodeRef}
+      role="tab"
+      aria-selected={isActiveTab}
+    >
       <Button
         variant={variant}
-        value={file.FileName}
-        className="rounded-r-none border-r-0 rounded-b-none border-b-0"
+        value={optimisticLabel}
+        className={cn(
+          groupHoverStyle,
+          "rounded-r-none rounded-b-none border-r-0 border-b-0",
+        )}
         onClick={() => onSelectActiveFile(index)}
-        onDoubleClick={(e) => {
-          e.stopPropagation()
-          e.preventDefault()
-          setIsEditing(true)
-        }}
       >
-        { !isEditing 
-          ? 
-          (label)
-          :
-          <Input
-            ref={inputRef}
-            className="bg-transparent border-none h-6 focus-visible:ring-0 focus-visible:border-none focus-visible:ring-offset-0 rounded-0"
-            value={label}
-            onChange={(e) => {
-              setLabel(e.target.value)
-            }}
-            onBlur={() => {
-              setIsEditing(false)
-            }}
-            
-            onKeyDown={(e) => {
-              e.stopPropagation()
-
-              if (e.key === "Escape") {
-                setIsEditing(false)
-                setLabel(file.Label ?? file.FileName)
-              }
-              if (e.key === "Enter") {
-                setIsEditing(false)
-                setLabel(e.currentTarget.value)
-                publish({
-                  key: "CommandFileContextMenu",
-                  payload: {
-                    action: "rename",
-                    index: index,
-                    file: {
-                      ...file,
-                      Label: e.currentTarget.value,
-                    }
-                  },
-                } as CommandFileContextMenu)
-              }
-            }}
-          />
-        }
+        <InlineEditLabel
+          ref={inlineEditRef}
+          value={optimisticLabel}
+          onSave={onSave}
+          disabled={!isActiveTab}
+        />
       </Button>
       <div className="relative">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant={variant} className={cn(groupHoverStyle, "w-8 rounded-l-none p-0 rounded-b-none pb-0 border-l-0 border-b-0")}>
+            <Button
+              variant={variant}
+              className={cn(
+                groupHoverStyle,
+                "w-8 rounded-l-none rounded-b-none border-b-0 border-l-0 p-0 pb-0",
+              )}
+            >
               <span className="sr-only">{t("General.Action.OpenMenu")}</span>
               <IconDotsVertical className="h-4 w-4" />
             </Button>
@@ -116,10 +109,10 @@ const FileButton = ({
           <DropdownMenuContent align="end">
             <DropdownMenuItem
               onClick={() => {
-                setIsEditing(true)
+                inlineEditRef.current?.startEditing()
               }}
             >
-              <IconEdit />
+              <IconPencil />
               {t("Project.File.Action.Rename")}
             </DropdownMenuItem>
             <DropdownMenuItem

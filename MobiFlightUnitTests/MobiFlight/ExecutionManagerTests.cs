@@ -9,7 +9,12 @@ using MobiFlight.xplane;
 using Moq;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace MobiFlight.Tests
 {
@@ -73,6 +78,7 @@ namespace MobiFlight.Tests
             _executionManager.Stop();
             _executionManager.Shutdown();
             _executionManager = null;
+            MessageExchange.Instance.ClearSubscriptions();
         }
 
         [TestMethod]
@@ -320,8 +326,9 @@ namespace MobiFlight.Tests
                     }
                 };
 
-            var configFile1 = new ConfigFile() {
-                ConfigItems =  ConfigItems1              
+            var configFile1 = new ConfigFile()
+            {
+                ConfigItems = ConfigItems1
             };
 
             var configFile2 = new ConfigFile()
@@ -490,6 +497,316 @@ namespace MobiFlight.Tests
                 Times.Once,
                 "Expected log message should be logged once with Info severity"
             );
+        }
+
+        [TestMethod]
+        public void FrontendUpdateTimer_Execute_ConcurrentDictionaryModification_ShouldNotThrowInvalidOperationException()
+        {
+            // Arrange
+            const int numberOfConcurrentThreads = 20;
+            const int operationsPerThread = 25;
+            var exceptions = new ConcurrentBag<Exception>();
+            var tasks = new List<Task>();
+
+            // Set up a project with some config items to ensure we have data to work with
+            var configItem = new InputConfigItem { GUID = Guid.NewGuid().ToString(), Active = true, Name = "TestInput" };
+            var project = new Project();
+            project.ConfigFiles.Add(new ConfigFile() { ConfigItems = { configItem } });
+            _executionManager.Project = project;
+
+            // Get references to private members using reflection
+            var updatedValuesField = typeof(ExecutionManager).GetField("updatedValues",
+                BindingFlags.NonPublic | BindingFlags.Instance);
+            var updatedValues = (ConcurrentDictionary<string, IConfigItem>)updatedValuesField.GetValue(_executionManager);
+
+            var frontendUpdateMethod = typeof(ExecutionManager).GetMethod("FrontendUpdateTimer_Execute",
+                BindingFlags.NonPublic | BindingFlags.Instance);
+
+            // Act - Create the exact race condition that caused the original exception
+            for (int i = 0; i < numberOfConcurrentThreads; i++)
+            {
+                var threadId = i;
+
+                // Task 1: Simulate the frontend timer execution
+                tasks.Add(Task.Run(() =>
+                {
+                    try
+                    {
+                        for (int j = 0; j < operationsPerThread; j++)
+                        {
+                            // Add some test data to ensure the dictionary has content
+                            var testItem = new InputConfigItem
+                            {
+                                GUID = $"frontend-{threadId}-{j}",
+                                Active = true,
+                                Name = $"FrontendTest{threadId}_{j}"
+                            };
+
+                            // Simulate adding data (like what happens in mobiFlightCache_OnButtonPressed)
+                            lock (updatedValues)
+                            {
+                                updatedValues[testItem.GUID] = testItem;
+                            }
+
+                            // Execute the frontend timer method - this is where the original exception occurred
+                            frontendUpdateMethod.Invoke(_executionManager, new object[] { null, EventArgs.Empty });
+
+                            // Small delay to increase concurrency
+                            if (j % 5 == 0) Thread.Sleep(1);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        // Unwrap TargetInvocationException to get the actual exception
+                        var actualException = ex is TargetInvocationException tie ? tie.InnerException : ex;
+                        exceptions.Add(actualException);
+                    }
+                }));
+
+                // Task 2: Simulate other threads modifying updatedValues concurrently
+                // This represents input events, config execution, etc.
+                tasks.Add(Task.Run(() =>
+                {
+                    try
+                    {
+                        for (int j = 0; j < operationsPerThread; j++)
+                        {
+                            var testItem = new InputConfigItem
+                            {
+                                GUID = $"concurrent-{threadId}-{j}",
+                                Active = true,
+                                Name = $"ConcurrentTest{threadId}_{j}"
+                            };
+
+                            // Add items to the dictionary
+                            lock (updatedValues)
+                            {
+                                updatedValues[testItem.GUID] = testItem;
+                            }
+
+                            Thread.Sleep(1); // Small delay to increase chance of race condition
+
+                            // Modify existing items
+                            lock (updatedValues)
+                            {
+                                if (updatedValues.ContainsKey(testItem.GUID))
+                                {
+                                    updatedValues[testItem.GUID] = new InputConfigItem
+                                    {
+                                        GUID = testItem.GUID,
+                                        Active = false,
+                                        Name = $"Modified{threadId}_{j}"
+                                    };
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        exceptions.Add(ex);
+                    }
+                }));
+            }
+
+            // Wait for all tasks to complete
+            var allTasksCompleted = Task.WaitAll(tasks.ToArray(), TimeSpan.FromSeconds(30));
+
+            // Assert
+            Assert.IsTrue(allTasksCompleted, "All tasks should complete within the timeout period");
+
+            // Check specifically for the InvalidOperationException that was originally thrown
+            var collectionModifiedExceptions = exceptions
+                .Where(ex => ex is InvalidOperationException &&
+                            ex.Message.Contains("Collection was modified"))
+                .ToList();
+
+            Assert.AreEqual(0, collectionModifiedExceptions.Count,
+                $"Should not throw 'Collection was modified' InvalidOperationException. " +
+                $"Found {collectionModifiedExceptions.Count} such exceptions. " +
+                $"This indicates the ToList() operation is not properly protected by the lock.");
+
+            // Verify no other unexpected exceptions occurred
+            if (exceptions.Any())
+            {
+                var exceptionSummary = string.Join("; ",
+                    exceptions.GroupBy(e => e.GetType().Name)
+                             .Select(g => $"{g.Key}: {g.Count()}"));
+                Assert.Fail($"Unexpected exceptions occurred: {exceptionSummary}");
+            }
+        }
+
+        [TestMethod]
+        public void ExecuteConfig_WithNoControllersConnected_ShouldStillExecuteConfigItems()
+        {
+            // Arrange
+            var outputConfigItem = new OutputConfigItem
+            {
+                GUID = Guid.NewGuid().ToString(),
+                Active = true,
+                Name = "TestOutput",
+                Source = new VariableSource()
+                {
+                    MobiFlightVariable = new MobiFlightVariable() { Name = "TestVar", Number = 123.45 }
+                },
+                Device = new OutputConfig.CustomDevice() { CustomName = "TestDevice" },
+                DeviceType = "InputAction" // Special type that doesn't require physical devices
+            };
+
+            var project = new Project();
+            project.ConfigFiles.Add(new ConfigFile() 
+            { 
+                ConfigItems = { outputConfigItem } 
+            });
+            _executionManager.Project = project;
+
+            // Verify no controllers are connected
+            Assert.IsFalse(_executionManager.ModulesAvailable(), "No MobiFlight modules and/or Arcaze Boards should be connected");
+            Assert.IsFalse(_executionManager.GetJoystickManager().JoysticksConnected(), "No joysticks should be connected");
+            Assert.IsFalse(_executionManager.GetMidiBoardManager().AreMidiBoardsConnected(), "No midi controllers should be connected.");
+            
+            // Set up the variable so the config item has data to read
+            _executionManager.getMobiFlightModuleCache().SetMobiFlightVariable(
+                new MobiFlightVariable() { Name = "TestVar", Number = 123.45 });
+
+            // Get access to the updatedValues dictionary via reflection
+            var updatedValuesField = typeof(ExecutionManager).GetField("updatedValues",
+                BindingFlags.NonPublic | BindingFlags.Instance);
+            var updatedValues = (ConcurrentDictionary<string, IConfigItem>)updatedValuesField.GetValue(_executionManager);
+            
+            var initialUpdatedValuesCount = updatedValues.Count;
+
+            // Act - Instead of relying on timer, directly call ExecuteConfig via reflection
+            _executionManager.Start(); // This sets up the execution manager state
+            
+            // Use reflection to call the private ExecuteConfig method directly
+            var executeConfigMethod = typeof(ExecutionManager).GetMethod("ExecuteConfig", 
+                BindingFlags.NonPublic | BindingFlags.Instance);
+            Assert.IsNotNull(executeConfigMethod, "ExecuteConfig method should exist");
+
+            executeConfigMethod.Invoke(_executionManager, null);
+
+            // Assert - The config item should be processed and cloned into updatedValues
+            Assert.IsTrue(updatedValues.ContainsKey(outputConfigItem.GUID), 
+                "Config item should be cloned and added to updatedValues when processed");
+            
+            var clonedConfigItem = updatedValues[outputConfigItem.GUID] as OutputConfigItem;
+            Assert.IsNotNull(clonedConfigItem, "Updated config item should be an OutputConfigItem");
+            Assert.AreEqual("123.45", clonedConfigItem.Value, 
+                "Cloned config item should display the correct variable value");
+            Assert.AreEqual("123.45", clonedConfigItem.RawValue, 
+                "Cloned config item should have the correct raw value");
+        }
+
+        [TestMethod]
+        public void CommandResortConfigItem_MovesItemsBetweenFiles()
+        {
+            // Arrange
+            var configItem1 = new OutputConfigItem { GUID = Guid.NewGuid().ToString(), Name = "Item1", Active = true };
+            var configItem2 = new OutputConfigItem { GUID = Guid.NewGuid().ToString(), Name = "Item2", Active = true };
+            var configItem3 = new OutputConfigItem { GUID = Guid.NewGuid().ToString(), Name = "Item3", Active = true };
+
+            var sourceFile = new ConfigFile() { ConfigItems = { configItem1, configItem2 } };
+            var targetFile = new ConfigFile() { ConfigItems = { configItem3 } };
+            
+            var project = new Project();
+            project.ConfigFiles.Add(sourceFile);  // Index 0
+            project.ConfigFiles.Add(targetFile);  // Index 1
+            _executionManager.Project = project;
+
+            var message = new CommandResortConfigItem
+            {
+                Items = new[] { new OutputConfigItem { GUID = configItem1.GUID } },
+                SourceFileIndex = 0,
+                TargetFileIndex = 1,
+                NewIndex = 0
+            };
+
+            // Act
+            MessageExchange.Instance.Publish(message);
+
+            // Assert
+            Assert.AreEqual(1, sourceFile.ConfigItems.Count, "Source file should have one less item");
+            Assert.AreEqual(2, targetFile.ConfigItems.Count, "Target file should have one more item");
+            Assert.AreEqual(configItem1.GUID, targetFile.ConfigItems[0].GUID, "Item should be moved to target file at correct index");
+            Assert.AreEqual(configItem3.GUID, targetFile.ConfigItems[1].GUID, "Existing item should be shifted down");
+            Assert.IsFalse(sourceFile.ConfigItems.Contains(configItem1), "Item should be removed from source file");
+            Assert.IsTrue(sourceFile.ConfigItems.Contains(configItem2), "Other items should remain in source file");
+        }
+
+        [TestMethod]
+        public void CommandResortConfigItem_ReordersWithinSameFile()
+        {
+            // Arrange
+            var configItem1 = new OutputConfigItem { GUID = Guid.NewGuid().ToString(), Name = "Item1", Active = true };
+            var configItem2 = new OutputConfigItem { GUID = Guid.NewGuid().ToString(), Name = "Item2", Active = true };
+            var configItem3 = new OutputConfigItem { GUID = Guid.NewGuid().ToString(), Name = "Item3", Active = true };
+
+            var configFile = new ConfigFile() { ConfigItems = { configItem1, configItem2, configItem3 } };
+            
+            var project = new Project();
+            project.ConfigFiles.Add(configFile);  // Index 0
+            _executionManager.Project = project;
+
+            // Move item2 to position 0 (before item1)
+            var message = new CommandResortConfigItem
+            {
+                Items = new[] { new OutputConfigItem { GUID = configItem2.GUID } },
+                SourceFileIndex = 0,
+                TargetFileIndex = 0,  // Same file
+                NewIndex = 0
+            };
+
+            // Act
+            MessageExchange.Instance.Publish(message);
+
+            // Assert
+            Assert.AreEqual(3, configFile.ConfigItems.Count, "File should still have same number of items");
+            Assert.AreEqual(configItem2.GUID, configFile.ConfigItems[0].GUID, "Item2 should be moved to position 0");
+            Assert.AreEqual(configItem1.GUID, configFile.ConfigItems[1].GUID, "Item1 should be shifted to position 1");
+            Assert.AreEqual(configItem3.GUID, configFile.ConfigItems[2].GUID, "Item3 should remain at position 2");
+        }
+
+        [TestMethod]
+        public void CommandResortConfigItem_HandlesMultipleItems()
+        {
+            // Arrange
+            var configItem1 = new OutputConfigItem { GUID = Guid.NewGuid().ToString(), Name = "Item1", Active = true };
+            var configItem2 = new OutputConfigItem { GUID = Guid.NewGuid().ToString(), Name = "Item2", Active = true };
+            var configItem3 = new OutputConfigItem { GUID = Guid.NewGuid().ToString(), Name = "Item3", Active = true };
+            var configItem4 = new OutputConfigItem { GUID = Guid.NewGuid().ToString(), Name = "Item4", Active = true };
+
+            var sourceFile = new ConfigFile() { ConfigItems = { configItem1, configItem2, configItem3 } };
+            var targetFile = new ConfigFile() { ConfigItems = { configItem4 } };
+            
+            var project = new Project();
+            project.ConfigFiles.Add(sourceFile);  // Index 0
+            project.ConfigFiles.Add(targetFile);  // Index 1
+            _executionManager.Project = project;
+
+            // Move multiple items (item1 and item3) to target file
+            var message = new CommandResortConfigItem
+            {
+                Items = new[] 
+                { 
+                    new OutputConfigItem { GUID = configItem1.GUID },
+                    new OutputConfigItem { GUID = configItem3.GUID }
+                },
+                SourceFileIndex = 0,
+                TargetFileIndex = 1,
+                NewIndex = 1  // Insert after configItem4
+            };
+
+            // Act
+            MessageExchange.Instance.Publish(message);
+
+            // Assert
+            Assert.AreEqual(1, sourceFile.ConfigItems.Count, "Source file should have 2 less items");
+            Assert.AreEqual(configItem2.GUID, sourceFile.ConfigItems[0].GUID, "Only item2 should remain in source file");
+            
+            Assert.AreEqual(3, targetFile.ConfigItems.Count, "Target file should have 2 more items");
+            Assert.AreEqual(configItem4.GUID, targetFile.ConfigItems[0].GUID, "Original target item should remain at position 0");
+            Assert.AreEqual(configItem1.GUID, targetFile.ConfigItems[1].GUID, "First moved item should be at position 1");
+            Assert.AreEqual(configItem3.GUID, targetFile.ConfigItems[2].GUID, "Second moved item should be at position 2");
         }
     }
 }

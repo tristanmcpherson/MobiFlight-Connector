@@ -43,7 +43,7 @@ namespace MobiFlight.UI.Dialogs
 #if ARCAZE
         Dictionary<string, ArcazeModuleSettings> moduleSettings;
 #endif
-        
+
         ButtonStyle ScanForInputButtonDefaultStyle;
         Dictionary<string, int> ScanForInputThreshold = new Dictionary<string, int>();
 
@@ -748,9 +748,10 @@ namespace MobiFlight.UI.Dialogs
         {
             if (!InputThresholdIsExceeded(e)) return;
 
-            // For buttons, only the "positive" PRESS events matter
-            if (e.Type == DeviceType.Button && e.Value != (int)MobiFlightButton.InputEvent.PRESS)
+            // Only the "positive" PRESS events matter for buttons
+            if (e.Type == DeviceType.Button)
             {
+                if (e.Value != (int)MobiFlightButton.InputEvent.PRESS)
                 return;
             }
 
@@ -760,7 +761,7 @@ namespace MobiFlight.UI.Dialogs
                 return;
             }
 
-            var module = inputModuleNameComboBox.Items.Cast<ListItem>().Where(i => i.Value.ToString().Contains(e.Serial)).First();
+            var module = inputModuleNameComboBox.Items.Cast<ListItem>().Where(i => i.Value.ToString().Contains(e.Serial)).FirstOrDefault();
 
             if (module == null) { return; }
             inputModuleNameComboBox.SelectedItem = module;
@@ -787,12 +788,11 @@ namespace MobiFlight.UI.Dialogs
             {
                 ComboBoxHelper.SetSelectedItem(inputTypeComboBox, e.DeviceId);
                 // if multiplexer or inputshiftregister set the sub item too
-                if (e.Type == DeviceType.InputMultiplexer || e.Type == DeviceType.InputShiftRegister)
+                if (e.ExtPin.HasValue)
                 {
                     ComboBoxHelper.SetSelectedItem(inputPinDropDown, e.ExtPin.ToString());
                 }
             }
-
 
             DeactivateScanForInputMode();
         }
