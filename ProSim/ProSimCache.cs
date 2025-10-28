@@ -434,7 +434,7 @@ mutation {{
             return _connected && _connection != null;
         }
 
-        public double readDataref(string datarefPath)
+        public object readDataref(string datarefPath)
         {
             if (!IsConnected())
             {
@@ -449,17 +449,29 @@ mutation {{
                     return 0;
                 }
 
-                if (!_subscribedDataRefs.ContainsKey(datarefPath))
+                lock (_subscribedDataRefs)
                 {
-                    // Wait for data to be returned by the subscription
-                    return 0;
+                    if (!_subscribedDataRefs.ContainsKey(datarefPath))
+                    {
+                        // Wait for data to be returned by the subscription
+                        return 0;
+                    }
+                
+                    // Return the cached value (continuously updated by the subscription)
+                    var value = _subscribedDataRefs[datarefPath].Value;
+
+
+                    if (_subscribedDataRefs[datarefPath].DataRefDescription.DataType == "System.String")
+                    {
+                        return value;
+                    }
+                    
+                    var returnValue = (value == null) ? 0 : Convert.ToDouble(value);
+
+                    return returnValue;
                 }
                 
-                // Return the cached value (continuously updated by the subscription)
-                var value = _subscribedDataRefs[datarefPath].Value;
-                var returnValue = (value == null) ? 0 : Convert.ToDouble(value);
 
-                return returnValue;
             }
             catch (Exception ex)
             {
@@ -517,7 +529,7 @@ mutation {{
                     }
                     else if (targetDataType == "System.Boolean")
                     {
-                        transformedValue = Convert.ToInt32(value) > 0;
+                        transformedValue = Convert.ToBoolean(value);
                     }
                 }
                 catch
