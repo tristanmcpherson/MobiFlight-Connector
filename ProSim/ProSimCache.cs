@@ -457,10 +457,11 @@ mutation {{
                         return (double)0;
                     }
 
-                    // Return the cached value (continuously updated by the subscription)
-                    var value = _subscribedDataRefs[datarefPath].Value;
+                    // Cache the dictionary value to avoid redundant lookups
+                    var subscribedDataRef = _subscribedDataRefs[datarefPath];
+                    var value = subscribedDataRef.Value;
 
-                    if (_subscribedDataRefs[datarefPath].DataRefDescription.DataType == "System.String")
+                    if (subscribedDataRef.DataRefDescription.DataType == "System.String")
                     {
                         return value;
                     }
