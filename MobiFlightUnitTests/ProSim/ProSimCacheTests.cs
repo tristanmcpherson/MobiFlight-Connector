@@ -8,6 +8,7 @@ using Moq;
 using GraphQL.Client.Http;
 using GraphQL;
 using GraphQL.Client.Serializer.Newtonsoft;
+using GraphQL.Client.Abstractions.Websocket;
 
 namespace MobiFlight.Tests.ProSim
 {
@@ -118,7 +119,7 @@ namespace MobiFlight.Tests.ProSim
             var capturedQuery = "";
 
             // Mock the GraphQL client
-            var mockClient = new Mock<GraphQLHttpClient>("http://localhost:8080/graphql", new NewtonsoftJsonSerializer());
+            var mockClient = new Mock<IGraphQLWebSocketClient>();
             mockClient.Setup(c => c.SendMutationAsync<object>(It.IsAny<GraphQLRequest>(), default))
                 .Callback<GraphQLRequest, System.Threading.CancellationToken>((request, ct) =>
                 {
@@ -161,7 +162,7 @@ namespace MobiFlight.Tests.ProSim
             var capturedQuery = "";
 
             // Mock the GraphQL client
-            var mockClient = new Mock<GraphQLHttpClient>("http://localhost:8080/graphql", new NewtonsoftJsonSerializer());
+            var mockClient = new Mock<IGraphQLWebSocketClient>();
             mockClient.Setup(c => c.SendMutationAsync<object>(It.IsAny<GraphQLRequest>(), default))
                 .Callback<GraphQLRequest, System.Threading.CancellationToken>((request, ct) =>
                 {
@@ -204,7 +205,7 @@ namespace MobiFlight.Tests.ProSim
             var capturedQuery = "";
 
             // Mock the GraphQL client
-            var mockClient = new Mock<GraphQLHttpClient>("http://localhost:8080/graphql", new NewtonsoftJsonSerializer());
+            var mockClient = new Mock<IGraphQLWebSocketClient>();
             mockClient.Setup(c => c.SendMutationAsync<object>(It.IsAny<GraphQLRequest>(), default))
                 .Callback<GraphQLRequest, System.Threading.CancellationToken>((request, ct) =>
                 {
@@ -247,7 +248,7 @@ namespace MobiFlight.Tests.ProSim
             var capturedQuery = "";
 
             // Mock the GraphQL client
-            var mockClient = new Mock<GraphQLHttpClient>("http://localhost:8080/graphql", new NewtonsoftJsonSerializer());
+            var mockClient = new Mock<IGraphQLWebSocketClient>();
             mockClient.Setup(c => c.SendMutationAsync<object>(It.IsAny<GraphQLRequest>(), default))
                 .Callback<GraphQLRequest, System.Threading.CancellationToken>((request, ct) =>
                 {
@@ -288,7 +289,7 @@ namespace MobiFlight.Tests.ProSim
             var mutationSent = false;
 
             // Mock the GraphQL client
-            var mockClient = new Mock<GraphQLHttpClient>("http://localhost:8080/graphql", new NewtonsoftJsonSerializer());
+            var mockClient = new Mock<IGraphQLWebSocketClient>();
             mockClient.Setup(c => c.SendMutationAsync<object>(It.IsAny<GraphQLRequest>(), default))
                 .Callback<GraphQLRequest, System.Threading.CancellationToken>((request, ct) =>
                 {
@@ -319,7 +320,7 @@ namespace MobiFlight.Tests.ProSim
         }
 
         // Helper method to set up connected cache state using reflection
-        private void SetupConnectedCache(ProSimCache cache, GraphQLHttpClient mockClient, Dictionary<string, DataRefDescription> dataRefDescriptions)
+        private void SetupConnectedCache(ProSimCache cache, IGraphQLWebSocketClient mockClient, Dictionary<string, DataRefDescription> dataRefDescriptions)
         {
             var type = typeof(ProSimCache);
 

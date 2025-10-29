@@ -25,7 +25,7 @@ namespace MobiFlight.ProSim
         private readonly Dictionary<string, IDisposable> _subscriptions = new Dictionary<string, IDisposable>();
 
         // ProSim SDK object
-        private GraphQLHttpClient _connection;
+        private IGraphQLWebSocketClient _connection;
         
         // Heartbeat timer to keep WebSocket connection active
         private Timer _heartbeatTimer;
@@ -438,7 +438,7 @@ mutation {{
         {
             if (!IsConnected())
             {
-                return 0;
+                return (double)0;
             }
 
             try
@@ -446,7 +446,7 @@ mutation {{
                 if (!_subscriptions.ContainsKey(datarefPath))
                 {
                     SubscribeToDataRef(datarefPath);
-                    return 0;
+                    return (double)0;
                 }
 
                 lock (_subscribedDataRefs)
@@ -454,7 +454,7 @@ mutation {{
                     if (!_subscribedDataRefs.ContainsKey(datarefPath))
                     {
                         // Wait for data to be returned by the subscription
-                        return 0;
+                        return (double)0;
                     }
                 
                     // Return the cached value (continuously updated by the subscription)
@@ -476,7 +476,7 @@ mutation {{
             catch (Exception ex)
             {
                 Log.Instance.log($"Error reading dataref {datarefPath}: {ex.Message}", LogSeverity.Error);
-                return 0;
+                return (double)0;
             }
         }
 
