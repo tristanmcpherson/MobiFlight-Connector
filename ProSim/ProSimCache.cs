@@ -456,21 +456,19 @@ mutation {{
                         // Wait for data to be returned by the subscription
                         return (double)0;
                     }
-                
+
                     // Return the cached value (continuously updated by the subscription)
                     var value = _subscribedDataRefs[datarefPath].Value;
-
 
                     if (_subscribedDataRefs[datarefPath].DataRefDescription.DataType == "System.String")
                     {
                         return value;
                     }
-                    
+
                     var returnValue = (value == null) ? 0 : Convert.ToDouble(value);
 
                     return returnValue;
                 }
-                
 
             }
             catch (Exception ex)
