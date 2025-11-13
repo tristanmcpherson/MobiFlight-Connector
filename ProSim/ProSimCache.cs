@@ -24,7 +24,7 @@ namespace MobiFlight.ProSim
 
         private readonly Dictionary<string, IDisposable> _subscriptions = new Dictionary<string, IDisposable>();
 
-        // ProSim SDK object
+        // ProSim SDK object 
         private IGraphQLWebSocketClient _connection;
         
         // Heartbeat timer to keep WebSocket connection active
