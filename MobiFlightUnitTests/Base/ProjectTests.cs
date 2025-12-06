@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using MobiFlight.Base;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 using System.Linq;
 
@@ -748,5 +749,45 @@ namespace MobiFlight.Base.Tests
             Assert.AreEqual(2, project.Controllers.Count);
         }
         #endregion
+
+        [TestMethod()]
+        public void MigrateFileExtensionTest()
+        {
+            var project = new Project();
+
+            var testExtensions = new[]
+            {
+                "Extension.FilePath.mcc",
+                "Extension.FilePath.MCC",
+                "Extension.FilePath.aic",
+                "Extension.FilePath.AIC",
+                "Extension.FilePath.mfproj",
+            };
+           
+            var mfprojExtension = "Extension.FilePath.mfproj";
+
+            testExtensions.ToList().ForEach(ext =>
+            {
+                project.FilePath = ext;
+                var result = project.MigrateFileExtension();
+                Assert.AreEqual(mfprojExtension, project.FilePath, "Extension was not migrated to .mfproj");
+                Assert.AreEqual(project.FilePath, result, "Return value should be the same as FilePath value");
+            });
+
+            var invalidExtensions = new[]
+            {
+                "Extension.FilePath.txt",
+                "Extension.FilePath.json",
+                "Extension.FilePath.xml",
+                "Extension.FilePath.config",
+            };
+
+            invalidExtensions.ToList().ForEach(ext => {
+                project.FilePath = ext;
+                var result = project.MigrateFileExtension();
+                Assert.AreEqual(ext, project.FilePath, "Extension should not be changed for invalid extensions");
+                Assert.AreEqual(project.FilePath, result, "Return value should be the same as FilePath value");
+            });
+        }
     }
 }
