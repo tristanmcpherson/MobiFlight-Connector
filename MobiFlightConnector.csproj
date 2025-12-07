@@ -281,6 +281,7 @@
     <Compile Include="Base\Project.cs" />
     <Compile Include="Base\Serialization\Json\DeviceConfigConverter.cs" />
     <Compile Include="Base\Serialization\Json\ConfigValueOnlyItemConverter.cs" />
+    <Compile Include="Base\Serialization\Json\PreconditionConverter.cs" />
     <Compile Include="Base\Serialization\Json\SourceConverter.cs" />
     <Compile Include="Base\Settings.cs" />
     <Compile Include="Base\i18n.cs" />
