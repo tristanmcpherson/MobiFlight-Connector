@@ -205,11 +205,19 @@ namespace MobiFlight.ProSim
                 else
                 {
                     // Create new cache entry
-                    _subscribedDataRefs[datarefPath] = new CachedDataRef
+                    var newCachedRef = new CachedDataRef
                     {
                         Path = datarefPath,
                         Value = value,
                     };
+
+                    // Set DataRefDescription if available
+                    if (_dataRefDescriptions.TryGetValue(datarefPath, out var description))
+                    {
+                        newCachedRef.DataRefDescription = description;
+                    }
+
+                    _subscribedDataRefs[datarefPath] = newCachedRef;
                 }
             }
         }
