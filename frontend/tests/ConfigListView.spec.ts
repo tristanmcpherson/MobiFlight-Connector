@@ -883,11 +883,11 @@ test("Confirm Raw and Final Value update correctly", async ({
   await configListPage.gotoPage()
   await configListPage.mobiFlightPage.initWithTestData()
 
-  const rawValue = page.getByRole("row").nth(1).getByTitle("RawValue")
+  const rawValue = page.getByRole("row").nth(1).getByTestId("raw-value")
   const finalValue = page
     .getByRole("row")
     .nth(1)
-    .getByTitle("Value", { exact: true })
+    .getByTestId("final-value")
 
   await configListPage.updateConfigItemRawAndFinalValue(0, "1234", "5678")
   await expect(rawValue).toHaveText("1234")
