@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <ModuleType>MobiFlight Mega</ModuleType>
-  <ModuleName>Prototyping Board (Multiplexer)</ModuleName>
+  <ModuleName>Prototyping Board (Multiplexer SMD)</ModuleName>
   <PowerSavingTime>600</PowerSavingTime>
+  <Button Name="Button 1" Pin="2" />
+  <Button Name="Button 2" Pin="3" />
   <Button Name="Button 3" Pin="4" />
   <Button Name="Button 4" Pin="5" />
   <Button Name="Button 5" Pin="6" />
@@ -23,8 +25,6 @@
   <Button Name="Switch 4-3" Pin="19" />
   <Button Name="Switch 5-1" Pin="48" />
   <Button Name="Switch 5-3" Pin="50" />
-  <Button Name="Switch 6-1" Pin="58" />
-  <Button Name="Switch 6-3" Pin="57" />
   <Button Name="Switch 7-1" Pin="60" />
   <Button Name="Switch 7-3" Pin="59" />
   <Button Name="Switch 8-1" Pin="62" />
@@ -52,10 +52,10 @@
   <AnalogInput Name="POT 1" Pin="54" Sensitivity="5" />
   <AnalogInput Name="POT 2" Pin="55" Sensitivity="5" />
   <AnalogInput Name="POT 3" Pin="56" Sensitivity="5" />
-  <InputMultiplexer Name="Multiplexer 1-1" DataPin="2" NumBytes="2">
+  <InputMultiplexer Name="Multiplexer 1-1" DataPin="57" NumBytes="2">
     <Selector Name="MultiplexerDriver" PinSx="37 39 41 43" />
   </InputMultiplexer>
-  <InputMultiplexer Name="Multiplexer 1-2" DataPin="3" NumBytes="2">
+  <InputMultiplexer Name="Multiplexer 1-2" DataPin="58" NumBytes="2">
     <Selector Name="MultiplexerDriver" PinSx="37 39 41 43" />
   </InputMultiplexer>
 </Config>
