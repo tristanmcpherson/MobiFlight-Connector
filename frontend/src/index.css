@@ -1,6 +1,6 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
-@plugin 'tailwindcss-animate';
+@plugin "tailwindcss-animate";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -197,6 +197,22 @@
   button:not(:disabled),
   [role="button"]:not(:disabled) {
     cursor: pointer;
+  }
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .inset-shadow-l-sm {
+    --tw-inset-shadow: inset 0 0 2px var(--tw-inset-shadow-color, rgb(0 0 0 / 0.05));
+    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+    clip-path: inset(0px 0px 0px 2px);
   }
 }
 

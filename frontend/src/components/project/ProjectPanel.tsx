@@ -1,20 +1,10 @@
-import FileButton from "./FileButton"
+import { ProfileTab } from "./ProfileTab"
+import { AddProfileTabMenu } from "./ProfileTab/AddProfileTabMenu"
 import { Button } from "../ui/button"
-import {
-  IconChevronLeft,
-  IconFolderPlus,
-  IconMinusVertical,
-  IconPlus,
-} from "@tabler/icons-react"
+import { IconChevronLeft, IconMinusVertical } from "@tabler/icons-react"
 import { publishOnMessageExchange } from "@/lib/hooks/appMessage"
 import { useProjectStore } from "@/stores/projectStore"
 import { useCallback, useEffect, useRef, useState } from "react"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "../ui/dropdown-menu"
 import { useTranslation } from "react-i18next"
 import ExecutionToolbar from "../ExecutionToolbar"
 import ProjectNameLabel from "./ProjectNameLabel"
@@ -22,12 +12,23 @@ import { useConfigItemDragContext } from "@/lib/hooks/useConfigItemDragContext"
 import { useNavigate } from "react-router"
 import { Dialog, DialogTitle } from "@radix-ui/react-dialog"
 import { DialogContent, DialogHeader } from "@/components/ui/dialog"
+import { useWindowSize } from "@/lib/hooks/useWindowSize"
+import { useOverflowDetector } from "@/lib/hooks/useOverflowDetector"
 
 const ProjectPanel = () => {
+  const SCROLL_TAB_INTO_VIEW_DELAY_MS = 1500
+
+  const overflowRef = useRef<HTMLDivElement | null>(null)
+
   const { t } = useTranslation()
   const { publish } = publishOnMessageExchange()
   const navigate = useNavigate()
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const { width, height } = useWindowSize()
+  const { overflow, checkOverflow } = useOverflowDetector(overflowRef)
+
+  // Track previous width and height
+  const prevWindowSizeRef = useRef({ width, height })
 
   const {
     activeConfigFileIndex,
@@ -65,6 +66,72 @@ const ProjectPanel = () => {
       },
     })
   }, [activeConfigFileIndex])
+
+  useEffect(() => {
+    checkOverflow()
+  }, [activeConfigFileIndex, checkOverflow])
+
+  const scrollIntoViewTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const scrollIntervalRef = useRef<NodeJS.Timeout | null>(null)
+
+  const scrollActiveProfileTabIntoView = useCallback(() => {
+    if (activeConfigFileIndex === -1) return
+
+    activeProfileTabRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest",
+    })
+  }, [activeConfigFileIndex])
+
+  const resetScrollActiveProfileTabIntoView = useCallback(() => {
+    if (scrollIntoViewTimeoutRef.current == null) return
+    clearTimeout(scrollIntoViewTimeoutRef.current)
+    scrollIntoViewTimeoutRef.current = null
+  }, [])
+
+  const scrollActiveProfileTabIntoViewWithDelay = useCallback(() => {
+    if (!activeProfileTabRef.current) return
+
+    resetScrollActiveProfileTabIntoView()
+
+    scrollIntoViewTimeoutRef.current = setTimeout(
+      scrollActiveProfileTabIntoView,
+      SCROLL_TAB_INTO_VIEW_DELAY_MS,
+    )
+  }, [scrollActiveProfileTabIntoView, resetScrollActiveProfileTabIntoView])
+
+  useEffect(() => {
+    // scroll tab into view
+    // when activeConfigFileIndex changes
+    resetScrollActiveProfileTabIntoView()
+    scrollActiveProfileTabIntoView()
+  }, [
+    activeConfigFileIndex,
+    scrollActiveProfileTabIntoView,
+    resetScrollActiveProfileTabIntoView,
+  ])
+
+  const handleMouseWheel = (event: React.WheelEvent) => {
+    if (overflowRef.current === null) return
+    const scrollContainer = overflowRef.current
+    if (!scrollContainer) return
+
+    event.stopPropagation()
+    const newScrollLeft = scrollContainer.scrollLeft + event.deltaY
+    scrollContainer.scrollLeft = newScrollLeft
+  }
+
+  useEffect(() => {
+    if (
+      prevWindowSizeRef.current.width === width &&
+      prevWindowSizeRef.current.height === height
+    )
+      return
+    prevWindowSizeRef.current = { width, height }
+    // scroll tab into view
+    // when window size changes
+    scrollActiveProfileTabIntoViewWithDelay()
+  }, [width, height, scrollActiveProfileTabIntoViewWithDelay])
 
   const addConfigFile = () => {
     publishOnMessageExchange().publish({
@@ -132,6 +199,8 @@ const ProjectPanel = () => {
 
   // Hover timer ref
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const activeProfileTabRef = useRef<HTMLDivElement | null>(null)
+
   useEffect(() => {
     if (
       dragState?.ui.hoveredTabIndex !== undefined &&
@@ -148,12 +217,32 @@ const ProjectPanel = () => {
     }
   }, [dragState?.ui.hoveredTabIndex, selectActiveFile])
 
+  // clear timers on unmount
+  useEffect(() => {
+    return () => {
+      if (scrollIntoViewTimeoutRef.current) {
+        clearTimeout(scrollIntoViewTimeoutRef.current)
+        scrollIntoViewTimeoutRef.current = null
+      }
+      if (hoverTimeoutRef.current) {
+        clearTimeout(hoverTimeoutRef.current)
+        hoverTimeoutRef.current = null
+      }
+      if (scrollIntervalRef.current) {
+        clearInterval(scrollIntervalRef.current)
+        scrollIntervalRef.current = null
+      }
+    }
+  }, [])
+
   return (
     <div
-      className="border-b-solid border-b-muted-foreground/50 flex flex-row gap-2 border-b pt-1 pr-2 pb-0 pl-0"
+      className="flex h-11 flex-row gap-0 pt-1 pr-2 pb-0 pl-0"
       data-testid="project-panel"
+      onMouseEnter={resetScrollActiveProfileTabIntoView}
+      onMouseLeave={scrollActiveProfileTabIntoViewWithDelay}
     >
-      <div className="flex flex-row items-center gap-2">
+      <div className="border-muted-foreground/50 flex flex-row items-center gap-2 border-b border-solid px-2">
         <IconChevronLeft
           role="button"
           onClick={() => {
@@ -166,57 +255,83 @@ const ProjectPanel = () => {
           }}
         />
       </div>
+
       <div className="border-muted-foreground/50 flex flex-row items-center rounded-md rounded-br-none rounded-bl-none border border-b-0 border-solid px-2">
         <ProjectNameLabel />
         <IconMinusVertical className="stroke-muted-foreground/50" />
         <ExecutionToolbar />
       </div>
 
-      <div className="flex flex-row items-end gap-0 rounded-md" role="tablist">
-        {configFiles?.map((file, index) => {
-          return (
-            <FileButton
-              key={index}
-              variant={
-                index === activeConfigFileIndex
-                  ? "tabActive"
-                  : dragState?.ui.hoveredTabIndex === index
-                    ? "tabDragging"
-                    : "tabDefault"
-              }
-              file={file}
-              index={index}
-              selectActiveFile={selectActiveFile}
-            ></FileButton>
-          )
-        })}
+      <div className="border-muted-foreground/50 flex w-0 flex-col items-center gap-1 border-b py-0.5"></div>
+
+      <div className="relative h-full min-h-10 grow" role="tablist">
+        <div
+          className="no-scrollbar absolute inset-0 overflow-x-auto overflow-y-hidden"
+          ref={overflowRef}
+          onWheel={handleMouseWheel}
+        >
+          <div className="flex h-full flex-row">
+            {configFiles?.map((file, index) => {
+              return (
+                <ProfileTab
+                  key={index}
+                  ref={
+                    index === activeConfigFileIndex ? activeProfileTabRef : null
+                  }
+                  variant={
+                    index === activeConfigFileIndex
+                      ? "tabActive"
+                      : dragState?.ui.hoveredTabIndex === index
+                        ? "tabDragging"
+                        : "tabDefault"
+                  }
+                  file={file}
+                  index={index}
+                  selectActiveFile={selectActiveFile}
+                  resizeCallback={checkOverflow}
+                />
+              )
+            })}
+            {!overflow.right && (
+              <AddProfileTabMenu
+                data-testid="add-profile-tab-menu-regular"
+                onAddConfigFile={addConfigFile}
+                onMergeConfigFile={mergeConfigFile}
+                onMouseEnter={resetScrollActiveProfileTabIntoView}
+                onMouseLeave={scrollActiveProfileTabIntoViewWithDelay}
+              />
+            )}
+            <div className="border-muted-foreground/50 grow border-b"></div>
+          </div>
+        </div>
+        {/* Left shadow */}
+        {overflow.left && (
+          <div
+            data-testid="tab-overflow-indicator-left"
+            className="from-foreground/20 dark:from-background/50 pointer-events-none absolute top-0 bottom-0 left-0 z-20 w-2 rounded-tl-sm bg-linear-to-r to-transparent pb-1 dark:bottom-0.5 dark:w-3"
+          />
+        )}
+        {/* Right shadow */}
+        {overflow.right && (
+          <div
+            data-testid="tab-overflow-indicator-right"
+            className="from-foreground/20 dark:from-background/50 pointer-events-none absolute top-0 right-0 bottom-0 z-200 w-2 bg-linear-to-l to-transparent pb-1"
+          />
+        )}
       </div>
-      <div className="relative">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <div className="py-1">
-              <Button variant={"ghost"} className="h-8 px-2">
-                <span className="sr-only">{t("General.Action.OpenMenu")}</span>
-                <IconPlus />
-              </Button>
-            </div>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="start">
-            <DropdownMenuItem onClick={addConfigFile}>
-              <IconPlus />
-              {t("Project.File.Action.New")}
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={mergeConfigFile}>
-              <IconFolderPlus />
-              {t("Project.File.Action.Merge")}
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
+      {overflow.right && (
+        <AddProfileTabMenu
+          data-testid="add-profile-tab-menu-overflow"
+          onAddConfigFile={addConfigFile}
+          onMergeConfigFile={mergeConfigFile}
+          onMouseEnter={resetScrollActiveProfileTabIntoView}
+          onMouseLeave={scrollActiveProfileTabIntoViewWithDelay}
+        />
+      )}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent>
           <DialogHeader className="sr-only">
-            <DialogTitle >{t("Project.UnsavedChanges.Title")}</DialogTitle>
+            <DialogTitle>{t("Project.UnsavedChanges.Title")}</DialogTitle>
           </DialogHeader>
           <div>{t("Project.UnsavedChanges.Description")}</div>
           <div className="flex flex-row justify-end gap-4">
