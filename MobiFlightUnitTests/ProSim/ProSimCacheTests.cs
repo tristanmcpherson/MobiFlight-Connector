@@ -150,8 +150,9 @@ namespace MobiFlight.Tests.ProSim
                 $"Expected mutation to contain 'writeBoolean', but got: {capturedQuery}");
             Assert.IsTrue(capturedQuery.Contains($"\"{datarefPath}\""),
                 $"Expected mutation to contain dataref path, but got: {capturedQuery}");
-            Assert.IsTrue(capturedQuery.Contains("True") || capturedQuery.Contains("true"),
-                $"Expected mutation to contain boolean value, but got: {capturedQuery}");
+            // GraphQL requires lowercase 'true'/'false' for booleans
+            Assert.IsTrue(capturedQuery.Contains("true"),
+                $"Expected mutation to contain lowercase 'true', but got: {capturedQuery}");
         }
 
         [TestMethod()]
@@ -238,6 +239,88 @@ namespace MobiFlight.Tests.ProSim
                 $"Expected mutation to contain dataref path, but got: {capturedQuery}");
             Assert.IsTrue(capturedQuery.Contains("3.14"),
                 $"Expected mutation to contain double value 3.14, but got: {capturedQuery}");
+        }
+
+        [TestMethod()]
+        public void WriteDataref_Boolean_ConvertsIntegerOneToTrue()
+        {
+            // Arrange
+            var datarefPath = "test/boolean/dataref";
+            var capturedQuery = "";
+
+            // Mock the GraphQL client
+            var mockClient = new Mock<IGraphQLWebSocketClient>();
+            mockClient.Setup(c => c.SendMutationAsync<object>(It.IsAny<GraphQLRequest>(), default))
+                .Callback<GraphQLRequest, System.Threading.CancellationToken>((request, ct) =>
+                {
+                    capturedQuery = request.Query;
+                })
+                .ReturnsAsync(new GraphQL.GraphQLResponse<object>());
+
+            // Use reflection to set up the cache state
+            SetupConnectedCache(_cache, mockClient.Object, new Dictionary<string, DataRefDescription>
+            {
+                { datarefPath, new DataRefDescription
+                    {
+                        Name = datarefPath,
+                        CanWrite = true,
+                        DataType = "System.Boolean"
+                    }
+                }
+            });
+
+            // Act - pass integer 1 which should be converted to boolean true
+            _cache.writeDataref(datarefPath, 1);
+
+            // Wait a bit for async operation
+            System.Threading.Thread.Sleep(100);
+
+            // Assert
+            Assert.IsTrue(capturedQuery.Contains("writeBoolean"),
+                $"Expected mutation to contain 'writeBoolean', but got: {capturedQuery}");
+            Assert.IsTrue(capturedQuery.Contains("true"),
+                $"Expected mutation to contain lowercase 'true' for value 1, but got: {capturedQuery}");
+        }
+
+        [TestMethod()]
+        public void WriteDataref_Boolean_ConvertsIntegerZeroToFalse()
+        {
+            // Arrange
+            var datarefPath = "test/boolean/dataref";
+            var capturedQuery = "";
+
+            // Mock the GraphQL client
+            var mockClient = new Mock<IGraphQLWebSocketClient>();
+            mockClient.Setup(c => c.SendMutationAsync<object>(It.IsAny<GraphQLRequest>(), default))
+                .Callback<GraphQLRequest, System.Threading.CancellationToken>((request, ct) =>
+                {
+                    capturedQuery = request.Query;
+                })
+                .ReturnsAsync(new GraphQL.GraphQLResponse<object>());
+
+            // Use reflection to set up the cache state
+            SetupConnectedCache(_cache, mockClient.Object, new Dictionary<string, DataRefDescription>
+            {
+                { datarefPath, new DataRefDescription
+                    {
+                        Name = datarefPath,
+                        CanWrite = true,
+                        DataType = "System.Boolean"
+                    }
+                }
+            });
+
+            // Act - pass integer 0 which should be converted to boolean false
+            _cache.writeDataref(datarefPath, 0);
+
+            // Wait a bit for async operation
+            System.Threading.Thread.Sleep(100);
+
+            // Assert
+            Assert.IsTrue(capturedQuery.Contains("writeBoolean"),
+                $"Expected mutation to contain 'writeBoolean', but got: {capturedQuery}");
+            Assert.IsTrue(capturedQuery.Contains("false"),
+                $"Expected mutation to contain lowercase 'false' for value 0, but got: {capturedQuery}");
         }
 
         [TestMethod()]

@@ -267,13 +267,18 @@ namespace MobiFlight.ProSim
                     return;
                 }
 
+                // Format value correctly for GraphQL - booleans must be lowercase
+                var formattedValue = value is bool boolValue
+                    ? (boolValue ? "true" : "false")
+                    : value.ToString();
+
                 Task.Run(async () => {
                     try
                     {
                         var query = $@"
 mutation {{
 	dataRef {{
-		{method}(name: ""{datarefPath}"", value: {value})
+		{method}(name: ""{datarefPath}"", value: {formattedValue})
 	}}
 }}";
                         await _connection.SendMutationAsync<object>(new GraphQL.GraphQLRequest
