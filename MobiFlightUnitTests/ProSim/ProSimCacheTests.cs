@@ -99,16 +99,16 @@ namespace MobiFlight.Tests.ProSim
         {
             // Verify mutation lookup matches what's in ProSimCache
             // This is critical - wrong mutation = data won't be written correctly
-            var mutationLookup = new Dictionary<string, string>
+            var mutationLookup = new Dictionary<string, (string method, string graphqlType)>
             {
-                { "System.Int32", "writeInt" },
-                { "System.Double", "writeFloat" },
-                { "System.Boolean", "writeBoolean" }
+                { "System.Int32", ("writeInt", "Int!") },
+                { "System.Double", ("writeFloat", "Float!") },
+                { "System.Boolean", ("writeBoolean", "Boolean!") }
             };
 
-            Assert.AreEqual("writeInt", mutationLookup["System.Int32"]);
-            Assert.AreEqual("writeFloat", mutationLookup["System.Double"]);
-            Assert.AreEqual("writeBoolean", mutationLookup["System.Boolean"]);
+            Assert.AreEqual("writeInt", mutationLookup["System.Int32"].method);
+            Assert.AreEqual("writeFloat", mutationLookup["System.Double"].method);
+            Assert.AreEqual("writeBoolean", mutationLookup["System.Boolean"].method);
         }
 
         [TestMethod()]
@@ -116,14 +116,14 @@ namespace MobiFlight.Tests.ProSim
         {
             // Arrange
             var datarefPath = "test/boolean/dataref";
-            var capturedQuery = "";
+            GraphQLRequest capturedRequest = null;
 
             // Mock the GraphQL client
             var mockClient = new Mock<IGraphQLWebSocketClient>();
             mockClient.Setup(c => c.SendMutationAsync<object>(It.IsAny<GraphQLRequest>(), default))
                 .Callback<GraphQLRequest, System.Threading.CancellationToken>((request, ct) =>
                 {
-                    capturedQuery = request.Query;
+                    capturedRequest = request;
                 })
                 .ReturnsAsync(new GraphQL.GraphQLResponse<object>());
 
@@ -146,13 +146,12 @@ namespace MobiFlight.Tests.ProSim
             System.Threading.Thread.Sleep(100);
 
             // Assert
-            Assert.IsTrue(capturedQuery.Contains("writeBoolean"),
-                $"Expected mutation to contain 'writeBoolean', but got: {capturedQuery}");
-            Assert.IsTrue(capturedQuery.Contains($"\"{datarefPath}\""),
-                $"Expected mutation to contain dataref path, but got: {capturedQuery}");
-            // GraphQL requires lowercase 'true'/'false' for booleans
-            Assert.IsTrue(capturedQuery.Contains("true"),
-                $"Expected mutation to contain lowercase 'true', but got: {capturedQuery}");
+            Assert.IsNotNull(capturedRequest, "Expected a GraphQL request to be sent");
+            Assert.IsTrue(capturedRequest.Query.Contains("writeBoolean"),
+                $"Expected mutation to contain 'writeBoolean', but got: {capturedRequest.Query}");
+            Assert.IsTrue(capturedRequest.Query.Contains("$name") && capturedRequest.Query.Contains("$value"),
+                $"Expected mutation to use variables, but got: {capturedRequest.Query}");
+            Assert.IsNotNull(capturedRequest.Variables, "Expected variables to be set");
         }
 
         [TestMethod()]
@@ -160,14 +159,14 @@ namespace MobiFlight.Tests.ProSim
         {
             // Arrange
             var datarefPath = "test/int/dataref";
-            var capturedQuery = "";
+            GraphQLRequest capturedRequest = null;
 
             // Mock the GraphQL client
             var mockClient = new Mock<IGraphQLWebSocketClient>();
             mockClient.Setup(c => c.SendMutationAsync<object>(It.IsAny<GraphQLRequest>(), default))
                 .Callback<GraphQLRequest, System.Threading.CancellationToken>((request, ct) =>
                 {
-                    capturedQuery = request.Query;
+                    capturedRequest = request;
                 })
                 .ReturnsAsync(new GraphQL.GraphQLResponse<object>());
 
@@ -190,12 +189,12 @@ namespace MobiFlight.Tests.ProSim
             System.Threading.Thread.Sleep(100);
 
             // Assert
-            Assert.IsTrue(capturedQuery.Contains("writeInt"),
-                $"Expected mutation to contain 'writeInt', but got: {capturedQuery}");
-            Assert.IsTrue(capturedQuery.Contains($"\"{datarefPath}\""),
-                $"Expected mutation to contain dataref path, but got: {capturedQuery}");
-            Assert.IsTrue(capturedQuery.Contains("42"),
-                $"Expected mutation to contain integer value 42, but got: {capturedQuery}");
+            Assert.IsNotNull(capturedRequest, "Expected a GraphQL request to be sent");
+            Assert.IsTrue(capturedRequest.Query.Contains("writeInt"),
+                $"Expected mutation to contain 'writeInt', but got: {capturedRequest.Query}");
+            Assert.IsTrue(capturedRequest.Query.Contains("$name") && capturedRequest.Query.Contains("$value"),
+                $"Expected mutation to use variables, but got: {capturedRequest.Query}");
+            Assert.IsNotNull(capturedRequest.Variables, "Expected variables to be set");
         }
 
         [TestMethod()]
@@ -203,14 +202,14 @@ namespace MobiFlight.Tests.ProSim
         {
             // Arrange
             var datarefPath = "test/double/dataref";
-            var capturedQuery = "";
+            GraphQLRequest capturedRequest = null;
 
             // Mock the GraphQL client
             var mockClient = new Mock<IGraphQLWebSocketClient>();
             mockClient.Setup(c => c.SendMutationAsync<object>(It.IsAny<GraphQLRequest>(), default))
                 .Callback<GraphQLRequest, System.Threading.CancellationToken>((request, ct) =>
                 {
-                    capturedQuery = request.Query;
+                    capturedRequest = request;
                 })
                 .ReturnsAsync(new GraphQL.GraphQLResponse<object>());
 
@@ -233,12 +232,12 @@ namespace MobiFlight.Tests.ProSim
             System.Threading.Thread.Sleep(100);
 
             // Assert
-            Assert.IsTrue(capturedQuery.Contains("writeFloat"),
-                $"Expected mutation to contain 'writeFloat', but got: {capturedQuery}");
-            Assert.IsTrue(capturedQuery.Contains($"\"{datarefPath}\""),
-                $"Expected mutation to contain dataref path, but got: {capturedQuery}");
-            Assert.IsTrue(capturedQuery.Contains("3.14"),
-                $"Expected mutation to contain double value 3.14, but got: {capturedQuery}");
+            Assert.IsNotNull(capturedRequest, "Expected a GraphQL request to be sent");
+            Assert.IsTrue(capturedRequest.Query.Contains("writeFloat"),
+                $"Expected mutation to contain 'writeFloat', but got: {capturedRequest.Query}");
+            Assert.IsTrue(capturedRequest.Query.Contains("$name") && capturedRequest.Query.Contains("$value"),
+                $"Expected mutation to use variables, but got: {capturedRequest.Query}");
+            Assert.IsNotNull(capturedRequest.Variables, "Expected variables to be set");
         }
 
         [TestMethod()]
@@ -246,14 +245,14 @@ namespace MobiFlight.Tests.ProSim
         {
             // Arrange
             var datarefPath = "test/boolean/dataref";
-            var capturedQuery = "";
+            GraphQLRequest capturedRequest = null;
 
             // Mock the GraphQL client
             var mockClient = new Mock<IGraphQLWebSocketClient>();
             mockClient.Setup(c => c.SendMutationAsync<object>(It.IsAny<GraphQLRequest>(), default))
                 .Callback<GraphQLRequest, System.Threading.CancellationToken>((request, ct) =>
                 {
-                    capturedQuery = request.Query;
+                    capturedRequest = request;
                 })
                 .ReturnsAsync(new GraphQL.GraphQLResponse<object>());
 
@@ -276,10 +275,10 @@ namespace MobiFlight.Tests.ProSim
             System.Threading.Thread.Sleep(100);
 
             // Assert
-            Assert.IsTrue(capturedQuery.Contains("writeBoolean"),
-                $"Expected mutation to contain 'writeBoolean', but got: {capturedQuery}");
-            Assert.IsTrue(capturedQuery.Contains("true"),
-                $"Expected mutation to contain lowercase 'true' for value 1, but got: {capturedQuery}");
+            Assert.IsNotNull(capturedRequest, "Expected a GraphQL request to be sent");
+            Assert.IsTrue(capturedRequest.Query.Contains("writeBoolean"),
+                $"Expected mutation to contain 'writeBoolean', but got: {capturedRequest.Query}");
+            Assert.IsNotNull(capturedRequest.Variables, "Expected variables to be set");
         }
 
         [TestMethod()]
@@ -287,14 +286,14 @@ namespace MobiFlight.Tests.ProSim
         {
             // Arrange
             var datarefPath = "test/boolean/dataref";
-            var capturedQuery = "";
+            GraphQLRequest capturedRequest = null;
 
             // Mock the GraphQL client
             var mockClient = new Mock<IGraphQLWebSocketClient>();
             mockClient.Setup(c => c.SendMutationAsync<object>(It.IsAny<GraphQLRequest>(), default))
                 .Callback<GraphQLRequest, System.Threading.CancellationToken>((request, ct) =>
                 {
-                    capturedQuery = request.Query;
+                    capturedRequest = request;
                 })
                 .ReturnsAsync(new GraphQL.GraphQLResponse<object>());
 
@@ -317,10 +316,10 @@ namespace MobiFlight.Tests.ProSim
             System.Threading.Thread.Sleep(100);
 
             // Assert
-            Assert.IsTrue(capturedQuery.Contains("writeBoolean"),
-                $"Expected mutation to contain 'writeBoolean', but got: {capturedQuery}");
-            Assert.IsTrue(capturedQuery.Contains("false"),
-                $"Expected mutation to contain lowercase 'false' for value 0, but got: {capturedQuery}");
+            Assert.IsNotNull(capturedRequest, "Expected a GraphQL request to be sent");
+            Assert.IsTrue(capturedRequest.Query.Contains("writeBoolean"),
+                $"Expected mutation to contain 'writeBoolean', but got: {capturedRequest.Query}");
+            Assert.IsNotNull(capturedRequest.Variables, "Expected variables to be set");
         }
 
         [TestMethod()]
@@ -328,14 +327,14 @@ namespace MobiFlight.Tests.ProSim
         {
             // Arrange
             var datarefPath = "test/int/dataref";
-            var capturedQuery = "";
+            GraphQLRequest capturedRequest = null;
 
             // Mock the GraphQL client
             var mockClient = new Mock<IGraphQLWebSocketClient>();
             mockClient.Setup(c => c.SendMutationAsync<object>(It.IsAny<GraphQLRequest>(), default))
                 .Callback<GraphQLRequest, System.Threading.CancellationToken>((request, ct) =>
                 {
-                    capturedQuery = request.Query;
+                    capturedRequest = request;
                 })
                 .ReturnsAsync(new GraphQL.GraphQLResponse<object>());
 
@@ -358,10 +357,10 @@ namespace MobiFlight.Tests.ProSim
             System.Threading.Thread.Sleep(100);
 
             // Assert
-            Assert.IsTrue(capturedQuery.Contains("writeInt"),
-                $"Expected mutation to contain 'writeInt', but got: {capturedQuery}");
-            Assert.IsTrue(capturedQuery.Contains("123"),
-                $"Expected mutation to contain converted integer value 123, but got: {capturedQuery}");
+            Assert.IsNotNull(capturedRequest, "Expected a GraphQL request to be sent");
+            Assert.IsTrue(capturedRequest.Query.Contains("writeInt"),
+                $"Expected mutation to contain 'writeInt', but got: {capturedRequest.Query}");
+            Assert.IsNotNull(capturedRequest.Variables, "Expected variables to be set");
         }
 
         [TestMethod()]

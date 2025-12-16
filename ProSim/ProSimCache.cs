@@ -222,11 +222,11 @@ namespace MobiFlight.ProSim
             }
         }
 
-        private readonly Dictionary<string, string> mutationLookup = new Dictionary<string, string>
+        private readonly Dictionary<string, (string method, string graphqlType)> mutationLookup = new Dictionary<string, (string, string)>
         {
-            { "System.Int32", "writeInt" },
-            { "System.Double", "writeFloat" },
-            { "System.Boolean", "writeBoolean" }
+            { "System.Int32", ("writeInt", "Int!") },
+            { "System.Double", ("writeFloat", "Float!") },
+            { "System.Boolean", ("writeBoolean", "Boolean!") }
         };
 
         private void WriteOutValue(string datarefPath, object value)
@@ -262,28 +262,26 @@ namespace MobiFlight.ProSim
                     return;
                 }
 
-                if (!mutationLookup.TryGetValue(description.DataType, out var method))
+                if (!mutationLookup.TryGetValue(description.DataType, out var mutation))
                 {
                     return;
                 }
 
-                // Format value correctly for GraphQL - booleans must be lowercase
-                var formattedValue = value is bool boolValue
-                    ? (boolValue ? "true" : "false")
-                    : value.ToString();
+                var (method, graphqlType) = mutation;
 
                 Task.Run(async () => {
                     try
                     {
                         var query = $@"
-mutation {{
+mutation ($name: String!, $value: {graphqlType}) {{
 	dataRef {{
-		{method}(name: ""{datarefPath}"", value: {formattedValue})
+		{method}(name: $name, value: $value)
 	}}
 }}";
                         await _connection.SendMutationAsync<object>(new GraphQL.GraphQLRequest
                         {
-                            Query = query
+                            Query = query,
+                            Variables = new { name = datarefPath, value }
                         });
                     }
                     catch
