@@ -84,7 +84,7 @@ namespace MobiFlight
             var rawDefinitions = JsonBackedObject.LoadDefinitions<JoystickDefinition>(
                 jsonFiles, 
                 schemaFilePath,
-                onSuccess: (joystick, definitionFile) => Log.Instance.log($"Loaded joystick definition for {joystick.InstanceName}", LogSeverity.Info),
+                onSuccess: (joystick, definitionFile) => Log.Instance.log($"Loaded joystick definition for {joystick.InstanceName}", LogSeverity.Debug),
                 onError: () => LoadingError = true
             );
 

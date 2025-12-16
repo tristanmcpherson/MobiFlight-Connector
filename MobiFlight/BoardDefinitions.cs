@@ -102,7 +102,7 @@ namespace MobiFlight
             files.AddRange(Directory.GetFiles("Community", "*.board.json", SearchOption.AllDirectories));
             boards = JsonBackedObject.LoadDefinitions<Board>(files.ToArray(), "Boards/mfboard.schema.json",
                 onSuccess: (board, definitionFile) => {
-                    Log.Instance.log($"Loaded board definition for {board.Info.MobiFlightType} ({board.Info.FriendlyName})", LogSeverity.Info);
+                    Log.Instance.log($"Loaded board definition for {board.Info.MobiFlightType} ({board.Info.FriendlyName})", LogSeverity.Debug);
 
                     var boardPath = Path.GetDirectoryName(definitionFile);
                     board.BasePath = Path.GetDirectoryName(boardPath);
