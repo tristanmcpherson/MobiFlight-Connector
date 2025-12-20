@@ -243,8 +243,10 @@
     <Compile Include="MobiFlight\Execution\ConfigItemExecutorTests.cs" />
     <Compile Include="MobiFlight\InputEventArgsTests.cs" />
     <Compile Include="MobiFlight\Joysticks\Authentikit\AuthentiKitReportTests.cs" />
+    <Compile Include="MobiFlight\Joysticks\HidControllerFactoryTests.cs" />
     <Compile Include="MobiFlight\Joysticks\JoystickDefinitionMigratorTests.cs" />
     <Compile Include="MobiFlight\Joysticks\JoystickDefinitionTests.cs" />
+    <Compile Include="MobiFlight\Joysticks\JoystickTests.cs" />
     <Compile Include="MobiFlight\Joysticks\WingFlex\FcuCubeReportTests.cs" />
     <Compile Include="MobiFlight\JsonDefinitionFilesTests.cs" />
     <Compile Include="MobiFlight\MidiBoard\MidiBoardDefinitionTests.cs" />

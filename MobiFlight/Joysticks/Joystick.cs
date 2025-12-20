@@ -36,6 +36,9 @@ namespace MobiFlight
         protected JoystickState State = null;
         private HidStream Stream;
 
+        /// <summary>
+        /// This map defines how a usageId maps to a JoystickState property name.
+        /// </summary>
         private static readonly Dictionary<int, string> UsageMap = new Dictionary<int, string>
         {
             [48] = "X",
@@ -45,9 +48,7 @@ namespace MobiFlight
             [52] = "RotationY",
             [53] = "RotationZ",
             [54] = "Slider1",
-            [55] = "Slider2",
-            [56] = "Wheel",
-            [57] = "HatSwitch"
+            [55] = "Slider2"
         };
 
         /// <summary>
