@@ -75,6 +75,7 @@
       "xplane": "X-Plane",
       "p3d": "Prepar3D",
       "fsx": "FSX / FS2004",
+      "prosim": "ProSim",
       "none": "Ningún simulador"
     },
     "Card": {
@@ -109,7 +110,9 @@
       "Simulator": {
         "Label": "Simulador de vuelo",
         "HelpText": "Selecciona el simulador principal para este proyecto.",
-        "UseFsuipc": "Usar FSUIPC"
+        "UseFsuipc": "FSUIPC - interfaz heredada alterna - a veces utilizada por \"addons\", ej., PMDG",
+        "UseProSim": "ProSim - interfaz para aviones ProSim",
+        "Feature": "Funciones adicionales"
       },
       "Aircraft": {
         "Label": "Avión",

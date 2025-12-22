@@ -9,7 +9,10 @@
         "FilePath": ".\\Starship-MiniFCU-MiniEFIS-V2.mfproj",
         "Name": "Starship-MiniFCU+miniEFIS-V1",
         "Sim": "msfs",
-        "UseFsuipc": false
+        "Features": {
+            "FSUIPC": false,
+            "ProSim": false
+        }
     },
     {
         "Aircraft": [],
@@ -23,7 +26,10 @@
         "FilePath": ".\\FBW-A320DEV.mfproj",
         "Name": "FBW-A320DEV",
         "Sim": "msfs",
-        "UseFsuipc": false
+        "Features": {
+            "FSUIPC": false,
+            "ProSim": false
+        }
     },
     {
         "Aircraft": [],
@@ -35,7 +41,10 @@
         "FilePath": ".\\New Project.mfproj",
         "Name": "Test",
         "Sim": "msfs",
-        "UseFsuipc": false
+        "Features": {
+            "FSUIPC": false,
+            "ProSim": false
+        }
     },
     {
         "Aircraft": [],
@@ -46,7 +55,10 @@
         "FilePath": ".\\precondition-v1.1-test-migrated-optimized.mfproj",
         "Name": "New Project",
         "Sim": "msfs",
-        "UseFsuipc": false
+        "Features": {
+            "FSUIPC": false,
+            "ProSim": false
+        }
     },
     {
         "Aircraft": [],
@@ -58,7 +70,10 @@
         "FilePath": ".\\CRJ_PUCDUV2_CPT_PROFILE_737NG_KP_9RKoh\\CRJ PU AIR KOREA MCDU  737NG KP CAPTAIN.mcc",
         "Name": "Air Korea MCDU",
         "Sim": "msfs",
-        "UseFsuipc": false
+        "Features": {
+            "FSUIPC": false,
+            "ProSim": false
+        }
     },
     {
         "Aircraft": [],
@@ -71,7 +86,10 @@
         "FilePath": ".\\Delta_Force_bug_minimum_example_AdvWS.mfproj",
         "Name": "unsaved",
         "Sim": "msfs",
-        "UseFsuipc": false
+        "Features": {
+            "FSUIPC": false,
+            "ProSim": false
+        }
     },
     {
         "Aircraft": [],
@@ -93,7 +111,10 @@
         "FilePath": ".\\Mini Overhead SMD - FBW.mfproj",
         "Name": "Mini Overhead SMD - FBW",
         "Sim": "msfs",
-        "UseFsuipc": false
+        "Features": {
+            "FSUIPC": false,
+            "ProSim": false
+        }
     },
     {
         "Aircraft": [],
@@ -110,7 +131,10 @@
         "FilePath": ".\\aero2023-combined-display.mfproj",
         "Name": "aero2023-combined-display",
         "Sim": "msfs",
-        "UseFsuipc": false
+        "Features": {
+            "FSUIPC": false,
+            "ProSim": false
+        }
     },
     {
         "Aircraft": [],
@@ -154,7 +178,10 @@
         "FilePath": ".\\A321 Toliss Extra.mfproj",
         "Name": "MobiFlight Project",
         "Sim": "msfs",
-        "UseFsuipc": false
+        "Features": {
+            "FSUIPC": false,
+            "ProSim": false
+        }
     },
     {
         "Aircraft": [],
@@ -166,7 +193,10 @@
         "FilePath": ".\\Saitek-Multi-Panel.mfproj",
         "Name": "New Project",
         "Sim": "msfs",
-        "UseFsuipc": false
+        "Features": {
+            "FSUIPC": false,
+            "ProSim": false
+        }
     },
     {
         "Aircraft": [],
@@ -177,7 +207,10 @@
         "FilePath": ".\\flitesim-FFB.mfproj",
         "Name": "FliteSim FFB Complete Config",
         "Sim": "xplane",
-        "UseFsuipc": false
+        "Features": {
+            "FSUIPC": false,
+            "ProSim": false
+        }
     },
     {
         "Aircraft": [],
@@ -190,7 +223,10 @@
         "FilePath": ".\\wingflex-fcu.mfproj",
         "Name": "Test project",
         "Sim": "msfs",
-        "UseFsuipc": false
+        "Features": {
+            "FSUIPC": false,
+            "ProSim": false
+        }
     },
     {
         "Aircraft": [],
@@ -203,7 +239,10 @@
         "FilePath": ".\\wingflex-fcu.migrate.mfproj",
         "Name": "Test project",
         "Sim": "msfs",
-        "UseFsuipc": false
+        "Features": {
+            "FSUIPC": false,
+            "ProSim": false
+        }
     },
     {
         "Aircraft": [],
@@ -214,7 +253,10 @@
         "FilePath": ".\\precondition-v1.1-test.mfproj",
         "Name": "New Project",
         "Sim": "msfs",
-        "UseFsuipc": false
+        "Features": {
+            "FSUIPC": false,
+            "ProSim": false
+        }
     },
     {
         "Aircraft": [],
@@ -226,7 +268,10 @@
         "FilePath": ".\\merge-multiple.testmfproj.optimized.mfproj",
         "Name": "Test project",
         "Sim": "msfs",
-        "UseFsuipc": false
+        "Features": {
+            "FSUIPC": false,
+            "ProSim": false
+        }
     },
     {
         "Aircraft": [],
@@ -238,7 +283,10 @@
         "FilePath": ".\\merge-multiple.testmfproj.mfproj",
         "Name": "Test project",
         "Sim": "msfs",
-        "UseFsuipc": false
+        "Features": {
+            "FSUIPC": false,
+            "ProSim": false
+        }
     },
     {
         "Aircraft": [],
@@ -249,7 +297,10 @@
         "FilePath": ".\\precondition-v1.1-test-migrated.mfproj",
         "Name": "New Project",
         "Sim": "msfs",
-        "UseFsuipc": false
+        "Features": {
+            "FSUIPC": false,
+            "ProSim": false
+        }
     },
     {
         "Aircraft": [],
@@ -278,7 +329,10 @@
         "FilePath": ".\\dnd.mfproj",
         "Name": "New Project",
         "Sim": "msfs",
-        "UseFsuipc": false
+        "Features": {
+            "FSUIPC": false,
+            "ProSim": false
+        }
     },
     {
         "Aircraft": [],
@@ -289,7 +343,10 @@
         "FilePath": ".\\Test-Rename.mfproj",
         "Name": "Test",
         "Sim": "msfs",
-        "UseFsuipc": false
+        "Features": {
+            "FSUIPC": false,
+            "ProSim": false
+        }
     },
     {
         "Aircraft": [],
@@ -300,7 +357,10 @@
         "FilePath": ".\\New Project.mfproj",
         "Name": "New Project",
         "Sim": null,
-        "UseFsuipc": false
+        "Features": {
+            "FSUIPC": false,
+            "ProSim": false
+        }
     },
     {
         "Aircraft": [],
@@ -311,7 +371,10 @@
         "FilePath": ".\\Honeycomb-Bravo-Template.mfproj",
         "Name": "Renamed project",
         "Sim": "msfs",
-        "UseFsuipc": false
+        "Features": {
+            "FSUIPC": false,
+            "ProSim": false
+        }
     },
     {
         "Aircraft": [],
@@ -322,7 +385,10 @@
         "FilePath": ".\\Shop-Test-Demo-Board.mfproj",
         "Name": "Shop Test",
         "Sim": "msfs",
-        "UseFsuipc": false
+        "Features": {
+            "FSUIPC": false,
+            "ProSim": false
+        }
     },
     {
         "Aircraft": [],
@@ -333,6 +399,9 @@
         "FilePath": ".\\Mini Overhead SMD - FBW.mcc",
         "Name": "Mini Overhead SMD - FBW",
         "Sim": "msfs",
-        "UseFsuipc": false
+        "Features": {
+            "FSUIPC": false,
+            "ProSim": false
+        }
     }
 ]

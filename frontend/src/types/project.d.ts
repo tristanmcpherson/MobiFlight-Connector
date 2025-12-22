@@ -5,8 +5,8 @@ export interface Project {
   FilePath: string
   ConfigFiles: ConfigFile[]
   Thumbnail?: string
-  Sim: string
-  UseFsuipc: boolean
+  Sim: "msfs" | "xplane" | "p3d" | "fsx" | "none"
+  Features: ProjectFeatures
   Controllers?: string[]
 
   Aircraft?: {
@@ -23,11 +23,16 @@ export interface ProjectInfo {
   Thumbnail?: string
   Sim: string
   Favorite?: boolean
-  UseFsuipc: boolean
+  Features: ProjectFeatures
   Controllers?: string[]
 
   Aircraft?: {
     Name: string
     Filter: string
   }[]
+}
+
+export interface ProjectFeatures {
+  FSUIPC: boolean
+  ProSim: boolean
 }

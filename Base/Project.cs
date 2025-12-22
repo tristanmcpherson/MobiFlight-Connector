@@ -18,11 +18,71 @@ namespace MobiFlight.Base
     {
         public string Name { get; set; }
         public string Sim { get; set; }
-        public bool UseFsuipc { get; set; }
+        public ProjectFeatures Features { get; set; }
         public List<string> Aircraft { get; set; }
         public List<string> Controllers { get; set; }
         public string FilePath { get; set; }
         public bool Favorite { get; set; } = false;
+    }
+
+
+    /// <summary>
+    /// Represents optional features that can be enabled for a MobiFlight project.
+    /// </summary>
+    public class ProjectFeatures : INotifyPropertyChanged
+    {
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private bool _useFsuipc = false;
+        /// <summary>
+        /// Gets or sets whether the project uses FSUIPC integration.
+        /// </summary>
+        public bool FSUIPC
+        {
+            get => _useFsuipc;
+            set
+            {
+                if (_useFsuipc != value)
+                {
+                    _useFsuipc = value;
+                    OnPropertyChanged(nameof(FSUIPC));
+                }
+            }
+        }
+
+        private bool _useProSim = false;
+        /// <summary>
+        /// Gets or sets whether the project uses ProSim integration.
+        /// </summary>
+        public bool ProSim
+        {
+            get => _useProSim;
+            set
+            {
+                if (_useProSim != value)
+                {
+                    _useProSim = value;
+                    OnPropertyChanged(nameof(ProSim));
+                }
+            }
+        }
+
+        protected virtual void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        /// <summary>
+        /// Creates a deep copy of the current features.
+        /// </summary>
+        public ProjectFeatures Clone()
+        {
+            return new ProjectFeatures
+            {
+                FSUIPC = this.FSUIPC,
+                ProSim = this.ProSim
+            };
+        }
     }
 
     /// <summary>
@@ -122,21 +182,6 @@ namespace MobiFlight.Base
             }
         }
 
-        private bool _useFsuipc = false;
-        public bool UseFsuipc
-        {
-            get => _useFsuipc;
-            set
-            {
-                if (_useFsuipc != value)
-                {
-                    _useFsuipc = value;
-                    OnPropertyChanged(nameof(UseFsuipc));
-                    OnProjectChanged();
-                }
-            }
-        }
-
         private ObservableCollection<string> _aircraft = new ObservableCollection<string>();
         /// <summary>
         /// Gets or sets the name of the project.
@@ -195,6 +240,38 @@ namespace MobiFlight.Base
             }
         }
 
+        private ProjectFeatures _features = new ProjectFeatures();
+
+        /// <summary>
+        /// Gets or sets optional features enabled for this project.
+        /// </summary>
+        public ProjectFeatures Features
+        {
+            get => _features;
+            set
+            {
+                if (_features != value)
+                {
+                    // Unsubscribe from old instance
+                    if (_features != null)
+                    {
+                        _features.PropertyChanged -= Features_PropertyChanged;
+                    }
+
+                    _features = value;
+
+                    // Subscribe to new instance
+                    if (_features != null)
+                    {
+                        _features.PropertyChanged += Features_PropertyChanged;
+                    }
+
+                    OnPropertyChanged(nameof(Features));
+                    OnProjectChanged();
+                }
+            }
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Project"/> class with default values.
         /// </summary>
@@ -215,7 +292,7 @@ namespace MobiFlight.Base
             {
                 Name = Name,
                 Sim = Sim,
-                UseFsuipc = UseFsuipc,
+                Features = Features,
                 Aircraft = Aircraft?.ToList() ?? new List<string>(),
                 Controllers = Controllers?.ToList() ?? new List<string>(),
                 FilePath = FilePath
@@ -227,6 +304,10 @@ namespace MobiFlight.Base
         public void DetermineProjectInfos()
         {
             var controllerSerials = new List<string>();
+
+            // reset features for clean determination
+            Features = new ProjectFeatures();
+
             foreach (var item in ConfigFiles)
             {
                 if (string.IsNullOrEmpty(Sim))
@@ -240,8 +321,8 @@ namespace MobiFlight.Base
                     }
                 }
 
-                var useFsuipc = item.DetermineUsingFsuipc();
-                UseFsuipc |= useFsuipc;
+                Features.FSUIPC |= item.DetermineUsingFsuipc();
+                Features.ProSim |= item.ContainsConfigOfSourceType(new ProSimSource());
 
                 item.GetIUniqueControllerSerials().ForEach(c => controllerSerials.Add(c));
             }
@@ -260,6 +341,13 @@ namespace MobiFlight.Base
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The collection change event arguments.</param>
         private void CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            OnPropertyChanged(nameof(Features));
+            OnProjectChanged();
+        }
+
+        // Handle property changes within Features
+        private void Features_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             OnProjectChanged();
         }
@@ -347,7 +435,7 @@ namespace MobiFlight.Base
         {
             this.Name = project.Name;
             this.Sim = project.Sim;
-            this.UseFsuipc = project.UseFsuipc;
+            this.Features = project.Features.Clone();
             this.Aircraft = project.Aircraft;
             this.ConfigFiles = project.ConfigFiles;
         }

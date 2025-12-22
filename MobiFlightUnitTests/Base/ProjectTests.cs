@@ -492,7 +492,8 @@ namespace MobiFlight.Base.Tests
             Assert.IsNotNull(project.Controllers);
             Assert.AreEqual(0, project.Controllers.Count);
             Assert.IsNull(project.Sim);
-            Assert.IsFalse(project.UseFsuipc);
+            Assert.IsFalse(project.Features.FSUIPC);
+            Assert.IsFalse(project.Features.ProSim);
         }
 
         [TestMethod()]
@@ -610,7 +611,8 @@ namespace MobiFlight.Base.Tests
 
             // Assert
             Assert.AreEqual("msfs", project.Sim);
-            Assert.IsFalse(project.UseFsuipc);
+            Assert.IsFalse(project.Features.FSUIPC);
+            Assert.IsFalse(project.Features.ProSim);
         }
 
         [TestMethod()]
@@ -625,6 +627,7 @@ namespace MobiFlight.Base.Tests
                 ModuleSerial = "SN-123-456",
                 Source = new XplaneSource()
             };
+
             config.ConfigItems.Add(outputConfig);
             project.ConfigFiles.Add(config);
 
@@ -633,11 +636,12 @@ namespace MobiFlight.Base.Tests
 
             // Assert
             Assert.AreEqual("xplane", project.Sim);
-            Assert.IsFalse(project.UseFsuipc);
+            Assert.IsFalse(project.Features.FSUIPC);
+            Assert.IsFalse(project.Features.ProSim);
         }
 
         [TestMethod()]
-        public void DetermineProjectInfos_WithProSimConfig_ShouldSetSimToProsim()
+        public void DetermineProjectInfos_WithProSimConfig_ShouldSetFeatureForProsim()
         {
             // Arrange
             var project = new Project();
@@ -648,15 +652,25 @@ namespace MobiFlight.Base.Tests
                 ModuleSerial = "SN-123-456",
                 Source = new ProSimSource()
             };
+
+            var msfsConfig = new OutputConfigItem
+            {
+                ModuleSerial = "SN-123-456",
+                Source = new SimConnectSource()
+            };
+
             config.ConfigItems.Add(outputConfig);
+            config.ConfigItems.Add(msfsConfig);
             project.ConfigFiles.Add(config);
 
             // Act
             project.DetermineProjectInfos();
 
             // Assert
-            Assert.AreEqual("prosim", project.Sim);
-            Assert.IsFalse(project.UseFsuipc);
+            Assert.AreNotEqual("prosim", project.Sim);
+            Assert.AreEqual("msfs", project.Sim);
+            Assert.IsFalse(project.Features.FSUIPC);
+            Assert.IsTrue(project.Features.ProSim);
         }
 
         [TestMethod()]
@@ -678,7 +692,7 @@ namespace MobiFlight.Base.Tests
             project.DetermineProjectInfos();
 
             // Assert
-            Assert.IsTrue(project.UseFsuipc);
+            Assert.IsTrue(project.Features.FSUIPC);
             // FSUIPC source alone doesn't set a specific sim
         }
 
@@ -744,7 +758,7 @@ namespace MobiFlight.Base.Tests
 
             // Assert
             Assert.AreEqual("msfs", project.Sim);
-            Assert.IsTrue(project.UseFsuipc);
+            Assert.IsTrue(project.Features.FSUIPC);
             Assert.AreEqual(2, project.Controllers.Count);
         }
 
@@ -786,7 +800,7 @@ namespace MobiFlight.Base.Tests
 
             // Assert
             Assert.AreEqual("msfs", project.Sim);
-            Assert.IsTrue(project.UseFsuipc);
+            Assert.IsTrue(project.Features.FSUIPC);
             Assert.AreEqual(3, project.Controllers.Count);
         }
 

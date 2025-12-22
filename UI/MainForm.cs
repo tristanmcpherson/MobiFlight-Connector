@@ -292,7 +292,8 @@ namespace MobiFlight.UI
                                             execManager.getModuleCache().GetArcazeModuleSettings(),
 #endif
                                             execManager.ConfigItems.Where(item => item is OutputConfigItem).Cast<OutputConfigItem>().ToList(),
-                                            execManager.GetAvailableVariables()
+                                            execManager.GetAvailableVariables(),
+                                            execManager.Project.ToProjectInfo()
                                           )
             {
                 StartPosition = FormStartPosition.CenterParent
@@ -347,7 +348,8 @@ namespace MobiFlight.UI
                                 execManager.getModuleCache().GetArcazeModuleSettings(),
 #endif
                                 execManager.ConfigItems.Where(item => item is OutputConfigItem).Cast<OutputConfigItem>().ToList(),
-                                execManager.GetAvailableVariables()
+                                execManager.GetAvailableVariables(),
+                                execManager.Project.ToProjectInfo()
                                 )
             {
                 StartPosition = FormStartPosition.CenterParent
@@ -2233,7 +2235,6 @@ namespace MobiFlight.UI
             // errors during save and show it in a dialog instead of crashing.
             try
             {
-                execManager.Project.DetermineProjectInfos();
                 execManager.Project.SaveFile();
             }
             catch (Exception ex)
@@ -2995,9 +2996,9 @@ namespace MobiFlight.UI
         {
             execManager.Project.Name = project.Name;
             execManager.Project.Sim = project.Sim;
-            execManager.Project.UseFsuipc = project.UseFsuipc;
+            execManager.Project.Features = project.Features;
             execManager.Project.Aircraft = project.Aircraft;
-            saveToolStripButton_Click(null, null);
+            MessageExchange.Instance.Publish(execManager.Project);
         }
 
         internal void RecentFilesRemove(int index)

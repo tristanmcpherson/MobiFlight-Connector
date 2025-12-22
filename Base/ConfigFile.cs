@@ -112,10 +112,6 @@ namespace MobiFlight.Base
             {
                 return (new XplaneSource().SourceType).ToLower();
             }
-            else if (ContainsConfigOfSourceType(new ProSimSource()))
-            {
-                return (new ProSimSource()).SourceType.ToLower();
-            }
             return null;
         }
 

@@ -118,57 +118,133 @@ test.describe("Project view tests", () => {
 })
 
 test.describe("Project settings modal features", () => {
-  test("Create new project in modal", async ({
-    dashboardPage,
-    page,
-  }) => {
+  test("Create new project in modal", async ({ dashboardPage, page }) => {
     const createProjectButton = page.getByRole("button", { name: "Project" })
     const createProjectDialog = page.getByRole("dialog", {
       name: "Create New Project",
     })
-    const fsuipcCheckbox = createProjectDialog.getByLabel("Use FSUIPC")
+    const fsuipcCheckbox = createProjectDialog.getByLabel("FSUIPC")
+    const prosimCheckbox = createProjectDialog.getByLabel("ProSim")
     const projectNameInput = createProjectDialog.getByLabel("Project Name")
     const createButton = createProjectDialog.getByRole("button", {
       name: "Create",
     })
 
     const projectOptions = [
-      { name: "MSFS no FSUIPC", value: "msfs", useFsuipc: false },
-      { name: "MSFS with FSUIPC", value: "msfs", useFsuipc: true },
-      { name: "X-Plane", value: "xplane", useFsuipc: false },
-      { name: "Prepar3D", value: "p3d", useFsuipc: false },
+      {
+        name: "MSFS no FSUIPC",
+        value: "msfs",
+        fsuipc: { click: false, use: false },
+        prosim: { click: false, use: false },
+      },
+      {
+        name: "MSFS with FSUIPC",
+        value: "msfs",
+        fsuipc: { click: true, use: true },
+        prosim: { click: false, use: false },
+      },
+      {
+        name: "X-Plane",
+        value: "xplane",
+        fsuipc: { click: false, use: false },
+        prosim: { click: false, use: false },
+      },
+      {
+        name: "Prepar3D",
+        value: "p3d",
+        fsuipc: { click: false, use: true },
+        prosim: { click: false, use: false },
+      },
+      {
+        name: "FSX / FS2004",
+        value: "fsx",
+        fsuipc: { click: false, use: true },
+        prosim: { click: false, use: false },
+      },
+      {
+        name: "MSFS with ProSim",
+        value: "msfs",
+        fsuipc: { click: false, use: false },
+        prosim: { click: true, use: true },
+      },
     ]
 
     for (const option of projectOptions) {
       await dashboardPage.gotoPage()
-
       await dashboardPage.mobiFlightPage.trackCommand("CommandMainMenu")
 
       await createProjectButton.click()
 
       await projectNameInput.fill(option.name)
 
-      const simOptionLocator = `[role="radio"][value="${option.value}"]`
-      const simOption = createProjectDialog.locator(simOptionLocator)
+      const simOption = createProjectDialog.getByRole("radio", { name: option.value })
 
-      await simOption.check()
-      if (option.useFsuipc) {
+      await simOption.click()
+      if (option.fsuipc.click) {
         await fsuipcCheckbox.check()
+      }
+
+      if (option.prosim.click) {
+        await prosimCheckbox.check()
       }
 
       await createButton.click()
       await expect(createProjectDialog).not.toBeVisible()
-      const postedCommands = await dashboardPage.mobiFlightPage.getTrackedCommands()
+      const postedCommands =
+        await dashboardPage.mobiFlightPage.getTrackedCommands()
       const lastCommand = postedCommands!.pop()
 
       expect(lastCommand.key).toEqual("CommandMainMenu")
       expect(lastCommand.payload.action).toEqual("file.new")
       expect(lastCommand.payload.options.project.Name).toEqual(option.name)
       expect(lastCommand.payload.options.project.Sim).toEqual(option.value)
-      expect(lastCommand.payload.options.project.UseFsuipc).toEqual(
-        option.useFsuipc,
+      expect(lastCommand.payload.options.project.Features.FSUIPC).toEqual(
+        option.fsuipc.use,
+      )
+      expect(lastCommand.payload.options.project.Features.ProSim).toEqual(
+        option.prosim.use,
       )
     }
+  })
+
+  test("Reset feature checkboxes when changing simulator", async ({
+    dashboardPage,
+    page,
+  }) => {
+    await dashboardPage.gotoPage()
+    const createProjectButton = page.getByRole("button", { name: "Project" })
+    const createProjectDialog = page.getByRole("dialog", {
+      name: "Create New Project",
+    })
+    const fsuipcCheckbox = createProjectDialog.getByLabel("FSUIPC")
+    const prosimCheckbox = createProjectDialog.getByLabel("ProSim")
+    const projectNameInput = createProjectDialog.getByLabel("Project Name")
+
+    await createProjectButton.click()
+    await projectNameInput.fill("Test Reset Features")
+
+    // Select MSFS and enable both features
+    const msfsOption = createProjectDialog.getByRole("radio", {
+      name: "msfs",
+    })
+    await msfsOption.click()
+    await fsuipcCheckbox.check()
+    await prosimCheckbox.check()
+
+    expect(await fsuipcCheckbox.isChecked()).toBeTruthy()
+    expect(await prosimCheckbox.isChecked()).toBeTruthy()
+
+    // Change to X-Plane and verify both features are disabled
+    const p3dOption = createProjectDialog.getByRole("radio", {
+      name: "p3d",
+    })
+    await p3dOption.click()
+    expect(await prosimCheckbox.isChecked()).toBeFalsy()
+
+    // Change back to MSFS and verify both features are disabled
+    await msfsOption.click()
+    expect(await fsuipcCheckbox.isChecked()).toBeFalsy()
+    expect(await prosimCheckbox.isChecked()).toBeFalsy()
   })
 
   test("Dont allow new project without a name", async ({
@@ -212,7 +288,9 @@ test.describe("Project settings modal features", () => {
     await dashboardPage.mobiFlightPage.initWithTestData()
 
     const currentProjectCard = page.getByTestId("project-card")
-    const projectContextMenu = currentProjectCard.getByRole('button', { name: 'Open menu' })
+    const projectContextMenu = currentProjectCard.getByRole("button", {
+      name: "Open menu",
+    })
     await projectContextMenu.click()
 
     const settingsMenuItem = page.getByRole("menuitem", { name: "Settings" })

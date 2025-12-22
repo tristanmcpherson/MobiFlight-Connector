@@ -114,7 +114,10 @@ export class MobiFlightPage {
         FilePath: "SomeFilePath.mfproj",
         ConfigFiles: [],
         Sim: "msfs",
-        UseFsuipc: false,
+        Features: {
+            "FSUIPC": false,
+            "ProSim": false
+        }
       } as Project,
     }
     await this.publishMessage(message)

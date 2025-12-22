@@ -231,6 +231,7 @@
     <Compile Include="Base\ProjectTests.cs" />
     <Compile Include="Base\Serialization\Json\SourceConverterTests.cs" />
     <Compile Include="Base\SerialNumberTests.cs" />
+    <Compile Include="Base\SourceFactoryTests.cs" />
     <Compile Include="EventIdInputPanelTests.cs" />
     <Compile Include="Forms\ConfigWizardTests.cs" />
     <Compile Include="MobiFlight\BoardTests.cs" />

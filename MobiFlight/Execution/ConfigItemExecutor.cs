@@ -319,7 +319,7 @@ namespace MobiFlight.Execution
             }
             else
             {
-                Log.Instance.log("Unknown source type: " + cfg.Source.SourceType, LogSeverity.Error);
+                Log.Instance.log("Unknown source type: " + cfg.Source?.SourceType ?? "none", LogSeverity.Error);
             }
 
             return result;

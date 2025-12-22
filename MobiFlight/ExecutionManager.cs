@@ -289,7 +289,9 @@ namespace MobiFlight
 
             MessageExchange.Instance.Subscribe<CommandAddConfigItem>((message) =>
             {
-                IConfigItem item = new OutputConfigItem();
+                IConfigItem item = new OutputConfigItem() {
+                    Source = SourceFactory.Create(Project.ToProjectInfo().Sim)
+                };
                 if (message.Type == "InputConfig")
                 {
                     item = new InputConfigItem();
