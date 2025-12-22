@@ -1,5 +1,4 @@
-﻿using MobiFlight.Base;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -49,9 +48,9 @@ namespace MobiFlight.Base.Tests
         public void AddTest()
         {
             PreconditionList o = new PreconditionList();
-            Assert.IsTrue(o.Count == 0);
+            Assert.AreEqual(0, o.Count);
             o.Add(new Precondition());
-            Assert.IsTrue(o.Count == 1);
+            Assert.AreEqual(1, o.Count);
         }
 
         [TestMethod()]
@@ -60,9 +59,9 @@ namespace MobiFlight.Base.Tests
             PreconditionList o = new PreconditionList();
             Precondition p = new Precondition();
             o.Add(p);
-            Assert.IsTrue(o.Count == 1);
+            Assert.HasCount(1, o);
             o.Remove(p);
-            Assert.IsTrue(o.Count == 0);
+            Assert.HasCount(0, o);
         }
 
         [TestMethod()]
@@ -85,7 +84,7 @@ namespace MobiFlight.Base.Tests
             xmlReader.ReadToDescendant("preconditions");
             o.ReadXml(xmlReader);
 
-            Assert.AreEqual(o.Count, 0);
+            Assert.AreEqual(0, o.Count);
 
             o = new PreconditionList();
             s = System.IO.File.ReadAllText(@"assets\Base\PreconditionList\ReadXmlTest.2.xml");
@@ -97,9 +96,9 @@ namespace MobiFlight.Base.Tests
             xmlReader.ReadToDescendant("preconditions");
             o.ReadXml(xmlReader);
 
-            Assert.AreEqual(o.Count, 2);
-            Assert.AreEqual(o.ExecuteOnFalse, false);
-            Assert.AreEqual(o.FalseCaseValue, "");
+            Assert.AreEqual(2, o.Count);
+            Assert.IsFalse(o.ExecuteOnFalse);
+            Assert.AreEqual("", o.FalseCaseValue);
         }
 
         [TestMethod()]
@@ -132,7 +131,7 @@ namespace MobiFlight.Base.Tests
 
             String result = System.IO.File.ReadAllText(@"assets\Base\PreconditionList\WriteXmlTest.1.xml");
 
-            Assert.AreEqual(s, result, "The both strings are not equal");
+            Assert.AreEqual(result, s, "The both strings are not equal");
         }
 
         [TestMethod()]
@@ -227,7 +226,7 @@ namespace MobiFlight.Base.Tests
             var json = JsonConvert.SerializeObject(list, Newtonsoft.Json.Formatting.Indented, settings);
 
             // Assert
-            Assert.IsFalse(json.Contains("null"), "Serialized JSON should not contain 'null' for empty preconditions");
+            Assert.DoesNotContain("null", json, "Serialized JSON should not contain 'null' for empty preconditions");
             // Should serialize as empty array or with no preconditions
             Assert.IsTrue(json.Contains("[]") || !json.Contains("\"Preconditions\""),
                 "Empty preconditions should result in empty array or no Preconditions property");
@@ -266,8 +265,8 @@ namespace MobiFlight.Base.Tests
             var json = JsonConvert.SerializeObject(list, Newtonsoft.Json.Formatting.Indented, settings);
 
             // Assert
-            Assert.IsFalse(json.Contains("null"), "Serialized JSON should not contain 'null'");
-            Assert.IsTrue(json.Contains("TestRef"), "Valid precondition should be serialized");
+            Assert.DoesNotContain("null", json, "Serialized JSON should not contain 'null'");
+            Assert.Contains("TestRef", json, "Valid precondition should be serialized");
 
             // Count how many preconditions are in the output
             var deserializedList = JsonConvert.DeserializeObject<PreconditionList>(json);
@@ -291,7 +290,7 @@ namespace MobiFlight.Base.Tests
             var json = JsonConvert.SerializeObject(list, Newtonsoft.Json.Formatting.Indented, settings);
 
             // Assert
-            Assert.IsFalse(json.Contains("null"), "Serialized JSON should not contain 'null'");
+            Assert.DoesNotContain("null", json, "Serialized JSON should not contain 'null'");
         }
 
         [TestMethod()]
@@ -311,7 +310,7 @@ namespace MobiFlight.Base.Tests
             var json = configFile.ToJson();
 
             // Assert
-            Assert.IsFalse(json.Contains("null"), "ConfigFile JSON should not contain 'null' for empty preconditions");
+            Assert.DoesNotContain("null", json, "ConfigFile JSON should not contain 'null' for empty preconditions");
         }
     }
 }

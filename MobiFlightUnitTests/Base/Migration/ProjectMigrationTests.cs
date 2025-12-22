@@ -43,7 +43,7 @@ namespace MobiFlight.Base.Migration.Tests
             }}");
 
             // Use reflection to access private method
-            var applyMigrationsMethod = typeof(Project).GetMethod("ApplyMigrations", 
+            var applyMigrationsMethod = typeof(Project).GetMethod("ApplyMigrations",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
 
             // Act
@@ -64,7 +64,7 @@ namespace MobiFlight.Base.Migration.Tests
                 ""ConfigFiles"": []
             }");
 
-            var applyMigrationsMethod = typeof(Project).GetMethod("ApplyMigrations", 
+            var applyMigrationsMethod = typeof(Project).GetMethod("ApplyMigrations",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
 
             // Act
@@ -121,16 +121,16 @@ namespace MobiFlight.Base.Migration.Tests
 
             // Assert
             Assert.AreEqual("Legacy Integration Project", project.Name);
-            Assert.AreEqual(1, project.ConfigFiles.Count);
-            
+            Assert.HasCount(1, project.ConfigFiles);
+
             var configFile = project.ConfigFiles[0];
             Assert.AreEqual("Integration Config", configFile.Label);
-            Assert.AreEqual(1, configFile.ConfigItems.Count);
-            
+            Assert.HasCount(1, configFile.ConfigItems);
+
             var configItem = configFile.ConfigItems[0];
             Assert.AreEqual("Integration Output", configItem.Name);
             Assert.AreEqual("test-guid-123", configItem.GUID);
-            
+
             // The deserialization should work because migration happened before JSON was processed
             // Note: The exact precondition validation would depend on your Precondition class implementation
             Assert.AreEqual(1, configItem.Preconditions.Count);
@@ -152,10 +152,10 @@ namespace MobiFlight.Base.Migration.Tests
 
             // Assert
             Assert.IsTrue(File.Exists(testProjectFile));
-            
+
             var savedContent = File.ReadAllText(testProjectFile);
             var savedDocument = JObject.Parse(savedContent);
-            
+
             Assert.AreEqual(project.SchemaVersion.ToString(), savedDocument["_version"].ToString());
             Assert.AreEqual("Version Test Project", savedDocument["Name"].ToString());
         }
@@ -210,11 +210,11 @@ namespace MobiFlight.Base.Migration.Tests
 
             // Assert
             Assert.AreEqual("Modern Project", project.Name);
-            Assert.AreEqual(1, project.ConfigFiles.Count);
-            
+            Assert.HasCount(1, project.ConfigFiles);
+
             var configFile = project.ConfigFiles[0];
             Assert.AreEqual("Modern Config", configFile.Label);
-            Assert.AreEqual(1, configFile.ConfigItems.Count);
+            Assert.HasCount(1, configFile.ConfigItems);
         }
 
         [TestMethod]
@@ -268,11 +268,11 @@ namespace MobiFlight.Base.Migration.Tests
 
             // Assert
             Assert.AreEqual("Modern Project", project.Name);
-            Assert.AreEqual(1, project.ConfigFiles.Count);
+            Assert.HasCount(1, project.ConfigFiles);
 
             var configFile = project.ConfigFiles[0];
             Assert.AreEqual("Modern Config", configFile.Label);
-            Assert.AreEqual(1, configFile.ConfigItems.Count);
+            Assert.HasCount(1, configFile.ConfigItems);
             Assert.AreEqual(0, configFile.ConfigItems[0].Preconditions.Count);
         }
 
@@ -464,12 +464,12 @@ namespace MobiFlight.Base.Migration.Tests
                 ]
             }");
 
-            var applyMigrationsMethod = typeof(Project).GetMethod("ApplyMigrations", 
+            var applyMigrationsMethod = typeof(Project).GetMethod("ApplyMigrations",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
 
             // Act & Assert - Should not throw
             var result = applyMigrationsMethod.Invoke(project, new object[] { corruptedDocument, false }) as JObject;
-            
+
             // Verify version was still updated
             Assert.AreEqual(project.SchemaVersion.ToString(), result["_version"].ToString());
         }
@@ -485,7 +485,7 @@ namespace MobiFlight.Base.Migration.Tests
                 ""ConfigFiles"": []
             }");
 
-            var applyMigrationsMethod = typeof(Project).GetMethod("ApplyMigrations", 
+            var applyMigrationsMethod = typeof(Project).GetMethod("ApplyMigrations",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
 
             // Act
@@ -507,7 +507,7 @@ namespace MobiFlight.Base.Migration.Tests
                 ""ConfigFiles"": []
             }");
 
-            var applyMigrationsMethod = typeof(Project).GetMethod("ApplyMigrations", 
+            var applyMigrationsMethod = typeof(Project).GetMethod("ApplyMigrations",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
 
             // Act
@@ -529,7 +529,7 @@ namespace MobiFlight.Base.Migration.Tests
                 ""ConfigFiles"": []
             }");
 
-            var applyMigrationsMethod = typeof(Project).GetMethod("ApplyMigrations", 
+            var applyMigrationsMethod = typeof(Project).GetMethod("ApplyMigrations",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
 
             // Act
@@ -551,7 +551,7 @@ namespace MobiFlight.Base.Migration.Tests
             }");
 
             // Use reflection to access private method
-            var getVersionMethod = typeof(Project).GetMethod("GetDocumentSchemaVersion", 
+            var getVersionMethod = typeof(Project).GetMethod("GetDocumentSchemaVersion",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
 
             // Act
@@ -571,7 +571,7 @@ namespace MobiFlight.Base.Migration.Tests
                 ""Name"": ""Complex Version Project""
             }");
 
-            var getVersionMethod = typeof(Project).GetMethod("GetDocumentSchemaVersion", 
+            var getVersionMethod = typeof(Project).GetMethod("GetDocumentSchemaVersion",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
 
             // Act
@@ -611,7 +611,7 @@ namespace MobiFlight.Base.Migration.Tests
                 ""ConfigFiles"": []
             }}");
 
-            var applyMigrationsMethod = typeof(Project).GetMethod("ApplyMigrations", 
+            var applyMigrationsMethod = typeof(Project).GetMethod("ApplyMigrations",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
 
             // Act

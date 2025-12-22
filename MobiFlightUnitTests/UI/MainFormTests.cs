@@ -96,7 +96,7 @@ namespace MobiFlight.UI.Tests
             // Assert
             var mainFormTitle = _mainForm.Text;
             Assert.IsTrue(_mainForm.ProjectHasUnsavedChanges, "ProjectHasUnsavedChanges should be true after adding a new file.");
-            Assert.IsTrue(mainFormTitle.Contains("*"), "Project title should indicate that there are unsaved changes.");
+            Assert.Contains("*", mainFormTitle, "Project title should indicate that there are unsaved changes.");
         }
 
         [TestMethod()]
@@ -168,10 +168,10 @@ namespace MobiFlight.UI.Tests
 
             // Assert
             var recentFiles = Properties.Settings.Default.RecentFiles;
-            Assert.AreEqual(2, recentFiles.Count, "Should have 2 files remaining");
+            Assert.HasCount(2, recentFiles, "Should have 2 files remaining");
             Assert.AreEqual("C:\\project1.mfproj", recentFiles[0]);
             Assert.AreEqual("C:\\project3.mfproj", recentFiles[1]);
-            Assert.IsFalse(recentFiles.Contains("C:\\project2.mfproj"), "Removed file should not be in the list");
+            Assert.DoesNotContain("C:\\project2.mfproj", recentFiles, "Removed file should not be in the list");
         }
 
         [TestMethod]
@@ -185,10 +185,10 @@ namespace MobiFlight.UI.Tests
                 var result = MainForm.CheckForMissingFiles(inputs);
 
                 // missing path and whitespace entry are reported missing
-                Assert.IsTrue(result.Contains(missing), "Expected missing file to be reported.");
+                Assert.Contains(missing, result, "Expected missing file to be reported.");
                 Assert.IsTrue(result.Any(x => string.IsNullOrWhiteSpace(x)), "Expected whitespace entry to be reported as missing.");
                 // existing file should not be reported missing
-                Assert.IsFalse(result.Contains(existing), "Existing file should not be reported missing.");
+                Assert.DoesNotContain(existing, result, "Existing file should not be reported missing.");
             }
             finally
             {
@@ -221,8 +221,8 @@ namespace MobiFlight.UI.Tests
 
                 var current = Properties.Settings.Default.RecentFiles.Cast<string>().ToList();
 
-                Assert.IsTrue(current.Contains(existing), "Existing file should remain in settings.");
-                Assert.IsFalse(current.Contains(missing), "Missing file should have been removed from settings.");
+                Assert.Contains(existing, current, "Existing file should remain in settings.");
+                Assert.DoesNotContain(missing, current, "Missing file should have been removed from settings.");
             }
             finally
             {

@@ -85,7 +85,7 @@ namespace MobiFlight.UI.Dialogs.Tests
                 null,
                 null,
                 new List<OutputConfigItem>(),
-                availableVariables, 
+                availableVariables,
                 null);
 
             // Get private fields using reflection
@@ -127,7 +127,7 @@ namespace MobiFlight.UI.Dialogs.Tests
                 methodInfo.Invoke(wizard, new object[] { inputTypeComboBox, EventArgs.Empty });
 
                 // Assert: Check that a panel was created and it implements IInputPanel
-                Assert.AreEqual(1, groupBoxInputSettings.Controls.Count, $"Expected 1 control for {testCase.DeviceType}, got {groupBoxInputSettings.Controls.Count}");
+                Assert.HasCount(1, groupBoxInputSettings.Controls, $"Expected 1 control for {testCase.DeviceType}, got {groupBoxInputSettings.Controls.Count}");
 
                 var panel = groupBoxInputSettings.Controls[0];
                 Assert.IsInstanceOfType(panel, typeof(IInputPanel), $"Panel for {testCase.DeviceType} should implement IInputPanel");
@@ -184,6 +184,5 @@ namespace MobiFlight.UI.Dialogs.Tests
                 return (obj.Label, obj.Value).GetHashCode();
             }
         }
-
     }
 }

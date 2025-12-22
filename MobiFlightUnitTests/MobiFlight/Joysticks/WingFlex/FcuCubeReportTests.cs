@@ -77,7 +77,7 @@ namespace MobiFlight.Joysticks.WingFlex.Tests
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.IsTrue(result.Length >= 23, "Output buffer should be at least 23 bytes");
+            Assert.IsGreaterThanOrEqualTo(23, result.Length, "Output buffer should be at least 23 bytes");
 
             // Check header bytes (with report ID offset)
             Assert.AreEqual(0xF2, result[0], "Header byte 0 should be 0xF2");
@@ -365,7 +365,7 @@ namespace MobiFlight.Joysticks.WingFlex.Tests
             byte byteValue = (byte)positiveValue;
 
             Assert.AreEqual(5, byteValue, "Positive value should remain unchanged");
-            Assert.IsTrue(positiveValue > 0, "Should be detected as positive");
+            Assert.IsGreaterThan(0, positiveValue, "Should be detected as positive");
         }
 
         [TestMethod]
@@ -376,7 +376,7 @@ namespace MobiFlight.Joysticks.WingFlex.Tests
             byte byteValue = (byte)negativeValue;
 
             Assert.AreEqual(251, byteValue, "Negative value should be 251 in two's complement"); // 256 - 5 = 251
-            Assert.IsTrue(((sbyte)byteValue) < 0, "Should be detected as negative when cast back to sbyte");
+            Assert.IsLessThan(0, (sbyte)byteValue, "Should be detected as negative when cast back to sbyte");
         }
 
         [TestMethod]
@@ -389,8 +389,8 @@ namespace MobiFlight.Joysticks.WingFlex.Tests
             Assert.AreEqual(127, (byte)maxPositive, "Max positive should be 127");
             Assert.AreEqual(128, (byte)maxNegative, "Max negative should be 128");
 
-            Assert.IsTrue(((sbyte)(byte)maxPositive) > 0, "Max positive should remain positive");
-            Assert.IsTrue(((sbyte)(byte)maxNegative) < 0, "Max negative should remain negative");
+            Assert.IsGreaterThan(0, (sbyte)(byte)maxPositive, "Max positive should remain positive");
+            Assert.IsLessThan(0, (sbyte)(byte)maxNegative, "Max negative should remain negative");
         }
 
         #endregion
