@@ -111,6 +111,12 @@
     {
       "VendorId": "0x4098",
       "ProductIds": [ "WinwingCDUs" ],
+      "AircraftIdSnippet": "challenger 650",
+      "ScriptName": "hotstart_cl650.py"
+    },
+    {
+      "VendorId": "0x4098",
+      "ProductIds": [ "WinwingCDUs" ],
       "AircraftIdSnippet": "rotate md-11",
       "ScriptName": "rotate_md11.py"
     },
