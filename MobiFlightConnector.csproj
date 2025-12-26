@@ -394,6 +394,7 @@
     <Compile Include="MobiFlight\Joysticks\VKB\VKBLedContainer.cs" />
     <Compile Include="MobiFlight\Joysticks\WingFlex\FcuCube.cs" />
     <Compile Include="MobiFlight\Joysticks\WingFlex\FcuCubeReport.cs" />
+    <Compile Include="MobiFlight\Joysticks\Winwing\WinwingAgp.cs" />
     <Compile Include="MobiFlight\Joysticks\Winwing\WinwingEcam.cs" />
     <Compile Include="MobiFlight\Joysticks\Winwing\WinwingAirbusSidestick.cs" />
     <Compile Include="MobiFlight\Joysticks\Winwing\Winwing3Pdc.cs" />
@@ -1446,6 +1447,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Joysticks\winwing\winwing_fcu_efisr.joystick.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Joysticks\winwing\winwing_agp.joystick.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Joysticks\winwing\winwing_pfp4_captain.joystick.json">
