@@ -169,7 +169,7 @@ namespace MobiFlight
         /// Returns the list of Joysticks sorted by name
         /// </summary>
         /// <returns>List of currently connected joysticks</returns>
-        public List<Joystick> GetJoysticks()
+        public virtual List<Joystick> GetJoysticks()
         {
             return Joysticks.Values.OrderBy(j => j.Name).ToList();
         }

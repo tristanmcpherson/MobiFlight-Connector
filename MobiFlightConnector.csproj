@@ -364,6 +364,10 @@
     <Compile Include="MobiFlight\Config\ShiftRegister.cs" />
     <Compile Include="MobiFlight\Config\IConfigRefConfigItem.cs" />
     <Compile Include="MobiFlight\Config\AnalogInput.cs" />
+    <Compile Include="MobiFlight\Controllers\ControllerAutoBinder.cs" />
+    <Compile Include="MobiFlight\Controllers\ControllerBinding.cs" />
+    <Compile Include="MobiFlight\Controllers\ControllerBindingService.cs" />
+    <Compile Include="MobiFlight\Controllers\ControllerBindingStatus.cs" />
     <Compile Include="MobiFlight\CustomDevices\CustomDevice.cs" />
     <Compile Include="MobiFlight\CustomDevices\CustomDeviceDefinitions.cs" />
     <Compile Include="MobiFlight\DeviceType.cs" />
