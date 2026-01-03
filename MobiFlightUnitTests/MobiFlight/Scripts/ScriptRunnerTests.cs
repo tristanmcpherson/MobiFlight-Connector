@@ -116,7 +116,15 @@ namespace MobiFlightUnitTests.MobiFlight.Scripts
             bool expectedResult,
             Dictionary<string, Version> installedPackages)
         {
-            var actualResult = ScriptRunner.ValidateNecessaryPackagesInstalled(installedPackages);
+            var requiredPackages = new Dictionary<string, Version>()
+            {
+                { "websockets", new Version(14,0) },
+                { "gql", new Version(3,5) },
+                { "SimConnect", new Version(0,4) },
+            };
+
+            var validator = new PythonEnvironmentValidator(requiredPackages);
+            var actualResult = validator.ValidatePackages(installedPackages);
 
             Assert.AreEqual(expectedResult, actualResult);
         }
