@@ -405,10 +405,7 @@
     <Compile Include="MobiFlight\Joysticks\VKB\VKBLedContainer.cs" />
     <Compile Include="MobiFlight\Joysticks\WingFlex\FcuCube.cs" />
     <Compile Include="MobiFlight\Joysticks\WingFlex\FcuCubeReport.cs" />
-    <Compile Include="MobiFlight\Joysticks\Winwing\WinwingAgp.cs" />
-    <Compile Include="MobiFlight\Joysticks\Winwing\WinwingEcam.cs" />
-    <Compile Include="MobiFlight\Joysticks\Winwing\WinwingAirbusSidestick.cs" />
-    <Compile Include="MobiFlight\Joysticks\Winwing\Winwing3Pdc.cs" />
+    <Compile Include="MobiFlight\Joysticks\Winwing\WinwingBaseController.cs" />
     <Compile Include="MobiFlight\Joysticks\Winwing\WinwingPap3.cs" />
     <Compile Include="MobiFlight\Joysticks\Winwing\WinwingPap3Report.cs" />
     <Compile Include="MobiFlight\Joysticks\Winwing\WinwingCdu.cs" />
@@ -416,7 +413,6 @@
     <Compile Include="MobiFlight\Joysticks\Winwing\WinwingControllerFactory.cs" />
     <Compile Include="MobiFlight\Joysticks\Winwing\WinwingFcu.cs" />
     <Compile Include="MobiFlight\Joysticks\Winwing\WinwingFcuReport.cs" />
-    <Compile Include="MobiFlight\Joysticks\Winwing\WinwingAirbusThrottle.cs" />
     <Compile Include="MobiFlight\JsonBackedObject.cs" />
     <Compile Include="MobiFlight\MaximumDeviceNumberReachedMobiFlightException.cs" />
     <Compile Include="MobiFlight\MidiBoard\MidiBoard.cs" />
