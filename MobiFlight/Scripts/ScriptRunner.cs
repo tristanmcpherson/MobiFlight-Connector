@@ -9,18 +9,16 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace MobiFlight.Scripts
 {
     internal class ScriptRunner
     {
-        private const string PYTHON_EXECUTABLE = "python";
+        private string PythonExecutable;
         private const string WINWING_CDUS_KEYWORD = "WinwingCDUs";
         private const string CONFIG_FILE_PATH = @"Scripts\ScriptMappings.json";
         private const string SCRIPTS_DIRECTORY = "Scripts";
         private const string SCRIPT_EXTENSION = "*.py";
-        private const string PYTHON_DOCS_URL = "https://docs.mobiflight.com/guides/installing-python/";
         private const int STARTUP_DELAY_MS = 2000;
         private const int PROCESS_POLLING_DELAY_MS = 300;
         private const int PROCESS_KILL_TIMEOUT_MS = 1000;
@@ -39,30 +37,19 @@ namespace MobiFlight.Scripts
         private CancellationTokenSource CancellationTokenSource = new CancellationTokenSource();
 
         private IChildProcessMonitor ChildProcMon;
-        private readonly PythonEnvironmentValidator PythonValidator;
 
         private volatile bool IsInPlayMode = false;
-        private volatile bool PythonCheckCompleted = false;
 
         private ConcurrentBag<Joystick> GameControllersWithScripts = new ConcurrentBag<Joystick>();
 
-        private static Dictionary<string, Version> RequiredPackages = new Dictionary<string, Version>()
-        {
-            { "websockets", new Version(14,0) },
-            { "gql", new Version(3,5) },
-            { "SimConnect", new Version(0,4) },
-        };
-
-
         public ScriptRunner(JoystickManager joystickManager, SimConnectCacheInterface msfsCache)
         {
+            PythonExecutable = PythonEnvironment.PathPythonExecutable;
             JsManager = joystickManager;
-            MsfsCache = msfsCache;       
-            PythonValidator = new PythonEnvironmentValidator(RequiredPackages);
+            MsfsCache = msfsCache;
             ReadConfiguration();
             GetAvailableScripts();
         }
-
 
         private string[] SubstituteKeywords(string[] productIds)
         {
@@ -155,45 +142,6 @@ namespace MobiFlight.Scripts
             }
         }
 
-        private void ShowMessageBoxInternal()
-        {
-            if (MessageBox.Show(i18n._tr("uiMessagePythonInstructions"),
-                                i18n._tr("uiMessagePythonHint"),
-                                MessageBoxButtons.OK,
-                                MessageBoxIcon.Warning) == DialogResult.OK)
-            {
-                Process.Start(PYTHON_DOCS_URL);
-            }
-        }
-
-        private void ShowPythonInstructionsMessageBox()
-        {
-            Log.Instance.log($"ShowPythonInstructionsMessageBox", LogSeverity.Debug);
-
-            Form mainForm = Application.OpenForms.Count > 0 ? Application.OpenForms[0] : null;
-            if (mainForm != null && mainForm.InvokeRequired)
-            {
-                mainForm.Invoke(new Action(() =>
-                {
-                    ShowMessageBoxInternal();
-                }));
-            }
-            else
-            {
-                ShowMessageBoxInternal();
-            }
-        }
-
-        private bool IsPythonReady()
-        {
-            if (!PythonValidator.IsPythonEnvironmentReady())
-            {
-                ShowPythonInstructionsMessageBox();
-                return false;
-            }
-
-            return true;
-        }
 
         private void SendUserMessage(int messageCode, params string[] parameters)
         {
@@ -205,20 +153,6 @@ namespace MobiFlight.Scripts
 
         private void ExecuteScripts(List<string> executionList)
         {
-            if (!PythonCheckCompleted)
-            {
-                SendUserMessage(UserMessageCodes.EXECUTE_PYTHON_CHECK);
-                if (!IsPythonReady())
-                {
-                    Log.Instance.log($"ScriptRunner - Python not ready!", LogSeverity.Error);
-                    SendUserMessage(UserMessageCodes.PYTHON_NOT_READY);
-                    return;
-                }
-                else
-                {
-                    PythonCheckCompleted = true;
-                }
-            }
 
             // ChildProcessMonitor necessary, that in case of MobiFlight crash, all child processes are terminated
             ChildProcMon = new ChildProcessMonitor();
@@ -236,14 +170,13 @@ namespace MobiFlight.Scripts
 
                 ProcessStartInfo psi = new ProcessStartInfo
                 {
-                    FileName = PYTHON_EXECUTABLE,
+                    FileName = PythonExecutable,
                     Arguments = ($"\"{ScriptDictionary[script]}\""),
                     CreateNoWindow = true,
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
                 };
-
 
                 Process process = new Process
                 {
@@ -405,6 +338,7 @@ namespace MobiFlight.Scripts
             Log.Instance.log($"ScriptRunner - Start().", LogSeverity.Debug);
             IsInPlayMode = true;
             string currentAircraftDescription = MsfsCache.IsConnected() ? AircraftPath : AircraftName;
+            currentAircraftDescription = "_fnx_3_";
             NewAircraftRequestQueue.Enqueue(currentAircraftDescription);
             Task myTask = Task.Run(async () => { await ProcessAircraftRequests(CancellationTokenSource.Token); });
         }

@@ -201,6 +201,9 @@ namespace MobiFlight.UI
             // Initialize the board configurations
             BoardDefinitions.LoadDefinitions();
 
+            // Initialize python environment
+            Scripts.PythonEnvironment.Initialize();
+
             // Initialize the custom device configurations
             CustomDevices.CustomDeviceDefinitions.LoadDefinitions();
 
