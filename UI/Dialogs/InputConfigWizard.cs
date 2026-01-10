@@ -324,6 +324,24 @@ namespace MobiFlight.UI.Dialogs
         }
 
         /// <summary>
+        /// Clears all config objects except the specified device type to prevent incorrect input event matching
+        /// </summary>
+        /// <param name="keepDeviceType">The device type to keep, all others will be cleared</param>
+        private void ClearUnusedConfigObjects(DeviceType keepDeviceType)
+        {
+            if (keepDeviceType != DeviceType.Button)
+                config.button = null;
+            if (keepDeviceType != DeviceType.Encoder)
+                config.encoder = null;
+            if (keepDeviceType != DeviceType.InputShiftRegister)
+                config.inputShiftRegister = null;
+            if (keepDeviceType != DeviceType.InputMultiplexer)
+                config.inputMultiplexer = null;
+            if (keepDeviceType != DeviceType.AnalogInput)
+                config.analog = null;
+        }
+
+        /// <summary>
         /// sync current status of form values to config
         /// </summary>
         /// <returns></returns>
@@ -389,6 +407,9 @@ namespace MobiFlight.UI.Dialogs
                     config.DeviceName = InputConfigItem.TYPE_NOTSET;
                     break;
             }
+
+            // Clear unused config objects after switching device type to prevent incorrect input event matching
+            ClearUnusedConfigObjects(currentInputType);
 
             return true;
         }
