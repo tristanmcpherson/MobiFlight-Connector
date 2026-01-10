@@ -52,6 +52,34 @@ export const ToastNotificationHandler = () => {
         })
         break
 
+      case "SimConnectionLost": {
+        const simType = notification?.Context?.SimType ?? "the simulator"
+        toast({
+          id: "sim-connection-lost",
+          title: t("Notifications.SimConnectionLost.Title"),
+          description: t("Notifications.SimConnectionLost.Description", { simType }),
+        })
+        break
+      }
+
+      case "SimStopped":
+        toast({
+          id: "sim-stopped",
+          title: t("Notifications.SimStopped.Title"),
+          description: t("Notifications.SimStopped.Description"),
+        })
+        break
+
+      case "TestModeException": {
+        const errorMessage = notification?.Context?.ErrorMessage ?? "An error occurred"
+        toast({
+          id: "test-mode-exception",
+          title: t("Notifications.TestModeException.Title"),
+          description: t("Notifications.TestModeException.Description", { errorMessage }),
+        })
+        break
+      }
+
       default:
         console.error("Unhandled notification event:", notification.Event)
         break
