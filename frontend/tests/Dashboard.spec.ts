@@ -29,11 +29,33 @@ test.describe("Project view tests", () => {
       Name: "Test Project",
       Sim: "msfs",
       ControllerBindings: [
-        { "BoundController": "ProtoBoard-v2/ SN-3F1-FDD", "OriginalController": "ProtoBoard-v2/ SN-3F1-FDD", "Status": "Match" },
-        { "BoundController": null, "OriginalController": "MobiFlight Board / SN-12345", "Status": "Missing" },
-        { "BoundController": "Alpha Flight Controls / JS-67890", "OriginalController": "Alpha Flight Controls / JS-67891", "Status": "AutoBind" },
-        { "BoundController": "Bravo Throttle Quadrant / JS-b0875190-3b89-11ed-8007-444553540000", "OriginalController": "Bravo Throttle Quadrant / JS-b0875190-3b89-11ed-8007-444553540000", "Status": "Match" },
-        { "BoundController": "miniCOCKPIT miniFCU/ SN-E98-277", "OriginalController": "miniCOCKPIT miniFCU/ SN-E98-277", "Status": "Match" },
+        {
+          BoundController: "ProtoBoard-v2/ SN-3F1-FDD",
+          OriginalController: "ProtoBoard-v2/ SN-3F1-FDD",
+          Status: "Match",
+        },
+        {
+          BoundController: null,
+          OriginalController: "MobiFlight Board / SN-12345",
+          Status: "Missing",
+        },
+        {
+          BoundController: "Alpha Flight Controls / JS-67890",
+          OriginalController: "Alpha Flight Controls / JS-67891",
+          Status: "AutoBind",
+        },
+        {
+          BoundController:
+            "Bravo Throttle Quadrant / JS-b0875190-3b89-11ed-8007-444553540000",
+          OriginalController:
+            "Bravo Throttle Quadrant / JS-b0875190-3b89-11ed-8007-444553540000",
+          Status: "Match",
+        },
+        {
+          BoundController: "miniCOCKPIT miniFCU/ SN-E98-277",
+          OriginalController: "miniCOCKPIT miniFCU/ SN-E98-277",
+          Status: "Match",
+        },
       ],
     })
 
@@ -49,24 +71,130 @@ test.describe("Project view tests", () => {
     await expect(controllerIcons).toHaveCount(5)
     await expect(controllerIcons.nth(0)).toHaveAttribute(
       "title",
-      "ProtoBoard-v2 - Controller connected",
+      "miniCOCKPIT miniFCU - Controller connected",
     )
     await expect(controllerIcons.nth(1)).toHaveAttribute(
       "title",
-      "MobiFlight Board - Controller missing",
+      "Bravo Throttle Quadrant - Controller connected",
     )
     await expect(controllerIcons.nth(2)).toHaveAttribute(
       "title",
-      "Alpha Flight Controls - Auto-bound controller",
+      "ProtoBoard-v2 - Controller connected",
     )
     await expect(controllerIcons.nth(3)).toHaveAttribute(
       "title",
-      "Bravo Throttle Quadrant - Controller connected",
+      "Alpha Flight Controls - Auto-bound controller",
     )
     await expect(controllerIcons.nth(4)).toHaveAttribute(
       "title",
-      "miniCOCKPIT miniFCU - Controller connected",
+      "MobiFlight Board - Controller missing",
     )
+
+    const bindingIssueIcon = currentProjectCard.getByTestId(
+      "controller-binding-issue-icon",
+    )
+
+    await expect(bindingIssueIcon).toBeVisible()
+    await expect(bindingIssueIcon).toHaveAttribute(
+      "title",
+      "Click to view controller binding issues",
+    )
+
+    await dashboardPage.mobiFlightPage.trackCommand("CommandMainMenu")
+    await bindingIssueIcon.click()
+    const postedCommands =
+      await dashboardPage.mobiFlightPage.getTrackedCommands()
+    const lastCommand = postedCommands!.pop()
+    expect(lastCommand.key).toEqual("CommandMainMenu")
+    expect(lastCommand.payload.action).toEqual("extras.serials")
+  })
+
+  test("Confirm project shows more indicator correctly", async ({
+    dashboardPage,
+    page,
+  }) => {
+    const controllerBindings = [
+      {
+        BoundController: "ProtoBoard-v2/ SN-3F1-FDD",
+        OriginalController: "ProtoBoard-v2/ SN-3F1-FDD",
+        Status: "Match",
+      },
+      {
+        BoundController: null,
+        OriginalController: "MobiFlight Board / SN-12345",
+        Status: "Missing",
+      },
+      {
+        BoundController: "Alpha Flight Controls / JS-67890",
+        OriginalController: "Alpha Flight Controls / JS-67891",
+        Status: "AutoBind",
+      },
+      {
+        BoundController:
+          "Bravo Throttle Quadrant / JS-b0875190-3b89-11ed-8007-444553540000",
+        OriginalController:
+          "Bravo Throttle Quadrant / JS-b0875190-3b89-11ed-8007-444553540000",
+        Status: "Match",
+      },
+      {
+        BoundController: "miniCOCKPIT miniFCU/ SN-E98-277",
+        OriginalController: "miniCOCKPIT miniFCU/ SN-E98-277",
+        Status: "Match",
+      },
+      {
+        BoundController: null,
+        Status: "Missing",
+        OriginalController:
+          "Behringer X-Touch Mini / MI-b0875190-3b89-11ed-8007-444553540001",
+      },
+      {
+        BoundController:
+          "Alpha Flight Controls / JS-b0875190-3b89-11ed-8007-444553540000",
+        Status: "RequiresManualBind",
+        OriginalController:
+          "Alpha Flight Controls / JS-b0875190-3b89-11ed-8007-444553540000",
+      }
+    ]
+
+    const sixBindingsWithMatch = controllerBindings.slice(0, 6).map((cb) => ({...cb, Status: 'Match'}))
+    const sevenBindingsWithMatch = controllerBindings.slice(0, 7).map((cb) => ({...cb, Status: 'Match'}))
+    const sixBindingsWithError = controllerBindings.slice(0, 6).map((cb) => ({...cb, Status: 'RequiresManualBind'}))
+    const currentProjectCard = page.getByTestId("project-card")
+    
+    const bindingIssueIcon = currentProjectCard.getByTestId(
+      "controller-binding-issue-icon",
+    )
+    const moreControllersIndicator = currentProjectCard.getByTestId("more-controllers-indicator")
+
+    await dashboardPage.gotoPage()
+    await dashboardPage.mobiFlightPage.initWithTestDataAndSpecificProjectProps({
+      Name: "Test Project",
+      Sim: "msfs",
+      ControllerBindings: sixBindingsWithMatch,
+    })
+
+    await expect(bindingIssueIcon).not.toBeVisible()
+    await expect(moreControllersIndicator).not.toBeVisible()
+
+    await dashboardPage.mobiFlightPage.initWithTestDataAndSpecificProjectProps({
+      Name: "Test Project",
+      Sim: "msfs",
+      ControllerBindings: sevenBindingsWithMatch,
+    })
+
+    await expect(bindingIssueIcon).not.toBeVisible()
+    await expect(moreControllersIndicator).toBeVisible()
+    await expect(moreControllersIndicator.getByText("+1")).toBeVisible()
+
+    await dashboardPage.mobiFlightPage.initWithTestDataAndSpecificProjectProps({
+      Name: "Test Project",
+      Sim: "msfs",
+      ControllerBindings: sixBindingsWithError,
+    })
+
+    await expect(bindingIssueIcon).toBeVisible()
+    await expect(moreControllersIndicator).toBeVisible()
+    await expect(moreControllersIndicator.getByText("+1")).toBeVisible()
   })
 
   test("Navigate to project view", async ({ dashboardPage, page }) => {
@@ -183,7 +311,9 @@ test.describe("Project settings modal features", () => {
 
       await projectNameInput.fill(option.name)
 
-      const simOption = createProjectDialog.getByRole("radio", { name: option.value })
+      const simOption = createProjectDialog.getByRole("radio", {
+        name: option.value,
+      })
 
       await simOption.click()
       await expect(createProjectDialog.getByText(option.simLabel)).toBeVisible()
