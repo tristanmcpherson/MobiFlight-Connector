@@ -928,7 +928,11 @@ namespace MobiFlight
             }
             catch (Exception ex)
             {
-                Log.Instance.log($"Error on config execution: {ex.Message}", LogSeverity.Error);
+                // This catch block should rarely be hit because individual config errors are now handled within
+                // ConfigItemExecutor (source read errors, modifier errors, precondition errors, device errors).
+                // If we reach here, it's a critical system-level error, so stopping is appropriate to avoid
+                // repeated failures.
+                Log.Instance.log($"Critical error on config execution: {ex.Message}", LogSeverity.Error);
                 Stop();
             }
         } //timer_Tick()
