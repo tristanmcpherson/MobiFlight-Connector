@@ -1,6 +1,7 @@
 import { ProjectInfo } from "@/types/project"
 import {
   IconChevronRight,
+  IconDeviceGamepad2,
   IconDotsVertical,
   IconExclamationCircle,
   IconPlayerPlayFilled,
@@ -29,10 +30,10 @@ import {
 import { useExecutionStateStore } from "@/stores/executionStateStore"
 import { publishOnMessageExchange } from "@/lib/hooks/appMessage"
 import {
-  CommandMainMenuPayload,
   CommandProjectToolbarPayload,
 } from "@/types/commands"
 import ControllerIcon from "@/components/project/ControllerIcon"
+import { useModal } from "@/lib/hooks/useModal"
 
 export type ProjectCardProps = HtmlHTMLAttributes<HTMLDivElement> & {
   summary: ProjectInfo
@@ -161,20 +162,14 @@ const ProjectCard = ({
   const maxControllersToShow = 6
   const { t } = useTranslation()
   const { showOverlay } = useProjectModal()
-  const { publish } = publishOnMessageExchange()
+  const { showOverlay: showModalOverlay } = useModal()
 
   const handleEditSettings = () => {
     const options = { mode: "edit", project: summary } as ProjectModalOptions
     showOverlay(options)
   }
 
-  const handleMenuItemClick = (payload: CommandMainMenuPayload) => {
-    publish({
-      key: "CommandMainMenu",
-      payload: payload,
-    })
-  }
-
+  
   const simulatorLabel = summary
     ? summary.Sim
       ? t(`Project.Simulator.${summary.Sim.toLowerCase()}`)
@@ -247,12 +242,17 @@ const ProjectCard = ({
                     </div>
                   )}
                   {sortedControllerBindings?.map((controllerBinding, index) => {
+                    const serial =
+                      controllerBinding.BoundController ||
+                      controllerBinding.OriginalController ||
+                      ""
                     return (
                       controllerBinding.BoundController != "-" && (
                         <ControllerIcon
                           className="transition-all ease-in-out"
                           key={`${controllerBinding.BoundController}-${index}`}
-                          controllerBinding={controllerBinding}
+                          serial={serial}
+                          status={controllerBinding.Status}
                         />
                       )
                     )
@@ -264,7 +264,7 @@ const ProjectCard = ({
                       data-testid="controller-binding-issue-icon"
                       title={t("Project.Card.Main.BindingIssuesTooltip")}
                       onClick={() =>
-                        handleMenuItemClick({ action: "extras.serials" })
+                        showModalOverlay({ route: "/bindings" })
                       }
                     >
                       <IconExclamationCircle className="h-11 w-11 stroke-red-600" />
@@ -288,6 +288,10 @@ const ProjectCard = ({
                     <DropdownMenuItem onClick={handleEditSettings}>
                       <IconSettings />
                       {t("Project.Toolbar.Settings")}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => showModalOverlay({ route: "/bindings" })}>
+                      <IconDeviceGamepad2 />
+                      {t("MainMenu.Extras.ControllerBindings")}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>

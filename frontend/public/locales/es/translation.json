@@ -27,6 +27,9 @@
           "Out": "Ctrl+-"
         }
       }
+    },
+    "Extras": {
+      "ControllerBindings": "Vincular controladores"
     }
   },
   "Types": {
@@ -99,7 +102,7 @@
     },
     "BindingStatus": {
       "Match": "Controlador conectado",
-      "AutoBind": "Controlador vinculado automáticamente",
+      "AutoBind": "Controlador auto-vinculado",
       "Missing": "Controlador ausente",
       "RequiresManualBind": "Vinculación manual requerida"
     },
@@ -152,8 +155,7 @@
       },
       "Buttons": {
         "Create": "Crear proyecto",
-        "Update": "Actualizar proyecto",
-        "Cancel": "Cancelar"
+        "Update": "Actualizar proyecto"
       }
     },
     "UnsavedChanges": {
@@ -297,6 +299,28 @@
       "shop": "Ofertas",
       "events": "Eventos",
       "community": "Comunidad"
+    }
+  },
+  "Dialog": {
+    "General": {
+      "Cancel": "Cancelar",
+      "Close": "Cerrar",
+      "SaveChanges": "Guardar cambios",
+      "ApplyChanges": "Aplicar cambios"
+    },
+    "ControllerBinding": {
+      "Title": "Vincular controladores",
+      "Description": "Vincula los controladores usados en este proyecto con los controladores físicos conectados a tu computadora.",
+      "Filter": {
+        "all": "Todos",
+        "manual": "manual",
+        "autobind": "auto-vinculado",
+        "missing": "ausente",
+        "match": "conectado"
+      },
+      "ControllersInProject": "{{count}} controladores usados en el proyecto",
+      "ConnectedControllers": "{{count}} controladores conectados a la PC",
+      "AllSet": "¡Todo listo! Tu proyecto está completamente configurado."
     }
   }
 }

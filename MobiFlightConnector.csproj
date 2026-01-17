@@ -293,6 +293,7 @@
     <Compile Include="Base\ConfigRef.cs" />
     <Compile Include="Base\ConfigRefList.cs" />
     <Compile Include="Base\ConfigItemStatus.cs" />
+    <Compile Include="Base\Controller.cs" />
     <Compile Include="Base\DPIUtil.cs" />
     <Compile Include="Base\Extensions.cs" />
     <Compile Include="Base\FullCacheInterface.cs" />
@@ -328,6 +329,7 @@
     <Compile Include="MobiFlight\BrowserMessages\Incoming\CommandAddConfigFile.cs" />
     <Compile Include="MobiFlight\BrowserMessages\Incoming\CommandAddConfigItem.cs" />
     <Compile Include="MobiFlight\BrowserMessages\Incoming\CommandConfigBulkAction.cs" />
+    <Compile Include="MobiFlight\BrowserMessages\Incoming\CommandControllerBindingsUpdate.cs" />
     <Compile Include="MobiFlight\BrowserMessages\Incoming\CommandProjectToolbar.cs" />
     <Compile Include="MobiFlight\BrowserMessages\Incoming\CommandMainMenu.cs" />
     <Compile Include="MobiFlight\BrowserMessages\Incoming\CommandFileContexMenu.cs" />
@@ -343,6 +345,7 @@
     <Compile Include="MobiFlight\BrowserMessages\Incoming\Handler\CommandMainMenuHandler.cs" />
     <Compile Include="MobiFlight\BrowserMessages\Message.cs" />
     <Compile Include="MobiFlight\BrowserMessages\MessageExchange.cs" />
+    <Compile Include="MobiFlight\BrowserMessages\Outgoing\ConnectedControllers.cs" />
     <Compile Include="MobiFlight\BrowserMessages\Outgoing\RecentProjects.cs" />
     <Compile Include="MobiFlight\BrowserMessages\Outgoing\ConfigValuePartialUpdate.cs" />
     <Compile Include="MobiFlight\BrowserMessages\Outgoing\ConfigValueFullUpdate.cs" />

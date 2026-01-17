@@ -27,6 +27,9 @@
           "Out": "Strg+-"
         }
       }
+    },
+    "Extras": {
+      "ControllerBindings": "Controller-Zuordnungen"
     }
   },
   "Types": {
@@ -35,7 +38,7 @@
     "Stepper": "Schrittmotor",
     "Servo": "Servo",
     "LcdDisplay": "LCD Display",
-    "ShiftRegister": "Ouptut Shift Register",
+    "ShiftRegister": "Output Shift Register",
     "CustomDevice": "Custom Device",
     "InputShiftRegister": "Input Shift Register",
     "Button": "Schalter",
@@ -152,8 +155,7 @@
       },
       "Buttons": {
         "Create": "Projekt erstellen",
-        "Update": "Projekt aktualisieren",
-        "Cancel": "Abbrechen"
+        "Update": "Projekt aktualisieren"
       }
     },
     "UnsavedChanges": {
@@ -297,6 +299,28 @@
       "shop": "Angebote",
       "events": "Termine",
       "community": "Community"
+    }
+  },
+  "Dialog": {
+    "General": {
+      "Cancel": "Abbrechen",
+      "Close": "Schließen",
+      "SaveChanges": "Änderungen speichern",
+      "ApplyChanges": "Änderungen übernehmen"
+    },
+    "ControllerBinding": {
+      "Title": "Controller Zuordnungen",
+      "Description": "Ordne die in diesem Projekt verwendeten Controller den physisch an deinen Computer angeschlossenen Controllern zu.",
+      "Filter": {
+        "all": "Alle",
+        "manual": "Manuelle",
+        "autobind": "Automatisch",
+        "missing": "Fehlt",
+        "match": "Angeschlossen"
+      },
+      "ControllersInProject": "{{count}} Controller im Projekt verwendet",
+      "ConnectedControllers": "{{count}} Controller mit PC verbunden",
+      "AllSet": "Alles bereit! Dein Projekt ist vollständig konfiguriert."
     }
   }
 }

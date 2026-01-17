@@ -7,13 +7,14 @@ export type Controller = {
   VendorId: string
   Type: ControllerType
   Connected: boolean
+  Serial: string
   ImageUrl: string | null
   certified: boolean
   firmwareUpdate?: boolean
 }
 
 export type ControllerBinding = {
-  BoundController: string
+  BoundController: string | null
   Status: ControllerBindingStatus
   OriginalController: string | null
 }

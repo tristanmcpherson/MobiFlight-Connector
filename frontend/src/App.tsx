@@ -12,6 +12,7 @@ import { useRecentProjects, useSettingsStore } from "./stores/settingsStore"
 import { useControllerDefinitionsStore } from "./stores/definitionStore"
 import {
   BoardDefinitions,
+  ConnectedControllers,
   ExecutionState,
   HubHopState,
   JoystickDefinitions,
@@ -33,6 +34,7 @@ import testProject from "@/../tests/data/project.testdata.json" with { type: "js
 import testJsDefinition from "@/../tests/data/joystick.definition.json" with { type: "json" }
 import testMidiDefinition from "@/../tests/data/midicontroller.definition.json" with { type: "json" }
 import testRecentProjects from "@/../tests/data/recentProjects.testdata.json" with { type: "json" }
+import testControllers from "@/../tests/data/connectedControllers.testdata.json" with { type: "json" }
 
 import {
   MidiControllerDefinition,
@@ -41,6 +43,7 @@ import {
 import DebugInfo from "@/components/DebugInfo"
 import { useExecutionStateStore } from "@/stores/executionStateStore"
 import { ProjectInfo } from "@/types/project"
+import { useControllerStore } from "@/stores/controllerStore"
 
 function App() {
   const [queryParameters] = useSearchParams()
@@ -48,6 +51,7 @@ function App() {
   const { project, setProject, setHasChanged } = useProjectStore()
   const { setRecentProjects } = useRecentProjects()
   const { setSettings } = useSettingsStore()
+  const { setControllers } = useControllerStore()
   const {
     setBoardDefinitions,
     setJoystickDefinitions,
@@ -153,6 +157,11 @@ function App() {
     setHubHopState(state)
   })
 
+  useAppMessage("ConnectedControllers", (message) => {
+    const controllers = (message.payload as ConnectedControllers).Controllers
+    setControllers(controllers)
+  })
+
   useEffect(() => {
     if (startupProgress.Value == 100 && location.pathname == "/index.html") {
       console.log("Finished loading, navigating to home")
@@ -175,6 +184,8 @@ function App() {
       setMidiControllerDefinitions([
         testMidiDefinition as MidiControllerDefinition,
       ])
+
+      setControllers(testControllers as ConnectedControllers["Controllers"])
     }
   }, [
     project,
@@ -183,6 +194,7 @@ function App() {
     setMidiControllerDefinitions,
     setProject,
     setRecentProjects,
+    setControllers,
   ])
 
   useAppMessage("ExecutionState", (message) => {

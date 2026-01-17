@@ -1,6 +1,6 @@
 import IconBrandMobiFlightLogo from "@/components/icons/IconBrandMobiFlightLogo"
 import { cn } from "@/lib/utils"
-import { ControllerBinding, ControllerBindingStatus } from "@/types/controller"
+import { ControllerBindingStatus } from "@/types/controller"
 import {
   IconDeviceGamepad2,
   IconPiano,
@@ -10,12 +10,13 @@ import { HtmlHTMLAttributes } from "react"
 import { useTranslation } from "react-i18next"
 
 export type ControllerIconProps = {
-  controllerBinding: ControllerBinding
+  serial: string
+  status?: ControllerBindingStatus
 }
 
 const ControllerIcons = {
   mobiflight: {
-    generic: <IconBrandMobiFlightLogo />,
+    generic: IconBrandMobiFlightLogo,
     official: {
       mega: "/controller/type/mobiflight-mega.png",
       micro: "/controller/type/mobiflight-micro.png",
@@ -26,7 +27,7 @@ const ControllerIcons = {
     },
   },
   joystick: {
-    generic: <IconDeviceGamepad2 />,
+    generic: IconDeviceGamepad2,
     authentikit: {
       AuthentiKit: "/controller/authentikit/atk-orange-button-logo.png",
     },
@@ -45,7 +46,7 @@ const ControllerIcons = {
     },
   },
   midi: {
-    generic: <IconPiano />,
+    generic: IconPiano,
   },
 }
 
@@ -72,15 +73,11 @@ const FindControllerIcon = (controllerType: string, deviceName: string) => {
 }
 
 const ControllerIcon = ({
-  controllerBinding,
+  serial,
+  status,
   className,
   ...props
 }: HtmlHTMLAttributes<HTMLDivElement> & ControllerIconProps) => {
-  const serial =
-    controllerBinding.BoundController ||
-    controllerBinding.OriginalController ||
-    ""
-  const status = controllerBinding.Status
   const { t } = useTranslation()
 
   const controllerType = serial.includes("SN-")
@@ -93,7 +90,9 @@ const ControllerIcon = ({
 
   const usingController = serial != ""
   const deviceName = serial.split("/")[0].trim() || ""
-  const controllerIcon = FindControllerIcon(controllerType, deviceName)
+  const iconResult = FindControllerIcon(controllerType, deviceName)
+  // Handle component rendering
+  const IconComponent = typeof iconResult !== "string" ? iconResult : null
 
   const variant = {
     Match: "bg-green-600",
@@ -115,22 +114,24 @@ const ControllerIcon = ({
         )}
         {...props}
       >
-        {typeof controllerIcon === "string" ? (
+        {typeof iconResult === "string" ? (
           <img
             className="h-full w-full object-cover"
-            src={controllerIcon}
+            src={iconResult}
             alt={`${controllerType} controller icon`}
           />
-        ) : (
-          controllerIcon
-        )}
+        ) : IconComponent ? (
+          <IconComponent />
+        ) : null}
       </div>
-      <div
-        className={cn(
-          `bg-accent outline-background absolute right-0 bottom-0 h-3 w-3 rounded-full outline-3`,
-          variant[status],
-        )}
-      ></div>
+      {status && (
+        <div
+          className={cn(
+            `bg-accent outline-background absolute right-0 bottom-0 h-3 w-3 rounded-full outline-3`,
+            status && variant[status],
+          )}
+        ></div>
+      )}
     </div>
   ) : null
 }

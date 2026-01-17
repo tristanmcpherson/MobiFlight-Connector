@@ -269,6 +269,13 @@ namespace MobiFlight.UI
                 }
                 Process.Start(message.Url);
             });
+
+            MessageExchange.Instance.Subscribe<CommandControllerBindingsUpdate>((message) =>
+            {
+                ControllerBindingService.UpdateControllerBindings(execManager.Project, message.Bindings);
+                MessageExchange.Instance.Publish(execManager.Project);
+                ProjectOrConfigFileHasChanged();
+            });
         }
 
         private void OpenOutputConfigWizardForId(string guid)
@@ -631,7 +638,7 @@ namespace MobiFlight.UI
 
             if (execManager == null) return;
 
-            MessageExchange.Instance.Publish(new MobiFlight.BrowserMessages.Outgoing.BoardDefinitions() { Definitions = BoardDefinitions.Boards });
+            MessageExchange.Instance.Publish(new BrowserMessages.Outgoing.BoardDefinitions() { Definitions = BoardDefinitions.Boards });
             MessageExchange.Instance.Publish(new JoystickDefinitions() { Definitions = execManager.GetJoystickManager().Definitions });
             MessageExchange.Instance.Publish(new MidiControllerDefinitions() { Definitions = execManager.GetMidiBoardManager().Definitions.Values.ToList() });
         }

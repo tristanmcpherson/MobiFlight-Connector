@@ -3,13 +3,14 @@ import { AppMessage } from "@/types/messages"
 import type { Locator, Page } from "@playwright/test"
 import testProject from "../data/project.testdata.json" with { type: "json" }
 import recentProjects from "../data/recentProjects.testdata.json" with { type: "json" }
+import connectedControllers from "../data/connectedControllers.testdata.json" with { type: "json" }
 import { Project } from "@/types"
 import { ProjectInfo } from "@/types/project"
-
+import { ControllerBinding } from "@/types/controller"
 
 declare global {
   interface Window {
-    commands?: CommandMessage[];
+    commands?: CommandMessage[]
   }
 }
 
@@ -84,26 +85,23 @@ export class MobiFlightPage {
   }
 
   async trackCommand(key: CommandMessageKey) {
-    await this.subscribeToCommand(
-      key,
-      async (message) => {
-        if (window.commands === undefined) {
-          window.commands = []
-        }
-        window.commands.push(message)
-      },
-    )
+    await this.subscribeToCommand(key, async (message) => {
+      if (window.commands === undefined) {
+        window.commands = []
+      }
+      window.commands.push(message)
+    })
   }
 
   async getTrackedCommands() {
     // Small delay to ensure commands are captured
     // this was needed when upgrading playwright version to 1.56.1
-    await this.page.waitForTimeout(10) 
-    return await this.page.evaluate(() => window.commands);
+    await this.page.waitForTimeout(10)
+    return await this.page.evaluate(() => window.commands)
   }
 
   getTooltipByText(text: string): Locator {
-    return this.page.getByRole("tooltip").filter({hasText:text})
+    return this.page.getByRole("tooltip").filter({ hasText: text })
   }
 
   async initWithEmptyData() {
@@ -115,8 +113,8 @@ export class MobiFlightPage {
         ConfigFiles: [],
         Sim: "msfs",
         Features: {
-            "FSUIPC": false,
-            "ProSim": false
+          FSUIPC: false,
+          ProSim: false,
         },
         ControllerBindings: [],
       } as Project,
@@ -131,6 +129,7 @@ export class MobiFlightPage {
     }
     await this.publishMessage(message)
     await this.initWithRecentProjects()
+    await this.initWithConnectedControllers()
   }
 
   async initWithTestDataAndSpecificProfileCount(profileCount: number) {
@@ -146,6 +145,7 @@ export class MobiFlightPage {
     }
     await this.publishMessage(message)
     await this.initWithRecentProjects()
+    await this.initWithConnectedControllers()
   }
 
   async initWithRecentProjects() {
@@ -162,6 +162,16 @@ export class MobiFlightPage {
     return recentProjects as ProjectInfo[]
   }
 
+  async initWithConnectedControllers() {
+    const connectedControllersMessage: AppMessage = {
+      key: "ConnectedControllers",
+      payload: {
+        Controllers: connectedControllers,
+      },
+    }
+    await this.publishMessage(connectedControllersMessage)
+  }
+
   async initWithTestDataAndSpecificProjectProps(props: Partial<Project>) {
     const testProjectWithProps = {
       ...testProject,
@@ -174,5 +184,25 @@ export class MobiFlightPage {
     }
     await this.publishMessage(message)
     await this.initWithRecentProjects()
+  }
+
+  async openControllerBindingsDialog() {
+    const menuItemExtras = this.page
+      .getByRole("menubar")
+      .getByRole("menuitem", { name: "Extras" })
+    const menuItemManageControllerBindings = this.page.getByRole("menuitem", {
+      name: "Controller Bindings",
+    })
+    const dialog = this.page.getByRole("dialog", {
+      name: "Controller Bindings",
+    })
+
+    await menuItemExtras.click()
+    await menuItemManageControllerBindings.click()
+    await dialog.waitFor({ state: "visible" })
+  }
+
+  getControllerBindings() {
+    return (testProject as Project).ControllerBindings as ControllerBinding[]
   }
 }
