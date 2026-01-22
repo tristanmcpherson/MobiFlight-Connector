@@ -1,6 +1,8 @@
+import ConfirmationDialog from "@/components/ConfirmationDialog"
 import ProjectCard from "@/components/project/ProjectCard"
 import { ProjectCreateButton } from "@/components/project/ProjectCreateButton"
 import ProjectList from "@/components/project/ProjectList"
+import LoaderOverlay from "@/components/tables/config-item-table/LoaderOverlay"
 import {
   Card,
   CardContent,
@@ -8,30 +10,90 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { useAsynchronous } from "@/lib/hooks/useAsynchronous"
 import useMessageExchange from "@/lib/hooks/useMessageExchange"
 import { useProjectStore } from "@/stores/projectStore"
 import { useRecentProjects } from "@/stores/settingsStore"
 import { CommandMainMenu } from "@/types/commands"
 import { ProjectInfo } from "@/types/project"
+import { useCallback, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 const ProjectMainCard = () => {
   const { t } = useTranslation()
   const { publish } = useMessageExchange()
   const { recentProjects } = useRecentProjects()
-  const { project } = useProjectStore()
+  const { project, hasChanged, saveStatus, setSaveStatus } = useProjectStore()
   const activeProject = project
 
-  const loadProject = (project: ProjectInfo) => {
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [pendingProject, setPendingProject] = useState<ProjectInfo | null>(null)
+
+  const { waitForSaveStatus } = useAsynchronous()
+
+  const loadProject = useCallback(
+    (project: ProjectInfo) => {
+      publish({
+        key: "CommandMainMenu",
+        payload: {
+          action: "file.recent",
+          options: {
+            project: project,
+          },
+        },
+      } as CommandMainMenu)
+    },
+    [publish],
+  )
+
+  const handleSaveChanges = async () => {
+    // set frontend to saving state
+    // this will block the UI from further interactions
+    // until the save is complete in the backend,
+    // which is indicated by the saveStatus changing
+    setSaveStatus("saving")
+
+    // close the dialog
+    setIsDialogOpen(false)
+
+    // trigger save command in backend
     publish({
       key: "CommandMainMenu",
       payload: {
-        action: "file.recent",
-        options: {
-          project: project,
-        },
+        action: "file.save",
       },
     } as CommandMainMenu)
+
+    // wait for save to complete
+    waitForSaveStatus().then((result) => {
+      // if save was successful,
+      // only then go on and load the pending project
+      if (result === "success" && pendingProject) {
+        loadProject(pendingProject)
+      }
+
+      // always clear pending project
+      setPendingProject(null)
+    })
+  }
+
+  const handleDiscardChanges = () => {
+    setIsDialogOpen(false)
+
+    if (pendingProject) {
+      loadProject(pendingProject)
+      setPendingProject(null)
+    }
+  }
+
+  const confirmLoadProject = (project: ProjectInfo) => {
+    if (hasChanged) {
+      // display confirmation dialog
+      setPendingProject(project)
+      setIsDialogOpen(true)
+      return
+    }
+    loadProject(project)
   }
 
   const showRecentProjects = recentProjects.length > 0
@@ -95,7 +157,7 @@ const ProjectMainCard = () => {
                 className="grow"
                 summarys={recentProjects}
                 activeProject={activeProject as ProjectInfo}
-                onSelect={(project) => loadProject(project)}
+                onSelect={(project) => confirmLoadProject(project)}
               />
             </div>
           </div>
@@ -109,6 +171,16 @@ const ProjectMainCard = () => {
             </CardContent>
           </Card>
         )}
+        <ConfirmationDialog
+          open={isDialogOpen}
+          onOpenChange={setIsDialogOpen}
+          saveChanges={handleSaveChanges}
+          discardChanges={handleDiscardChanges}
+        />
+        <LoaderOverlay
+          message={t("General.Overlay.SavingChanges")}
+          open={saveStatus === "saving"}
+        />
       </CardContent>
     </Card>
   )
