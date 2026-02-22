@@ -226,7 +226,7 @@ namespace MobiFlight.UI
             {
                 if (message.Type == CommandAddConfigFileType.create)
                 {
-                    AddNewFileToProject();
+                    AddNewFileToProject(message.Label);
                 }
                 else if (message.Type == CommandAddConfigFileType.merge)
                 {
@@ -2302,13 +2302,17 @@ namespace MobiFlight.UI
             SetProjectFilePathInTitle();
         }
 
-        public void AddNewFileToProject()
+        public void AddNewFileToProject(string label)
         {
             execManager.Stop();
 
             ConfigFile newConfigFile = CreateDefaultConfigFile();
-            execManager.Project.ConfigFiles.Add(newConfigFile);
+            if (!string.IsNullOrEmpty(label))
+            {
+                newConfigFile.Label = label;
+            }
 
+            execManager.Project.ConfigFiles.Add(newConfigFile);
             ProjectOrConfigFileHasChanged();
 
 
