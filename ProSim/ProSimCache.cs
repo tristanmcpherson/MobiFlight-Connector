@@ -18,6 +18,7 @@ namespace MobiFlight.ProSim
         public event EventHandler<string> AircraftChanged;
 
         private readonly string _instanceId = Guid.NewGuid().ToString("N").Substring(0, 6);
+        private static bool DetailedDebugLogEnabled => Properties.Settings.Default.ProSimDetailedDebugLog;
         private bool _connected = false;
 
         private readonly object _cacheLock = new object();
@@ -51,6 +52,19 @@ namespace MobiFlight.ProSim
             public DataRefDescription DataRefDescription { get; set; }
         }
 
+        private void LogDetailed(string message, LogSeverity severity = LogSeverity.Debug)
+        {
+            if (DetailedDebugLogEnabled)
+            {
+                Log.Instance.log(message, severity);
+            }
+        }
+
+        private static string DescribeValue(object value)
+        {
+            return value == null ? "<null>" : $"{value} ({value.GetType().Name})";
+        }
+
         public bool Connect()
         {
             try
@@ -61,7 +75,7 @@ namespace MobiFlight.ProSim
 
                 var port = Properties.Settings.Default.ProSimPort;
 
-                Log.Instance.log($"ProSimCache[{_instanceId}] Connect requested. Host={host}, Port={port}", LogSeverity.Debug);
+                LogDetailed($"ProSimCache[{_instanceId}] Connect requested. Host={host}, Port={port}");
 
                 _connection = new GraphQLHttpClient($"http://{host}:{port}/graphql", new NewtonsoftJsonSerializer());
                 _connection.InitializeWebsocketConnection();
@@ -71,7 +85,7 @@ namespace MobiFlight.ProSim
                     if (state == GraphQLWebsocketConnectionState.Connected)
                     {
                         Log.Instance.log("Connected to ProSim GraphQL WebSocket!", LogSeverity.Debug);
-                        Log.Instance.log($"ProSimCache[{_instanceId}] WebSocket connected.", LogSeverity.Debug);
+                        LogDetailed($"ProSimCache[{_instanceId}] WebSocket connected.");
                         _connected = true;
                         
                         // Refresh data definitions on connection
@@ -102,7 +116,7 @@ namespace MobiFlight.ProSim
                                 clearedCount = _dataRefDescriptions.Count;
                                 _dataRefDescriptions.Clear();
                             }
-                            Log.Instance.log($"ProSimCache[{_instanceId}] Disconnected. Cleared {clearedCount} dataref definitions.", LogSeverity.Debug);
+                            LogDetailed($"ProSimCache[{_instanceId}] Disconnected. Cleared {clearedCount} dataref definitions.");
                             ConnectionLost?.Invoke(this, new EventArgs());
                         }
                     }
@@ -126,7 +140,7 @@ namespace MobiFlight.ProSim
                 clearedCount = _dataRefDescriptions.Count;
                 _dataRefDescriptions = new Dictionary<string, DataRefDescription>();
             }
-            Log.Instance.log($"ProSimCache[{_instanceId}] Clear called. Cleared {clearedCount} dataref definitions.", LogSeverity.Debug);
+            LogDetailed($"ProSimCache[{_instanceId}] Clear called. Cleared {clearedCount} dataref definitions.");
         }
 
         private void StartHeartbeat()
@@ -148,12 +162,12 @@ namespace MobiFlight.ProSim
                     }
                     catch (Exception ex)
                     {
-                        Log.Instance.log($"Heartbeat failed: {ex.Message}", LogSeverity.Debug);
+                        LogDetailed($"Heartbeat failed: {ex.Message}");
                     }
                 }
             };
             _heartbeatTimer.Start();
-            Log.Instance.log("Started WebSocket heartbeat timer", LogSeverity.Debug);
+            LogDetailed("Started WebSocket heartbeat timer");
         }
 
         private void StopHeartbeat()
@@ -163,7 +177,7 @@ namespace MobiFlight.ProSim
                 _heartbeatTimer.Stop();
                 _heartbeatTimer.Dispose();
                 _heartbeatTimer = null;
-                Log.Instance.log("Stopped WebSocket heartbeat timer", LogSeverity.Debug);
+                LogDetailed("Stopped WebSocket heartbeat timer");
             }
         }
 
@@ -203,7 +217,7 @@ namespace MobiFlight.ProSim
 
             _subscriptions[datarefPath] = disposable;
 
-            Log.Instance.log($"Created subscription for dataref: {datarefPath}", LogSeverity.Debug);
+            LogDetailed($"Created subscription for dataref: {datarefPath}");
         }
 
         private void UpdateCachedValue(string datarefPath, object value)
@@ -249,10 +263,11 @@ namespace MobiFlight.ProSim
             {
                 // Queue the write for later processing
                 _pendingWrites.Enqueue((datarefPath, value));
-                Log.Instance.log($"Queued write for {datarefPath} during data definitions refresh", LogSeverity.Debug);
+                LogDetailed($"ProSimCache[{_instanceId}] Queued write during refresh. Path={datarefPath}, Value={DescribeValue(value)}");
                 return;
             }
 
+            LogDetailed($"ProSimCache[{_instanceId}] Dispatching write. Path={datarefPath}, Value={DescribeValue(value)}");
             WriteOutValueInternal(datarefPath, value);
         }
 
@@ -262,25 +277,31 @@ namespace MobiFlight.ProSim
             {
                 if (!IsConnected() || _connection == null)
                 {
+                    LogDetailed($"ProSimCache[{_instanceId}] Write skipped: not connected. Path={datarefPath}");
                     return;
                 }
 
                 if (!_dataRefDescriptions.TryGetValue(datarefPath, out var description))
                 {
+                    LogDetailed($"ProSimCache[{_instanceId}] Write skipped: unknown dataref. Path={datarefPath}");
                     return;
                 }
 
                 if (!description.CanWrite)
                 {
+                    LogDetailed($"ProSimCache[{_instanceId}] Write skipped: dataref not writable. Path={datarefPath}");
                     return;
                 }
 
                 if (!mutationLookup.TryGetValue(description.DataType, out var mutation))
                 {
+                    LogDetailed($"ProSimCache[{_instanceId}] Write skipped: unsupported data type '{description.DataType}'. Path={datarefPath}");
                     return;
                 }
 
                 var (method, graphqlType) = mutation;
+                LogDetailed(
+                    $"ProSimCache[{_instanceId}] Write mutation prepared. Path={datarefPath}, Method={method}, DataType={description.DataType}, Value={DescribeValue(value)}");
 
                 Task.Run(async () => {
                     try
@@ -296,16 +317,17 @@ mutation ($name: String!, $value: {graphqlType}) {{
                             Query = query,
                             Variables = new { name = datarefPath, value }
                         });
+                        LogDetailed($"ProSimCache[{_instanceId}] Write completed. Path={datarefPath}, Method={method}");
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        // Ignore all errors
+                        LogDetailed($"ProSimCache[{_instanceId}] Write failed. Path={datarefPath}, Method={method}, Error={ex.Message}");
                     }
                 });
             }
-            catch
+            catch (Exception ex)
             {
-                // Ignore all errors
+                LogDetailed($"ProSimCache[{_instanceId}] WriteOutValueInternal failed. Path={datarefPath}, Error={ex.Message}");
             }
         }
 
@@ -315,7 +337,7 @@ mutation ($name: String!, $value: {graphqlType}) {{
             {
                 if (_refreshInProgress)
                 {
-                    Log.Instance.log($"ProSimCache[{_instanceId}] RefreshDataDefinitions skipped: refresh already in progress.", LogSeverity.Debug);
+                    LogDetailed($"ProSimCache[{_instanceId}] RefreshDataDefinitions skipped: refresh already in progress.");
                     return;
                 }
                 _refreshInProgress = true;
@@ -325,11 +347,11 @@ mutation ($name: String!, $value: {graphqlType}) {{
             {
                 if (!IsConnected() || _connection == null)
                 {
-                    Log.Instance.log($"ProSimCache[{_instanceId}] RefreshDataDefinitions aborted: Connected={IsConnected()}, ConnectionNull={_connection == null}.", LogSeverity.Debug);
+                    LogDetailed($"ProSimCache[{_instanceId}] RefreshDataDefinitions aborted: Connected={IsConnected()}, ConnectionNull={_connection == null}.");
                     return;
                 }
 
-                Log.Instance.log("Refreshing ProSim data definitions...", LogSeverity.Debug);
+                LogDetailed("Refreshing ProSim data definitions...");
                 
                 var dataRefDescriptions = await _connection.SendQueryAsync<DataRefData>(new GraphQL.GraphQLRequest
                 {
@@ -352,7 +374,7 @@ mutation ($name: String!, $value: {graphqlType}) {{
 
                 if (dataRefDescriptions?.Data?.DataRef?.DataRefDescriptions == null)
                 {
-                    Log.Instance.log($"ProSimCache[{_instanceId}] RefreshDataDefinitions returned no dataref descriptions.", LogSeverity.Debug);
+                    LogDetailed($"ProSimCache[{_instanceId}] RefreshDataDefinitions returned no dataref descriptions.");
                     return;
                 }
 
@@ -363,7 +385,7 @@ mutation ($name: String!, $value: {graphqlType}) {{
                     _dataRefDescriptions = newDataRefDescriptions;
                 }
 
-                Log.Instance.log($"Refreshed {_dataRefDescriptions.Count} data definitions", LogSeverity.Debug);
+                LogDetailed($"Refreshed {_dataRefDescriptions.Count} data definitions");
 
                 ProcessPendingWrites();
             }
@@ -394,7 +416,7 @@ mutation ($name: String!, $value: {graphqlType}) {{
                 return;
             }
 
-            Log.Instance.log($"Processing {totalPending} pending writes after data definitions refresh", LogSeverity.Debug);
+            LogDetailed($"Processing {totalPending} pending writes after data definitions refresh");
 
             while (_pendingWrites.TryDequeue(out var pendingWrite))
             {
@@ -510,6 +532,7 @@ mutation ($name: String!, $value: {graphqlType}) {{
         {
             if (!IsConnected())
             {
+                LogDetailed($"ProSimCache[{_instanceId}] writeDataref skipped: not connected. Path={datarefPath}");
                 return;
             }
 
@@ -520,16 +543,19 @@ mutation ($name: String!, $value: {graphqlType}) {{
                     if (_refreshInProgress)
                     {
                         _pendingWrites.Enqueue((datarefPath, value));
+                        LogDetailed($"ProSimCache[{_instanceId}] writeDataref queued while refresh in progress. Path={datarefPath}, Value={DescribeValue(value)}");
                         return;
                     }
 
                     _pendingWrites.Enqueue((datarefPath, value));
+                    LogDetailed($"ProSimCache[{_instanceId}] writeDataref queued and triggering refresh. Path={datarefPath}, Value={DescribeValue(value)}");
                     RefreshDataDefinitionsAsync().ConfigureAwait(false);
                     return;
                 }
 
                 if (!_dataRefDescriptions.ContainsKey(datarefPath))
                 {
+                    LogDetailed($"ProSimCache[{_instanceId}] writeDataref skipped: dataref not found in definitions. Path={datarefPath}");
                     return;
                 }
                 
@@ -537,6 +563,7 @@ mutation ($name: String!, $value: {graphqlType}) {{
 
                 if (!description.CanWrite)
                 {
+                    LogDetailed($"ProSimCache[{_instanceId}] writeDataref skipped: dataref is not writable. Path={datarefPath}");
                     return;
                 }
 
@@ -558,16 +585,20 @@ mutation ($name: String!, $value: {graphqlType}) {{
                         transformedValue = Convert.ToBoolean(value);
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
+                    LogDetailed(
+                        $"ProSimCache[{_instanceId}] writeDataref conversion failed. Path={datarefPath}, TargetType={targetDataType}, Value={DescribeValue(value)}, Error={ex.Message}");
                     return;
                 }
 
+                LogDetailed(
+                    $"ProSimCache[{_instanceId}] writeDataref accepted. Path={datarefPath}, TargetType={targetDataType}, Value={DescribeValue(transformedValue)}");
                 WriteOutValue(datarefPath, transformedValue);
             }
-            catch
+            catch (Exception ex)
             {
-                // Ignore all errors
+                LogDetailed($"ProSimCache[{_instanceId}] writeDataref failed. Path={datarefPath}, Error={ex.Message}");
             }
         }
 
@@ -581,9 +612,7 @@ mutation ($name: String!, $value: {graphqlType}) {{
                 snapshot = new Dictionary<string, DataRefDescription>(_dataRefDescriptions);
             }
 
-            Log.Instance.log(
-                $"ProSimCache[{_instanceId}] GetDataRefDescriptions. Connected={_connected}, Refreshing={_refreshInProgress}, Count={count}",
-                LogSeverity.Debug);
+            LogDetailed($"ProSimCache[{_instanceId}] GetDataRefDescriptions. Connected={_connected}, Refreshing={_refreshInProgress}, Count={count}");
 
             return snapshot;
         }

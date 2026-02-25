@@ -647,5 +647,17 @@ namespace MobiFlight.Properties {
                 this["ProSimMaxRetryAttempts"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool ProSimDetailedDebugLog {
+            get {
+                return ((bool)(this["ProSimDetailedDebugLog"]));
+            }
+            set {
+                this["ProSimDetailedDebugLog"] = value;
+            }
+        }
     }
 }

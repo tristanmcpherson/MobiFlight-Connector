@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.proSimDetailedDebugCheckBox = new System.Windows.Forms.CheckBox();
             this.proSimMaxRetryNumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.proSimAutoConnectCheckBox = new System.Windows.Forms.CheckBox();
             this.label3 = new System.Windows.Forms.Label();
@@ -42,6 +43,7 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.proSimDetailedDebugCheckBox);
             this.groupBox1.Controls.Add(this.proSimMaxRetryNumericUpDown);
             this.groupBox1.Controls.Add(this.proSimAutoConnectCheckBox);
             this.groupBox1.Controls.Add(this.label3);
@@ -51,10 +53,20 @@
             this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Location = new System.Drawing.Point(4, 4);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(551, 120);
+            this.groupBox1.Size = new System.Drawing.Size(551, 147);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "ProSim Settings";
+            // 
+            // proSimDetailedDebugCheckBox
+            // 
+            this.proSimDetailedDebugCheckBox.AutoSize = true;
+            this.proSimDetailedDebugCheckBox.Location = new System.Drawing.Point(9, 121);
+            this.proSimDetailedDebugCheckBox.Name = "proSimDetailedDebugCheckBox";
+            this.proSimDetailedDebugCheckBox.Size = new System.Drawing.Size(119, 17);
+            this.proSimDetailedDebugCheckBox.TabIndex = 7;
+            this.proSimDetailedDebugCheckBox.Text = "Detailed debug log";
+            this.proSimDetailedDebugCheckBox.UseVisualStyleBackColor = true;
             // 
             // proSimMaxRetryNumericUpDown
             // 
@@ -153,5 +165,6 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.CheckBox proSimAutoConnectCheckBox;
         private System.Windows.Forms.NumericUpDown proSimMaxRetryNumericUpDown;
+        private System.Windows.Forms.CheckBox proSimDetailedDebugCheckBox;
     }
 }
