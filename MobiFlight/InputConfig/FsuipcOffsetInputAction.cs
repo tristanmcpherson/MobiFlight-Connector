@@ -81,7 +81,8 @@ namespace MobiFlight.InputConfig
 
             if (value.Contains("@"))
             {
-                Tuple<string, string> replacement = new Tuple<string, string>("@", args.Value.ToString());
+                var inputValue = !string.IsNullOrEmpty(args.StrValue) ? args.StrValue : args.Value.ToString();
+                Tuple<string, string> replacement = new Tuple<string, string>("@", inputValue);
                 replacements.Add(replacement);
             }
 
@@ -179,7 +180,7 @@ namespace MobiFlight.InputConfig
             }
             else if (FSUIPC.Size == 255)
             {
-                cache.setOffset(FSUIPC.Offset, Value);
+                cache.setOffset(FSUIPC.Offset, value);
             }
 
             cache.Write();
