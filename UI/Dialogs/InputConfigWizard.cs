@@ -568,6 +568,7 @@ namespace MobiFlight.UI.Dialogs
                             ProjectInfo = this.ProjectInfo,
                             CurrentConfig = Config
                         };
+                        InitializeInputPanel(panel);
                         (panel as Panels.Input.ButtonPanel).syncFromConfig(config.button);
                         break;
 
@@ -578,6 +579,7 @@ namespace MobiFlight.UI.Dialogs
                             ProjectInfo = this.ProjectInfo,
                             CurrentConfig = Config,
                         };
+                        InitializeInputPanel(panel);
                         (panel as Panels.Input.EncoderPanel).syncFromConfig(config.encoder);
                         break;
 
@@ -589,6 +591,7 @@ namespace MobiFlight.UI.Dialogs
                             ProjectInfo = this.ProjectInfo,
                             CurrentConfig = Config
                         };
+                        InitializeInputPanel(panel);
                         (panel as Panels.Input.ButtonPanel).syncFromConfig(config.inputShiftRegister);
                         PopulateInputPinDropdown(Convert.ToInt32(selectedInputShifter.NumModules), config.inputShiftRegister?.ExtPin);
                         inputPinDropDown.Visible = true;
@@ -602,6 +605,7 @@ namespace MobiFlight.UI.Dialogs
                             ProjectInfo = this.ProjectInfo,
                             CurrentConfig = Config
                         };
+                        InitializeInputPanel(panel);
                         (panel as Panels.Input.ButtonPanel).syncFromConfig(config.inputMultiplexer);
                         PopulateInputPinDropdown(Convert.ToInt32(selectedInputMultiplexer.NumBytes), config.inputMultiplexer?.DataPin);
                         inputPinDropDown.Visible = true;
@@ -614,15 +618,9 @@ namespace MobiFlight.UI.Dialogs
                             ProjectInfo = this.ProjectInfo,
                             CurrentConfig = Config
                         };
+                        InitializeInputPanel(panel);
                         (panel as Panels.Input.AnalogPanel).syncFromConfig(config.analog);
                         break;
-                }
-
-                // Initialize panels that implement IInputPanel interface
-                if (panel is IInputPanel inputPanel)
-                {
-                    inputPanel.Init(_execManager);
-                    inputPanel.SetVariableReferences(_execManager.GetAvailableVariables());
                 }
 
                 DeviceNotAvailableWarningLabel.Visible = (serial == "") && currentInputType != DeviceType.NotSet;
@@ -639,8 +637,17 @@ namespace MobiFlight.UI.Dialogs
                 Log.Instance.log(ex.Message, LogSeverity.Error);
                 MessageBox.Show(i18n._tr("uiMessageNotImplementedYet"),
                                 i18n._tr("Hint"),
-                                MessageBoxButtons.OK,
-                                MessageBoxIcon.Warning);
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Warning);
+            }
+        }
+
+        private void InitializeInputPanel(Control panel)
+        {
+            if (panel is IInputPanel inputPanel)
+            {
+                inputPanel.Init(_execManager);
+                inputPanel.SetVariableReferences(_execManager.GetAvailableVariables());
             }
         }
 

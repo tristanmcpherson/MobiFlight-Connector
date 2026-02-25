@@ -87,6 +87,7 @@
             this.tabControl1.TabIndex = 21;
             // 
             // onPressTabPage
+            this.onPressTabPage.AutoScroll = true;
             // 
             this.onPressTabPage.Controls.Add(this.onPressActionConfigPanel);
             this.onPressTabPage.Controls.Add(this.onPressActionTypePanel);
@@ -110,6 +111,7 @@
             this.onPressActionTypePanel.TabIndex = 20;
             // 
             // onReleaseTabPage
+            this.onReleaseTabPage.AutoScroll = true;
             // 
             this.onReleaseTabPage.Controls.Add(this.onReleaseActionConfigPanel);
             this.onReleaseTabPage.Controls.Add(this.onReleaseActionTypePanel);
@@ -145,6 +147,7 @@
             this.onReleaseActionTypePanel.TabIndex = 20;
             // 
             // onHoldTabPage
+            this.onHoldTabPage.AutoScroll = true;
             // 
             this.onHoldTabPage.Controls.Add(this.onHoldActionConfigPanel);
             this.onHoldTabPage.Controls.Add(this.onHoldActionTypePanel);
@@ -243,6 +246,7 @@
             this.holdDelayTextBox.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBox_KeyPress);
             // 
             // onLongReleaseTabPage
+            this.onLongReleaseTabPage.AutoScroll = true;
             // 
             this.onLongReleaseTabPage.Controls.Add(this.onLongRelActionConfigPanel);
             this.onLongReleaseTabPage.Controls.Add(this.onLongReleaseActionTypePanel);
