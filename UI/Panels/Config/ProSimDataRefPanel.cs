@@ -56,7 +56,6 @@ namespace MobiFlight.UI.Panels.Config
                 _dataRefRetryTimer.Stop();
                 _dataRefRetryTimer.Dispose();
             };
-            Log.Instance.log($"ProSimDataRefPanel initialized. OutputMode={_isOutputMode}", LogSeverity.Debug);
         }
 
         private void DataGridView1_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
@@ -69,13 +68,11 @@ namespace MobiFlight.UI.Panels.Config
         {
             _isOutputMode = isOutputPanel;
             transformOptionsGroup1.setMode(isOutputPanel);
-            Log.Instance.log($"ProSimDataRefPanel SetMode. OutputMode={_isOutputMode}", LogSeverity.Debug);
         }
 
         public void Init(IExecutionManager executionManager)
         {
             _executionManager = executionManager;
-            Log.Instance.log("ProSimDataRefPanel Init called.", LogSeverity.Debug);
         }
 
         internal void syncToConfig(OutputConfigItem config)
@@ -102,17 +99,14 @@ namespace MobiFlight.UI.Panels.Config
 
         public void LoadDataRefDescriptions()
         {
-            Log.Instance.log($"ProSimDataRefPanel LoadDataRefDescriptions. OutputMode={_isOutputMode}", LogSeverity.Debug);
             if (_executionManager == null)
             {
-                Log.Instance.log("ProSimDataRefPanel LoadDataRefDescriptions aborted: execution manager is null.", LogSeverity.Debug);
                 return; // Silently return if not initialized
             }
 
             var proSimCache = _executionManager.GetProSimCache();
             if (!proSimCache.IsConnected())
             {
-                Log.Instance.log("ProSimDataRefPanel LoadDataRefDescriptions aborted: ProSim cache not connected.", LogSeverity.Debug);
                 return; // Silently return if not connected
             }
 
@@ -121,16 +115,13 @@ namespace MobiFlight.UI.Panels.Config
                 _isLoading = true;
                 // Get the dataref descriptions from the already-connected ProSimCache
                 _dataRefDescriptions = proSimCache.GetDataRefDescriptions();
-                Log.Instance.log($"ProSimDataRefPanel fetched {_dataRefDescriptions.Count} datarefs from cache.", LogSeverity.Debug);
                 _canReadDataRefDescriptions = _dataRefDescriptions.Values
                     .Where(drd => _isOutputMode ? drd.CanRead : drd.CanWrite)
                     .ToList();
                 if (!_isOutputMode && _canReadDataRefDescriptions.Count == 0 && _dataRefDescriptions.Count > 0)
                 {
-                    Log.Instance.log("No writable ProSim datarefs reported; showing all datarefs.", LogSeverity.Warn);
                     _canReadDataRefDescriptions = _dataRefDescriptions.Values.ToList();
                 }
-                Log.Instance.log($"ProSimDataRefPanel filtered to {_canReadDataRefDescriptions.Count} datarefs.", LogSeverity.Debug);
 
                 if (_dataRefDescriptions.Count == 0)
                 {
@@ -151,7 +142,6 @@ namespace MobiFlight.UI.Panels.Config
                             _canReadDataRefDescriptions.Sort((drd1, drd2) => drd2.Name.CompareTo(drd1.Name));
                             dataGridView1.DataSource = null;
                             dataGridView1.DataSource = _canReadDataRefDescriptions;
-                            Log.Instance.log("ProSimDataRefPanel data grid updated on UI thread.", LogSeverity.Debug);
                         }));
                     }
                     else
@@ -159,7 +149,6 @@ namespace MobiFlight.UI.Panels.Config
                         _canReadDataRefDescriptions.Sort((drd1, drd2) => drd2.Name.CompareTo(drd1.Name));
                         dataGridView1.DataSource = null;
                         dataGridView1.DataSource = _canReadDataRefDescriptions;
-                        Log.Instance.log("ProSimDataRefPanel data grid updated on current thread.", LogSeverity.Debug);
                         SelectRowForCurrentPath();
                     }
                 }
@@ -208,7 +197,6 @@ namespace MobiFlight.UI.Panels.Config
         private void DataRefRetryTimer_Tick(object sender, EventArgs e)
         {
             _dataRefRetryTimer.Stop();
-            Log.Instance.log($"ProSimDataRefPanel retry tick {_dataRefRetryCount}/{MaxDataRefRetryCount}.", LogSeverity.Debug);
             LoadDataRefDescriptions();
         }
 
@@ -216,15 +204,10 @@ namespace MobiFlight.UI.Panels.Config
         {
             if (_dataRefRetryTimer.Enabled || _dataRefRetryCount >= MaxDataRefRetryCount)
             {
-                if (_dataRefRetryCount >= MaxDataRefRetryCount)
-                {
-                    Log.Instance.log("ProSimDataRefPanel retry limit reached; stopping retries.", LogSeverity.Debug);
-                }
                 return;
             }
 
             _dataRefRetryCount++;
-            Log.Instance.log($"ProSimDataRefPanel scheduling retry {_dataRefRetryCount}/{MaxDataRefRetryCount}.", LogSeverity.Debug);
             _dataRefRetryTimer.Start();
         }
 
@@ -235,7 +218,6 @@ namespace MobiFlight.UI.Panels.Config
             {
                 _dataRefRetryTimer.Stop();
             }
-            Log.Instance.log("ProSimDataRefPanel retry reset.", LogSeverity.Debug);
         }
 
         private void SelectRowForCurrentPath()
@@ -257,7 +239,6 @@ namespace MobiFlight.UI.Panels.Config
                     {
                         dataGridView1.FirstDisplayedScrollingRowIndex = row.Index;
                     }
-                    Log.Instance.log($"ProSimDataRefPanel selected dataref '{path}'.", LogSeverity.Debug);
                     break;
                 }
             }

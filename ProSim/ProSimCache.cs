@@ -17,7 +17,6 @@ namespace MobiFlight.ProSim
         public event EventHandler ConnectionLost;
         public event EventHandler<string> AircraftChanged;
 
-        private readonly string _instanceId = Guid.NewGuid().ToString("N").Substring(0, 6);
         private bool _connected = false;
 
         private readonly object _cacheLock = new object();
@@ -61,8 +60,6 @@ namespace MobiFlight.ProSim
 
                 var port = Properties.Settings.Default.ProSimPort;
 
-                Log.Instance.log($"ProSimCache[{_instanceId}] Connect requested. Host={host}, Port={port}", LogSeverity.Debug);
-
                 _connection = new GraphQLHttpClient($"http://{host}:{port}/graphql", new NewtonsoftJsonSerializer());
                 _connection.InitializeWebsocketConnection();
 
@@ -71,7 +68,6 @@ namespace MobiFlight.ProSim
                     if (state == GraphQLWebsocketConnectionState.Connected)
                     {
                         Log.Instance.log("Connected to ProSim GraphQL WebSocket!", LogSeverity.Debug);
-                        Log.Instance.log($"ProSimCache[{_instanceId}] WebSocket connected.", LogSeverity.Debug);
                         _connected = true;
                         
                         // Refresh data definitions on connection
@@ -96,13 +92,10 @@ namespace MobiFlight.ProSim
                             // Stop heartbeat timer
                             StopHeartbeat();
                             // Clear data definitions on disconnection
-                            int clearedCount = 0;
                             lock (_cacheLock)
                             {
-                                clearedCount = _dataRefDescriptions.Count;
                                 _dataRefDescriptions.Clear();
                             }
-                            Log.Instance.log($"ProSimCache[{_instanceId}] Disconnected. Cleared {clearedCount} dataref definitions.", LogSeverity.Debug);
                             ConnectionLost?.Invoke(this, new EventArgs());
                         }
                     }
@@ -120,13 +113,10 @@ namespace MobiFlight.ProSim
 
         public void Clear()
         {
-            int clearedCount = 0;
             lock (_cacheLock)
             {
-                clearedCount = _dataRefDescriptions.Count;
                 _dataRefDescriptions = new Dictionary<string, DataRefDescription>();
             }
-            Log.Instance.log($"ProSimCache[{_instanceId}] Clear called. Cleared {clearedCount} dataref definitions.", LogSeverity.Debug);
         }
 
         private void StartHeartbeat()
@@ -315,7 +305,6 @@ mutation ($name: String!, $value: {graphqlType}) {{
             {
                 if (_refreshInProgress)
                 {
-                    Log.Instance.log($"ProSimCache[{_instanceId}] RefreshDataDefinitions skipped: refresh already in progress.", LogSeverity.Debug);
                     return;
                 }
                 _refreshInProgress = true;
@@ -325,7 +314,6 @@ mutation ($name: String!, $value: {graphqlType}) {{
             {
                 if (!IsConnected() || _connection == null)
                 {
-                    Log.Instance.log($"ProSimCache[{_instanceId}] RefreshDataDefinitions aborted: Connected={IsConnected()}, ConnectionNull={_connection == null}.", LogSeverity.Debug);
                     return;
                 }
 
@@ -352,7 +340,6 @@ mutation ($name: String!, $value: {graphqlType}) {{
 
                 if (dataRefDescriptions?.Data?.DataRef?.DataRefDescriptions == null)
                 {
-                    Log.Instance.log($"ProSimCache[{_instanceId}] RefreshDataDefinitions returned no dataref descriptions.", LogSeverity.Debug);
                     return;
                 }
 
@@ -580,10 +567,6 @@ mutation ($name: String!, $value: {graphqlType}) {{
                 count = _dataRefDescriptions.Count;
                 snapshot = new Dictionary<string, DataRefDescription>(_dataRefDescriptions);
             }
-
-            Log.Instance.log(
-                $"ProSimCache[{_instanceId}] GetDataRefDescriptions. Connected={_connected}, Refreshing={_refreshInProgress}, Count={count}",
-                LogSeverity.Debug);
 
             return snapshot;
         }
