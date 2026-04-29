@@ -20,3 +20,14 @@ https://www.npmjs.com/package/zustand
 ## lodash-es
 https://www.npmjs.com/package/lodash-es
 and @types/lodash-es
+
+## Community feed loading
+The community feed uses a hybrid strategy:
+
+- Default items are: `feed:community` from bundled i18n files in `public/locales/*/feed.json`
+- Background refresh: optional remote JSON loaded per language
+- Merge rule: remote feed is prepended to fallback feed only when remote `community` contains at least one valid item
+
+Environment variables:
+- `VITE_FEED_REMOTE_BASE_URL`: remote base URL in the format, example for path `{base}/en/feed.json`
+  If not set, it will use `https://mobiflight.com/feed`
