@@ -177,6 +177,9 @@ namespace MobiFlight.Scripts
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
                 };
+                LogSeverity severity = LogSeverity.Info;
+                Enum.TryParse(Properties.Settings.Default.LogLevel, /*ignoreCase=*/ true, out severity);
+                psi.EnvironmentVariables["LOGLEVEL"] = severity.PythonLogLevel();
 
                 Process process = new Process
                 {
@@ -259,11 +262,32 @@ namespace MobiFlight.Scripts
             }
         }
 
+        private string ScriptName(object sender)
+        {
+            Process process = (Process)sender;
+            if (ProcessTable.TryGetValue(process.Id, out string script))
+            {
+                return script;
+            }
+            return "(unknown script)";
+        }
+
         private void Process_ErrorDataReceived(object sender, DataReceivedEventArgs e)
         {
             if (!string.IsNullOrEmpty(e.Data))
             {
-                Log.Instance.log($"ScriptRunner - Output: {e.Data}", LogSeverity.Info);
+                if (e.Data.IndexOf(':') is int i && i != -1)
+                {
+                    string logLevel = e.Data.Substring(0, i);
+                    if (LogSeverityExtensions.SeverityFromPythonLogLevel(logLevel, out LogSeverity severity))
+                    {
+                        string msg = e.Data.Substring(i + 1);
+                        Log.Instance.log($"{ScriptName(sender)} (stderr): {msg}", severity);
+                        return;
+                    }
+                }
+
+                Log.Instance.log($"{ScriptName(sender)} (stderr): {e.Data}", LogSeverity.Info);
             }
         }
 
@@ -271,7 +295,7 @@ namespace MobiFlight.Scripts
         {
             if (!string.IsNullOrEmpty(e.Data))
             {
-                Log.Instance.log($"ScriptRunner - StandardOutput: {e.Data}", LogSeverity.Info);
+                Log.Instance.log($"{ScriptName(sender)} (stdout): {e.Data}", LogSeverity.Info);
             }
         }
 
