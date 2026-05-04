@@ -388,5 +388,15 @@
         "ActionCopyToClipboard": "Copiar mensaje"
       }
     }
+  },
+  "Membership": {
+    "Club": "Club MobiFlight",
+    "Status": {
+      "Member": "Miembro del Club",
+      "Basic": "Cuenta básica"
+    },
+    "Action": {
+      "Upgrade": "Mejorar plan"
+    }
   }
 }

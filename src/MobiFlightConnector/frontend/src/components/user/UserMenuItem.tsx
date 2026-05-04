@@ -5,16 +5,20 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu"
 import { MenubarSeparator } from "@/components/ui/menubar"
 import toast from "@/components/ui/ToastWrapper"
 import useMessageExchange from "@/lib/hooks/useMessageExchange"
 import { cn } from "@/lib/utils"
+import { useUserProfileStore } from "@/stores/userProfileStore"
+import { CommandOpenLinkInBrowser } from "@/types/commands"
 import {
   IconClipboard,
   IconClipboardCheck,
   IconLoader2,
   IconLogout,
+  IconRosetteDiscountCheckFilled,
   IconUser,
   IconUserCircle,
 } from "@tabler/icons-react"
@@ -50,6 +54,7 @@ const UserMenuItem = () => {
   const { publish } = useMessageExchange()
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
+  const { userProfile } = useUserProfileStore()
 
   /* Leaving this here for testing purposes */
   // const myauth = {
@@ -84,6 +89,24 @@ const UserMenuItem = () => {
     })
   }
 
+  const handleProfileClick = () => {
+    publish({
+      key: "CommandOpenLinkInBrowser",
+      payload: {
+        url: `https://club.mobiflight.com`,
+      },
+    } as CommandOpenLinkInBrowser)
+  }
+
+  const handleUpgradeClick = () => {
+    publish({
+      key: "CommandOpenLinkInBrowser",
+      payload: {
+        url: `https://club.mobiflight.com/subscribe`,
+      },
+    } as CommandOpenLinkInBrowser)
+  }
+
   useEffect(() => {
     if (error) {
       const clipboardContent = `Name: ${error.name}\nMessage: ${error.message}\nStack: ${error.stack}`
@@ -112,6 +135,8 @@ const UserMenuItem = () => {
     }
   }, [error, t])
 
+  const memberStatus = userProfile?.membership
+
   if (auth.isLoading) {
     return (
       <Button
@@ -124,11 +149,6 @@ const UserMenuItem = () => {
     )
   }
 
-  console.log("Auth state:", {
-    isAuthenticated: auth.isAuthenticated,
-    user: auth.user,
-  })
-
   return auth.isAuthenticated ? (
     <DropdownMenu onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
@@ -139,23 +159,61 @@ const UserMenuItem = () => {
           <span className={cn(open && "opacity-0", "text-md")}>
             Hi, {auth.user?.profile?.name}
           </span>
-          <IconUserCircle />
+          <div className="relative">
+            <IconUserCircle />
+            {memberStatus === "member" && (
+              <div className="absolute -right-1 -bottom-0.5 h-5 w-5 rounded-full bg-white stroke-0">
+                <IconRosetteDiscountCheckFilled
+                  className={cn("size-5! fill-pink-600")}
+                />
+              </div>
+            )}
+          </div>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="min-w-40 [&_svg]:size-5">
-        <div className="text-md px-2 py-1 font-medium">
-          {auth.user?.profile?.name}
-        </div>
-        <div className="text-muted-foreground px-2 py-0 text-sm">
+      <DropdownMenuContent align="end" className="min-w-70 [&_svg]:size-5">
+        <div className="px-2 font-medium">{auth.user?.profile?.name}</div>
+        <div className="text-muted-foreground px-2 text-sm">
           {auth.user?.profile?.email}
         </div>
         <MenubarSeparator />
-        <DropdownMenuItem className="">
+        <div className="-mx-2 bg-linear-to-br from-sky-500 to-emerald-500 px-2">
+          <DropdownMenuLabel className="text-md text-background pb-0">
+            {t("Membership.Club")}
+          </DropdownMenuLabel>
+          <DropdownMenuItem className="flex cursor-default flex-row justify-center px-2 pt-0 focus:bg-transparent">
+            {memberStatus === "member" ? (
+              <Badge
+                className="flex flex-row items-center gap-2 rounded-full bg-pink-600 hover:bg-pink-600 px-1 pr-2 my-2"
+              >
+                <IconRosetteDiscountCheckFilled />
+                <span className="text-sm">{t("Membership.Status.Member")}</span>
+              </Badge>
+            ) : (
+              <div className="flex flex-row items-center">
+                <Badge
+                  variant="outline"
+                  className="border-background rounded-full px-2"
+                >
+                  <span className="text-background text-sm">
+                    {t("Membership.Status.Basic")}
+                  </span>
+                </Badge>
+                <Button
+                  variant={"link"}
+                  onClick={handleUpgradeClick}
+                  className="text-background font-normal"
+                >
+                  {t("Membership.Action.Upgrade")}
+                </Button>
+              </div>
+            )}
+          </DropdownMenuItem>
+        </div>
+        <MenubarSeparator />
+        <DropdownMenuItem onClick={handleProfileClick} className="">
           <IconUser />
           <span>{t("Auth.User.Profile")}</span>
-          <Badge variant="outline" className="ml-auto">
-            {t("Auth.User.ProfileFeatureComingSoon")}
-          </Badge>
         </DropdownMenuItem>
         <MenubarSeparator />
         <DropdownMenuItem onClick={handleSignOut} className="text-md">
