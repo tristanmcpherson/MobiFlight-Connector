@@ -141,6 +141,9 @@ namespace MobiFlightWwFcu
                 case WinwingConstants.PRODUCT_ID_AGP:
                     AddToCoupledDevices(new WinwingAgpDevice(MessageSender));
                     break;
+                case WinwingConstants.PRODUCT_ID_TCAS:
+                    AddToCoupledDevices(new WinwingTcasDevice(MessageSender));
+                    break;
                 case WinwingConstants.PRODUCT_ID_PTO2:
                     AddToCoupledDevices(new WinwingPto2Device(MessageSender));
                     break;

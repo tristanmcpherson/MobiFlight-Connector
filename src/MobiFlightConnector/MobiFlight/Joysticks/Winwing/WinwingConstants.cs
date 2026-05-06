@@ -38,6 +38,7 @@
 
         internal const int PRODUCT_ID_ECAM = 0xBB70;
         internal const int PRODUCT_ID_AGP = 0xBB80;
+        internal const int PRODUCT_ID_TCAS = 0xBB81;
 
         internal const int PRODUCT_ID_PTO2 = 0xBF05;
 

@@ -104,48 +104,6 @@ namespace MobiFlightWwFcu
             }
         }
 
-        public void SendDisplayCommandsCopilot(IList<byte[]> commands)
-        {
-            const int HEADER_SIZE = 3;
-            const int MAX_PAYLOAD = 56; // 64 - header - length byte
-
-            byte[] timeId = GetTimeAsBytes();
-            byte[] message = GetNewMessage();
-            int payloadIndex = 0; // Index within the current 64-byte message payload
-
-            foreach (var command in commands)
-            {
-                for (int cmdByteIndex = 0; cmdByteIndex < command.Length; cmdByteIndex++)
-                {
-                    int messageIndex = HEADER_SIZE + 1 + payloadIndex; // +1 for length byte
-
-                    // Insert time bytes at specific command positions
-                    if (cmdByteIndex == 8)
-                        message[messageIndex] = timeId[0];
-                    else if (cmdByteIndex == 9)
-                        message[messageIndex] = timeId[1];
-                    else if (cmdByteIndex == 10)
-                        message[messageIndex] = timeId[2];
-                    else
-                        message[messageIndex] = command[cmdByteIndex];
-
-                    payloadIndex++;
-
-                    bool isLastByte = (command == commands[commands.Count - 1]) &&
-                                      (cmdByteIndex == command.Length - 1);
-
-                    if (payloadIndex >= MAX_PAYLOAD || isLastByte)
-                    {
-                        message[HEADER_SIZE] = (byte)payloadIndex;
-                        WriteStream(message, 0, 64);
-                        message = GetNewMessage();
-                        payloadIndex = 0;
-                    }
-                }
-            }
-        }
-
-
         public void SendCduDisplayBytes(byte[] byteList)
         {
             byte[] message = new byte[64];

@@ -7,16 +7,16 @@ namespace MobiFlightWwFcuUnitTests
     public class WinwingCduDeviceTests
     {
         [TestMethod]
-        [DataRow('a', 0x21, 0x00)]
-        [DataRow('w', 0x42, 0x00)]
-        [DataRow('c', 0x63, 0x00)]
-        [DataRow('g', 0x84, 0x00)]
-        [DataRow('m', 0xa5, 0x00)]
-        [DataRow('r', 0xc6, 0x00)]
-        [DataRow('y', 0xe7, 0x00)]
-        [DataRow('o', 0x08, 0x01)]
-        [DataRow('e', 0x29, 0x01)]
-        [DataRow('k', 0x4a, 0x01)]
+        [DataRow('a',0x21, 0x00)]
+        [DataRow('w',0x42, 0x00)]
+        [DataRow('c',0x63, 0x00)]
+        [DataRow('g',0x84, 0x00)]
+        [DataRow('m',0xa5, 0x00)]
+        [DataRow('r',0xc6, 0x00)]
+        [DataRow('y',0xe7, 0x00)]
+        [DataRow('o',0x08, 0x01)]
+        [DataRow('e',0x29, 0x01)]
+        [DataRow('k',0x4a, 0x01)]
         public void GetFormatByts_Large_Expected(
             char color,
             int lowByte,
