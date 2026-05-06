@@ -328,7 +328,6 @@ namespace MobiFlight
             shiftRegisters.Clear();
             customDevices.Clear();
 
-
             foreach (Config.BaseDevice device in Config.Items)
             {
                 if (device == null) continue; // Can happen during development if trying with an older firmware, which prevents you from starting.
@@ -718,7 +717,7 @@ namespace MobiFlight
                 Log.Instance.log($"Unable to convert {strValue} to an integer.", LogSeverity.Error);
                 return;
             }
-
+            
             OnInputDeviceAction?.Invoke(this, new InputEventArgs()
             {
                 Serial = this.Serial,
@@ -776,8 +775,6 @@ namespace MobiFlight
             ledModules[name].SetBrightness(module, value);
             return true;
         }
-
-
 
         public bool SetServo(string servoAddress, int value, int min, int max, byte maxRotationPercent)
         {

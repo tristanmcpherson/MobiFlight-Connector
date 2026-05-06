@@ -1,8 +1,10 @@
 ﻿using Device.Net;
 using Hid.Net;
 using Hid.Net.Windows;
+using MobiFlight.Modifier;
 using SharpDX.DirectInput;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,6 +13,13 @@ namespace MobiFlight.Joysticks.Bodnar
 {
     internal class BodnarBoard : Joystick
     {
+        /// <summary>
+        /// The threshold for axis changes to trigger events. 
+        /// This helps to avoid noise and small fluctuations from triggering events.
+        /// </summary>
+        readonly int AxisChangeThreshold = 32;
+        readonly int WindowSize = 8;
+
         /// <summary>
         /// Used for reading HID reports in a background thread.
         /// </summary>
@@ -60,6 +69,20 @@ namespace MobiFlight.Joysticks.Bodnar
         {
             report = new BodnarReport(buttonCount);
         }
+
+        List<List<ModifierBase>> axisFilter = new List<List<ModifierBase>>();
+
+        /// <summary>
+        /// Cached delegates for reading axis values — avoids reflection on every HID report.
+        /// Built once in EnumerateDevices after all axes are registered.
+        /// </summary>
+        private Func<JoystickState, int>[] _axisGetters;
+
+        /// <summary>
+        /// Cached delegates for writing axis values — avoids reflection on every HID report.
+        /// Built once in EnumerateDevices after all axes are registered.
+        /// </summary>
+        private Action<JoystickState, int>[] _axisSetters;
 
         /// <summary>
         /// This creates a connection to the HID device using the Device.Net library.
@@ -117,7 +140,7 @@ namespace MobiFlight.Joysticks.Bodnar
                     var data = HidReport.TransferResult.Data;
                     ProcessInputReportBuffer(HidReport.ReportId, data);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     // Exception when disconnecting while mobiflight is running.
                     Log.Instance.log($"{Name} disconnected because of exception: {ex}", LogSeverity.Error);
@@ -178,12 +201,23 @@ namespace MobiFlight.Joysticks.Bodnar
                 int oldValue = 0;
                 if (StateExists())
                 {
-                    oldValue = GetValueForAxisFromState(CurrentAxis, State);
+                    oldValue = _axisGetters[CurrentAxis](State);
                 }
 
-                int newValue = GetValueForAxisFromState(CurrentAxis, newState);
+                int newValue = _axisGetters[CurrentAxis](newState);
 
-                if (StateExists() && !ExceedsThreshold(oldValue, newValue)) continue;
+                int filteredValue = newValue;
+                foreach (var item in axisFilter[CurrentAxis])
+                {
+                    filteredValue = (int)Math.Round(item.Apply(new ConnectorValue() { Float64 = filteredValue }, null).Float64);
+                }
+
+                _axisSetters[CurrentAxis](newState, filteredValue);
+
+                if (oldValue == filteredValue)
+                {
+                    continue;
+                }
 
                 TriggerButtonPressed(this, new InputEventArgs()
                 {
@@ -192,47 +226,79 @@ namespace MobiFlight.Joysticks.Bodnar
                     DeviceLabel = Axes[CurrentAxis].Label,
                     Serial = Serial,
                     Type = DeviceType.AnalogInput,
-                    Value = newValue
+                    Value = filteredValue
                 });
             }
         }
 
-        /// <summary>
-        /// Tests if the change in axis value exceeds the defined threshold.
-        /// </summary>
-        /// <param name="oldValue">The old joystick value</param>
-        /// <param name="newValue">The new joystick value to compare.</param>
-        /// <returns>True if the change exceeds the threshold; otherwise, false.</returns>
-        private static bool ExceedsThreshold(int oldValue, int newValue)
-        {
-            return Math.Abs(oldValue - newValue) >= 2 << 3;
-        }
-
         protected override void EnumerateDevices()
         {
-            foreach (DeviceObjectInstance device in this.DIJoystick.GetObjects().ToList().OrderBy((a) => a.Usage))
+            // In unit test context
+            // This can be possibly null -> so we skip this part.
+            if (DIJoystick != null)
             {
-                this.DIJoystick.GetObjectInfoById(device.ObjectId);
+                foreach (DeviceObjectInstance device in this.DIJoystick.GetObjects().ToList().OrderBy((a) => a.Usage))
+                {
+                    this.DIJoystick.GetObjectInfoById(device.ObjectId);
 
-                bool IsAxis = (device.ObjectId.Flags & DeviceObjectTypeFlags.AbsoluteAxis) > 0;
-                bool IsButton = (device.ObjectId.Flags & DeviceObjectTypeFlags.Button) > 0;
-                bool IsPOV = (device.ObjectId.Flags & DeviceObjectTypeFlags.PointOfViewController) > 0;
+                    bool IsAxis = (device.ObjectId.Flags & DeviceObjectTypeFlags.AbsoluteAxis) > 0;
+                    bool IsButton = (device.ObjectId.Flags & DeviceObjectTypeFlags.Button) > 0;
+                    bool IsPOV = (device.ObjectId.Flags & DeviceObjectTypeFlags.PointOfViewController) > 0;
 
-                if (IsAxis && Axes.Count < DIJoystick.Capabilities.AxeCount)
-                {
-                    RegisterAxis(device);
+                    if (IsAxis && Axes.Count < DIJoystick.Capabilities.AxeCount)
+                    {
+                        RegisterAxis(device);
+                    }
+                    else if (IsButton)
+                    {
+                        RegisterButton(device);
+                    }
+                    else if (IsPOV)
+                    {
+                        RegisterPOV(device);
+                    }
+                    else
+                    {
+                        continue;
+                    }
                 }
-                else if (IsButton)
+            }
+
+            // Build axis cache after all axes are registered
+            BuildAxisAccessMethods();
+
+            axisFilter.Clear();
+            axisFilter.AddRange(
+                Axes.Select(a => new List<ModifierBase>() {
+                    new Quantize() { StepSize = AxisChangeThreshold, Active = true },
+                    new SimpleMovingAverage() { WindowSize = WindowSize, Active = true }
+                })
+            );
+        }
+
+        /// <summary>
+        /// Builds cached getter and setter delegates for each axis to avoid
+        /// costly reflection lookups on every HID report.
+        /// </summary>
+        protected void BuildAxisAccessMethods()
+        {
+            _axisGetters = new Func<JoystickState, int>[Axes.Count];
+            _axisSetters = new Action<JoystickState, int>[Axes.Count];
+
+            for (int i = 0; i < Axes.Count; i++)
+            {
+                var rawName = Axes[i].Name.Replace(AxisPrefix, "").TrimStart();
+                if (rawName.Contains("Slider"))
                 {
-                    RegisterButton(device);
-                }
-                else if (IsPOV)
-                {
-                    RegisterPOV(device);
+                    int sliderIndex = rawName == "Slider2" ? 1 : 0;
+                    _axisGetters[i] = s => s.Sliders[sliderIndex];
+                    _axisSetters[i] = (s, v) => s.Sliders[sliderIndex] = v;
                 }
                 else
                 {
-                    continue;
+                    var prop = typeof(JoystickState).GetProperty(rawName);
+                    _axisGetters[i] = s => (int)prop.GetValue(s, null);
+                    _axisSetters[i] = (s, v) => prop.SetValue(s, v, null);
                 }
             }
         }
