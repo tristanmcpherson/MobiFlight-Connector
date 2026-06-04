@@ -27,6 +27,7 @@ using System.Drawing;
 using MobiFlight.BrowserMessages.Incoming.Handler;
 using System.ComponentModel;
 using MobiFlight.Controllers;
+using MobiFlight.UI.StateBadge;
 
 namespace MobiFlight.UI
 {
@@ -903,6 +904,7 @@ namespace MobiFlight.UI
             SaveWindowPositionAndZoomLevel();
             Properties.Settings.Default.Save();
             logPanel1.Shutdown();
+            runningStateBadge?.Dispose();
         } //Form1_FormClosed
 
         private void SaveWindowPositionAndZoomLevel()
@@ -1631,6 +1633,7 @@ namespace MobiFlight.UI
                 execManager.Start();
                 if (Properties.Settings.Default.MinimizeOnAutoRun)
                 {
+                    this.WindowState = FormWindowState.Minimized;
                     minimizeMainForm(true);
                 }
             }
@@ -1807,6 +1810,10 @@ namespace MobiFlight.UI
 
                 // The Stop entry
                 contextMenuStripNotifyIcon.Items[1].Enabled = isRunning;
+
+                if (runningStateBadge == null)
+                    runningStateBadge = new RunningStateIconBadge(notifyIcon, this);
+                runningStateBadge.Update(isRunning);
             }
             catch (Exception ex)
             {
@@ -1814,6 +1821,8 @@ namespace MobiFlight.UI
                 Log.Instance.log(ex.Message, LogSeverity.Info);
             }
         }
+
+        private RunningStateIconBadge runningStateBadge;
 
         /// <summary>
         /// present errors to user via message dialog or when minimized via balloon
@@ -1876,10 +1885,6 @@ namespace MobiFlight.UI
             if (minimized)
             {
                 notifyIcon.Visible = true;
-                notifyIcon.BalloonTipTitle = i18n._tr("uiMessageMFConnectorInterfaceActive");
-                notifyIcon.BalloonTipText = i18n._tr("uiMessageApplicationIsRunningInBackgroundMode");
-                notifyIcon.ShowBalloonTip(1000);
-                this.Hide();
             }
             else
             {
