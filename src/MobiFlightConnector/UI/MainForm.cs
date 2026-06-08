@@ -221,10 +221,6 @@ namespace MobiFlight.UI
                 {
                     OpenOutputConfigWizardForId(message.Item.GUID);
                 }
-                else if (msg.Item.Type == typeof(InputConfigItem).Name)
-                {
-                    OpenInputConfigWizardForId(message.Item.GUID);
-                }
             });
 
             MessageExchange.Instance.Subscribe<CommandAddConfigFile>((message) =>
@@ -285,7 +281,7 @@ namespace MobiFlight.UI
 
                 // Only evaluate success if AuthProcess is still in progress.
                 // Once the auth process is completed, we want to ignore any further messages.
-                if (message.State == CommandUserAuthenticationState.success && 
+                if (message.State == CommandUserAuthenticationState.success &&
                     frontendPanel1.AuthProcessInProgress)
                 {
                     frontendPanel1.EndAuthProcess();
@@ -360,62 +356,6 @@ namespace MobiFlight.UI
                 }
             }
 
-            MessageExchange.Instance.Publish(new OverlayState() { Visible = false });
-        }
-
-        private void OpenInputConfigWizardForId(string guid)
-        {
-            if (this.InvokeRequired)
-            {
-                this.Invoke((Action)(() => OpenInputConfigWizardForId(guid)));
-                return;
-            }
-
-            var cfg = execManager.ConfigItems.Find(c => c.GUID == guid);
-            if (cfg == null || !(cfg is InputConfigItem)) return;
-
-            // Show a modal dialog after the current event handler is completed, to avoid potential reentrancy caused by running a nested message loop in the WebView2 event handler.
-            System.Threading.SynchronizationContext.Current.Post((_) =>
-            {
-                _editConfigWithInputWizard(cfg as InputConfigItem, false);
-            }, null);
-        }
-
-        private void _editConfigWithInputWizard(InputConfigItem cfg, bool create)
-        {
-            // refactor!!! dependency to arcaze cache etc not nice
-            InputConfigWizard wizard = new InputConfigWizard(
-                                execManager,
-                                cfg,
-#if ARCAZE
-                                execManager.getModuleCache(),
-                                execManager.getModuleCache().GetArcazeModuleSettings(),
-#endif
-                                execManager.ConfigItems.Where(item => item is OutputConfigItem).Cast<OutputConfigItem>().ToList(),
-                                execManager.GetAvailableVariables(),
-                                execManager.Project.ToProjectInfo()
-                                )
-            {
-                StartPosition = FormStartPosition.CenterParent
-            };
-
-            wizard.SettingsDialogRequested += ConfigPanel_SettingsDialogRequested;
-
-            MessageExchange.Instance.Publish(new OverlayState() { Visible = true });
-            if (wizard.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-            {
-                if (wizard.ConfigHasChanged())
-                {
-                    // we have to update the config
-                    // using the duplicated config 
-                    // that the user edited with the wizard
-                    var index = execManager.ConfigItems.FindIndex(c => c.GUID == cfg.GUID);
-                    execManager.ConfigItems[index] = wizard.Config;
-                    MessageExchange.Instance.Publish(new ConfigValuePartialUpdate() { ConfigItems = new List<IConfigItem>() { wizard.Config } });
-                    OnConfigItemHasChanged(wizard.Config, null);
-                    execManager.OnInputConfigSettingsChanged(wizard.Config, null);
-                }
-            }
             MessageExchange.Instance.Publish(new OverlayState() { Visible = false });
         }
 
@@ -640,6 +580,12 @@ namespace MobiFlight.UI
                     );
                 }
             }
+
+            // Publish the updated list of available variables
+            var availableVars = execManager.GetAvailableVariables();
+            MessageExchange.Instance.Publish(new MobiFlightVariablesUpdate() { 
+                Variables = availableVars.Values.ToList() 
+            });
 
             ProjectHasUnsavedChanges = true;
             SetProjectFilePathInTitle();

@@ -1,8 +1,9 @@
 import { Settings } from "http2"
-import { IConfigValueOnlyItem } from "./config"
+import { IConfigItem, IConfigValueOnlyItem, MobiFlightVariable } from "./config"
 import { JoystickDefinition, MidiControllerDefinition } from "./definitions"
 import { ProjectInfo } from "@/types/project"
-import { Controller, ControllerBinding } from "@/types/controller"
+import { Controller, ControllerBinding, DeviceReference } from "@/types/controller"
+import { vJoyDefinition } from "@/types/controller"
 
 export type AppMessageKey =
   | "StatusBarUpdate"
@@ -24,6 +25,10 @@ export type AppMessageKey =
   | "ConnectedControllers"
   | "AuthenticationStatus"
   | "ControllerBindingsUpdate"
+  | "ScanForInputResult"
+  | "MobiFlightVariablesUpdate"
+  | "ProSimDataRefDefinitionUpdate"
+  | "VJoyDefinitionsUpdate"
 
 export type AppMessagePayload =
   | StatusBarUpdate
@@ -43,6 +48,9 @@ export type AppMessagePayload =
   | ConnectedControllers
   | AuthenticationStatus
   | ControllerBindingsUpdate
+  | ScanForInputResult
+  | ProSimDataRefDefinitionUpdate
+  | VJoyDefinitionsUpdate
 
 // AppMessage is the message format
 // when receiving messages from the backend
@@ -146,6 +154,22 @@ export type ControllerBindingsUpdate = {
   Bindings: ControllerBinding[]
 }
 
+export type ScanForInputResult = {
+  Controller: Controller
+  Device: DeviceReference
+}
+
+export type MobiFlightVariablesUpdate = {
+  Variables: MobiFlightVariable[]
+}
+
+export type ProSimDataRefDefinitionUpdate = {
+  DataRefs: Record<string, ProSimDataRefDefinition>
+}
+
+export type VJoyDefinitionsUpdate = {
+  Definitions: vJoyDefinition[]
+}
 // Not sure what this is for
 // but we are using it in the tests
 // for mocking the chrome API

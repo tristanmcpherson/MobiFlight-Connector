@@ -2,6 +2,7 @@ import { CommandMessageKey, CommandMessage } from "@/types/commands"
 import { AppMessage, ProjectStatus } from "@/types/messages"
 import { expect, type Locator, type Page } from "@playwright/test"
 import testProject from "../data/project.testdata.json" with { type: "json" }
+import inputActionTestProject from "../data/inputaction.testdata.json" with { type: "json" }
 import recentProjects from "../data/recentProjects.testdata.json" with { type: "json" }
 import connectedControllers from "../data/connectedControllers.testdata.json" with { type: "json" }
 import { Project } from "@/types"
@@ -162,7 +163,9 @@ export class MobiFlightPage {
       payload: {
         Name: "Test Project",
         FilePath: "SomeFilePath.mfproj",
-        ConfigFiles: [],
+        ConfigFiles: [
+          { ConfigItems: [], FileName: "Config1", Label: "Config 1" },
+        ],
         Sim: "msfs",
         Features: {
           FSUIPC: false,
@@ -172,16 +175,23 @@ export class MobiFlightPage {
       } as Project,
     }
     await this.publishMessage(message)
+    await this.initWithRecentProjects()
+    await this.initWithConnectedControllers()
   }
 
-  async initWithTestData() {
+  async initWithTestData(variant: "default" | "inputaction" = "default") {
+    const project = variant === "default" ? testProject : inputActionTestProject
     const message: AppMessage = {
       key: "Project",
-      payload: testProject,
+      payload: project,
     }
     await this.publishMessage(message)
     await this.initWithRecentProjects()
     await this.initWithConnectedControllers()
+  }
+
+  async getTestProjectData(variant: "default" | "inputaction" = "default") {
+    return variant === "default" ? testProject : inputActionTestProject
   }
 
   async initWithTestDataAndSpecificProfileCount(profileCount: number) {
@@ -224,9 +234,9 @@ export class MobiFlightPage {
     await this.publishMessage(connectedControllersMessage)
   }
 
-  async initWithTestDataAndSpecificProjectProps(props: Partial<Project>) {
+  async initWithTestDataAndSpecificProjectProps(props: Partial<Project>, variant: "default" | "inputaction" = "default") {
     const testProjectWithProps = {
-      ...testProject,
+      ...(variant === "default" ? testProject : inputActionTestProject),
       ...props,
     }
 
