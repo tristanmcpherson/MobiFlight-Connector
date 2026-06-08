@@ -46,6 +46,10 @@
           "In": "Ctrl++",
           "Out": "Ctrl+-"
         }
+      },
+      "Log": {
+        "Show": "Näytä lokipaneeli",
+        "Hide": "Piilota lokipaneeli"
       }
     },
     "Extras": {
@@ -599,5 +603,10 @@
     "Action": {
       "Upgrade": "Nosta tasoa"
     }
+  },
+  "LogPanel": {
+    "Title": "Loki",
+    "Empty": "Odotetaan lokimerkintöjä",
+    "LoggingDisabled": "Loki ei ole käytössä. Ota loki käyttöön asetuksista nähdäksesi lokit täällä."
   }
 }

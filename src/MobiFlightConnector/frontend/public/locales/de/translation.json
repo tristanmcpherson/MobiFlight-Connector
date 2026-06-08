@@ -46,6 +46,10 @@
           "In": "Strg++",
           "Out": "Strg+-"
         }
+      },
+      "Log": {
+        "Show": "Logs anzeigen",
+        "Hide": "Logs ausblenden"
       }
     },
     "Extras": {
@@ -605,5 +609,10 @@
     "Action": {
       "Upgrade": "Upgrade"
     }
+  },
+  "LogPanel": {
+    "Title": "Log",
+    "Empty": "Warte auf Log-Einträge",
+    "LoggingDisabled": "Logging ist deaktiviert. Aktivieren Sie das Logging in den Einstellungen."
   }
 }

@@ -48,6 +48,10 @@
           "In": "Ctrl++",
           "Out": "Ctrl+-"
         }
+      },
+      "Log": {
+        "Show": "Show Log Panel",
+        "Hide": "Hide Log Panel"
       }
     },
     "Extras": {
@@ -605,5 +609,10 @@
     "Action": {
       "Upgrade": "Upgrade"
     }
+  },
+  "LogPanel": {
+    "Title": "Log",
+    "Empty": "Waiting for log entries",
+    "LoggingDisabled": "Logging is disabled. Enable logging in Settings to see logs here."
   }
 }

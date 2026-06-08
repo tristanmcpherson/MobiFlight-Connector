@@ -46,6 +46,10 @@
           "In": "Ctrl++",
           "Out": "Ctrl+-"
         }
+      },
+      "Log": {
+        "Show": "Mostrar registro",
+        "Hide": "Ocultar registro"
       }
     },
     "Extras": {
@@ -605,5 +609,10 @@
     "Action": {
       "Upgrade": "Mejorar plan"
     }
+  },
+  "LogPanel": {
+    "Title": "Log",
+    "Empty": "Esperando entradas de registro",
+    "LoggingDisabled": "El registro está desactivado. Actívalo en la Configuración para ver los registros aquí."
   }
 }
