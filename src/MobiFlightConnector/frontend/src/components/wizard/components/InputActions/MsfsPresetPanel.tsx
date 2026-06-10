@@ -1,6 +1,8 @@
 import ComboBox from "@/components/ComboBox"
+import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { IconX } from "@tabler/icons-react"
 import { useQuery } from "@tanstack/react-query"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -72,17 +74,22 @@ const MsfsPresetPanel = ({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-4 gap-2">
         <Input
-          placeholder={t("Dialog.InputConfigWizard.InputActions.Common.FilterPresets")}
+          placeholder={t(
+            "Dialog.InputConfigWizard.InputActions.Common.FilterPresets",
+          )}
           value={filter.search}
           onChange={(e) =>
             setFilter((prev) => ({ ...prev, search: e.target.value }))
           }
         />
         <ComboBox
+          widthClass="flex-1"
           selected={filter?.vendor}
-          placeholder={t("Dialog.InputConfigWizard.InputActions.Common.FilterByVendor")}
+          placeholder={t(
+            "Dialog.InputConfigWizard.InputActions.Common.FilterByVendor",
+          )}
           getLabel={(item) => item}
           getValue={(item) => item}
           items={vendors}
@@ -90,10 +97,15 @@ const MsfsPresetPanel = ({
           setSelected={(item) => {
             setFilter((prev) => ({ ...prev, vendor: item || "" }))
           }}
-          searchPlaceholder={t("Dialog.InputConfigWizard.InputActions.Common.SearchVendors")}
+          searchPlaceholder={t(
+            "Dialog.InputConfigWizard.InputActions.Common.SearchVendors",
+          )}
         />
         <ComboBox
-          placeholder={t("Dialog.InputConfigWizard.InputActions.Common.FilterByAircraft")}
+          widthClass="flex-1"
+          placeholder={t(
+            "Dialog.InputConfigWizard.InputActions.Common.FilterByAircraft",
+          )}
           getLabel={(item) => item}
           getValue={(item) => item}
           items={aircraft}
@@ -102,10 +114,15 @@ const MsfsPresetPanel = ({
           setSelected={(item) => {
             setFilter((prev) => ({ ...prev, aircraft: item || "" }))
           }}
-          searchPlaceholder={t("Dialog.InputConfigWizard.InputActions.Common.SearchAircraft")}
+          searchPlaceholder={t(
+            "Dialog.InputConfigWizard.InputActions.Common.SearchAircraft",
+          )}
         />
         <ComboBox
-          placeholder={t("Dialog.InputConfigWizard.InputActions.Common.FilterBySystem")}
+          widthClass="flex-1"
+          placeholder={t(
+            "Dialog.InputConfigWizard.InputActions.Common.FilterBySystem",
+          )}
           getLabel={(item) => item}
           getValue={(item) => item}
           items={categories}
@@ -114,31 +131,60 @@ const MsfsPresetPanel = ({
           setSelected={(item) => {
             setFilter((prev) => ({ ...prev, system: item || "" }))
           }}
-          searchPlaceholder={t("Dialog.InputConfigWizard.InputActions.Common.SearchSystems")}
+          searchPlaceholder={t(
+            "Dialog.InputConfigWizard.InputActions.Common.SearchSystems",
+          )}
         />
       </div>
-      <div className="flex flex-row gap-4 items-center">
-        <ComboBox
-          selected={selectedPreset}
-          placeholder={t("Dialog.InputConfigWizard.InputActions.Common.SelectPreset")}
-          getLabel={(item) => item.label}
-          getValue={(item) => item.id}
-          items={filteredPresets}
-          isSelected={(item) => item.id === selectedPreset?.id}
-          setSelected={(item) => {
-            setSelectedPreset(item ? item : null)
-          }}
-          searchPlaceholder={t("Dialog.InputConfigWizard.InputActions.Common.SearchPresets")}
-          widthClass="w-150"
-        />
-        <div role="status" className="text-sm">{ t("Dialog.InputConfigWizard.InputActions.Common.PresetsFound", { count: filteredPresets.length }) }</div>
+      <div className="grid grid-cols-4 items-center gap-2">
+        <div className="col-span-2">
+          <ComboBox
+            items={filteredPresets}
+            selected={selectedPreset}
+            placeholder={t(
+              "Dialog.InputConfigWizard.InputActions.Common.SelectPreset",
+            )}
+            getLabel={(item) => item.label}
+            getValue={(item) => item.id}
+            isSelected={(item) => item.id === selectedPreset?.id}
+            setSelected={(item) => {
+              setSelectedPreset(item ? item : null)
+            }}
+            searchPlaceholder={t(
+              "Dialog.InputConfigWizard.InputActions.Common.SearchPresets",
+            )}
+            widthClass="w-full"
+            variant="nofilter"
+          />
+        </div>
+        <div role="status" className="px-2 text-sm">
+          {t("Dialog.InputConfigWizard.InputActions.Common.PresetsFound", {
+            count: filteredPresets.length,
+          })}
+        </div>
+        <div>
+          <Button
+            size={"sm"}
+            variant="ghost"
+            onClick={() =>
+              setFilter({ vendor: "", aircraft: "", system: "", search: "" })
+            }
+          >
+            <IconX />
+            {t("Dialog.General.ResetFilters")}
+          </Button>
+        </div>
       </div>
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="description">{t("Dialog.InputConfigWizard.InputActions.Common.DescriptionLabel")}</Label>
+      <div className="flex flex-col gap-4">
+        <Label htmlFor="description">
+          {t("Dialog.InputConfigWizard.InputActions.Common.DescriptionLabel")}
+        </Label>
         <div id="description" className="rounded border p-2 text-sm">
           {selectedPreset?.description
             ? selectedPreset?.description
-            : t("Dialog.InputConfigWizard.InputActions.Common.NoDescriptionAvailable")}
+            : t(
+                "Dialog.InputConfigWizard.InputActions.Common.NoDescriptionAvailable",
+              )}
         </div>
       </div>
     </div>
