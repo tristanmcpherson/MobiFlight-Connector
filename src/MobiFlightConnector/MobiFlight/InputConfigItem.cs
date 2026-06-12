@@ -10,8 +10,6 @@ using Newtonsoft.Json;
 using Button = MobiFlight.InputConfig.Button;
 using Encoder = MobiFlight.InputConfig.Encoder;
 using AnalogInput = MobiFlight.InputConfig.AnalogInput;
-using InputShiftRegister = MobiFlight.InputConfig.InputShiftRegister;
-using InputMultiplexer = MobiFlight.InputConfig.InputMultiplexer;
 
 namespace MobiFlight
 {
@@ -26,20 +24,18 @@ namespace MobiFlight
         public const String TYPE_NOTSET = "-";
         public const String TYPE_BUTTON = MobiFlightButton.TYPE;
         public const String TYPE_ENCODER = MobiFlightEncoder.TYPE;
-        public const String TYPE_INPUT_SHIFT_REGISTER = MobiFlightInputShiftRegister.TYPE;
-        public const String TYPE_INPUT_MULTIPLEXER = MobiFlightInputMultiplexer.TYPE;
+        public const String DEPRECATED_TYPE_INPUT_SHIFT_REGISTER = MobiFlightInputShiftRegister.TYPE;
+        public const String DEPRECATED_TYPE_INPUT_MULTIPLEXER = MobiFlightInputMultiplexer.TYPE;
         public const String TYPE_ANALOG = MobiFlightAnalogInput.TYPE;
         // only for backward compatibility during loading
         public const String TYPE_ANALOG_OLD = "Analog";
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public ButtonInputConfig button { get; set; }
+
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public EncoderInputConfig encoder { get; set; }
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public InputShiftRegisterConfig inputShiftRegister { get; set; }
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public InputMultiplexerConfig inputMultiplexer { get; set; }
+
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public AnalogInputConfig analog { get; set; }
 
@@ -67,16 +63,6 @@ namespace MobiFlight
             if (analog != null)
             {
                 result.AddRange(analog.GetInputActionsByType(type));
-            }
-
-            if (inputShiftRegister != null)
-            {
-                result.AddRange(inputShiftRegister.GetInputActionsByType(type));
-            }
-
-            if (inputMultiplexer != null)
-            {
-                result.AddRange(inputMultiplexer.GetInputActionsByType(type));
             }
             return result;
         }
@@ -117,16 +103,36 @@ namespace MobiFlight
 
             if (reader.LocalName == "inputShiftRegister")
             {
-                inputShiftRegister = new InputShiftRegisterConfig();
-                inputShiftRegister.ReadXml(reader);
-                ExtPin = inputShiftRegister.ExtPin;
+                button = new ButtonInputConfig();
+                // this is for backwards compatibility
+                // the name of the attribute changed over time, but there were only one
+                // so we will always try to read the first attribute, if it is present
+                ExtPin = 0;
+                var extPinAttribute = reader.GetAttribute(0);
+                if (!string.IsNullOrEmpty(extPinAttribute) &&
+                    int.TryParse(extPinAttribute, out var parsedExtPin))
+                {
+                    ExtPin = parsedExtPin;
+                }
+                button.ReadXml(reader);
+
             }
 
             if (reader.LocalName == "inputMultiplexer")
             {
-                inputMultiplexer = new InputMultiplexerConfig();
-                inputMultiplexer.ReadXml(reader);
-                ExtPin = inputMultiplexer.DataPin;
+                button = new ButtonInputConfig();
+                // this is for backwards compatibility
+                // the name of the attribute changed over time, but there were only one
+                // so we will always try to read the first attribute, if it is present
+                ExtPin = 0;
+                var extPinAttribute = reader.GetAttribute(0);
+                if (!string.IsNullOrEmpty(extPinAttribute) &&
+                    int.TryParse(extPinAttribute, out var parsedExtPin))
+                {
+                    ExtPin = parsedExtPin;
+                }
+                button.ReadXml(reader);
+
             }
 
             if (reader.LocalName == "analog")
@@ -211,12 +217,12 @@ namespace MobiFlight
                     result = new AnalogInput() { Name = DeviceName };
                     break;
 
-                case TYPE_INPUT_SHIFT_REGISTER:
-                    result = new InputShiftRegister() { Name = $"{DeviceName}:{SubIndex}", SubIndex = SubIndex };
+                case DEPRECATED_TYPE_INPUT_SHIFT_REGISTER:
+                    result = new Button() { Name = $"{DeviceName}:{SubIndex}" };
                     break;
 
-                case TYPE_INPUT_MULTIPLEXER:
-                    result = new InputMultiplexer() { Name = $"{DeviceName}:{SubIndex}", SubIndex = SubIndex };
+                case DEPRECATED_TYPE_INPUT_MULTIPLEXER:
+                    result = new Button() { Name = $"{DeviceName}:{SubIndex}" };
                     break;
             }
 
@@ -258,17 +264,17 @@ namespace MobiFlight
                 writer.WriteEndElement();
             }
 
-            if (this.Device?.Type == TYPE_INPUT_SHIFT_REGISTER && inputShiftRegister != null)
+            if (this.Device?.Type == DEPRECATED_TYPE_INPUT_SHIFT_REGISTER && button != null)
             {
-                writer.WriteStartElement("inputShiftRegister");
-                inputShiftRegister.WriteXml(writer);
+                writer.WriteStartElement("button");
+                button.WriteXml(writer);
                 writer.WriteEndElement();
             }
 
-            if (this.Device?.Type == TYPE_INPUT_MULTIPLEXER && inputMultiplexer != null)
+            if (this.Device?.Type == DEPRECATED_TYPE_INPUT_MULTIPLEXER && button != null)
             {
-                writer.WriteStartElement("inputMultiplexer");
-                inputMultiplexer.WriteXml(writer);
+                writer.WriteStartElement("button");
+                button.WriteXml(writer);
                 writer.WriteEndElement();
             }
 
@@ -298,8 +304,6 @@ namespace MobiFlight
         {
             this.button = (ButtonInputConfig)config.button?.Clone();
             this.encoder = (EncoderInputConfig)config.encoder?.Clone();
-            this.inputShiftRegister = (InputShiftRegisterConfig)config.inputShiftRegister?.Clone();
-            this.inputMultiplexer = (InputMultiplexerConfig)config.inputMultiplexer?.Clone();
             this.analog = (AnalogInputConfig)config.analog?.Clone();
             this.Device = config.Device?.Clone() as IDeviceConfig;
         }
@@ -321,6 +325,8 @@ namespace MobiFlight
         {
             switch (Device.Type)
             {
+                case DEPRECATED_TYPE_INPUT_SHIFT_REGISTER:
+                case DEPRECATED_TYPE_INPUT_MULTIPLEXER:
                 case TYPE_BUTTON:
                     if (button != null)
                         button.execute(cacheCollection, e, configRefs);
@@ -328,16 +334,6 @@ namespace MobiFlight
                 case TYPE_ENCODER:
                     if (encoder != null)
                         encoder.execute(cacheCollection, e, configRefs);
-                    break;
-
-                case TYPE_INPUT_SHIFT_REGISTER:
-                    if (inputShiftRegister != null)
-                        inputShiftRegister.execute(cacheCollection, e, configRefs);
-                    break;
-
-                case TYPE_INPUT_MULTIPLEXER:
-                    if (inputMultiplexer != null)
-                        inputMultiplexer.execute(cacheCollection, e, configRefs);
                     break;
 
                 case TYPE_ANALOG:
@@ -386,8 +382,6 @@ namespace MobiFlight
                     button.AreEqual(item.button) &&
                     encoder.AreEqual(item.encoder) &&
                     analog.AreEqual(item.analog) &&
-                    inputShiftRegister.AreEqual(item.inputShiftRegister) &&
-                    inputMultiplexer.AreEqual(item.inputMultiplexer) &&
                     Preconditions.Equals(item.Preconditions) &&
                     ConfigRefs.Equals(item.ConfigRefs);
         }
