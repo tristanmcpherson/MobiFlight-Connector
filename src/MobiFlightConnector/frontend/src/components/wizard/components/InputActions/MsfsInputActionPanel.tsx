@@ -6,15 +6,44 @@ import { useTranslation } from "react-i18next"
 import { Separator } from "@/components/ui/separator"
 
 export type MsfsInputActionPanelProps = {
+  variant: "summary" | "details"
   config: MsfsInputAction | null
   onConfigChange: (config: MsfsInputAction) => void
 }
 
 const MsfsInputActionPanel = ({
+  variant,
   config,
   onConfigChange,
 }: MsfsInputActionPanelProps) => {
   const { t } = useTranslation()
+
+  if (variant === "summary") {
+    return (
+      <div className="flex grow flex-row items-center gap-8">
+        <div className="flex flex-col gap-1 w-1/3">
+          <Label htmlFor="preset">
+            {t("Dialog.InputConfigWizard.InputActions.Common.PresetLabel")}:
+          </Label>
+          <div>
+            AP Panel Heading Hold
+          </div>
+        </div>
+        <div className="flex grow flex-col gap-1">
+          <Label htmlFor="code">
+            {t("Dialog.InputConfigWizard.InputActions.Common.CodeLabel")}
+          </Label>
+          <div
+            id="code"
+            className="bg-accent rounded px-2 py-1 font-mono text-sm whitespace-pre-wrap"
+          >
+            {config?.Command ??
+              t("Dialog.InputConfigWizard.InputActions.Msfs.NoneCode")}
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="flex flex-col gap-4">
@@ -31,10 +60,12 @@ const MsfsInputActionPanel = ({
       />
       <Separator />
       <div className="flex flex-col gap-2">
-        <Label htmlFor="code">{t("Dialog.InputConfigWizard.InputActions.Common.CodeLabel")}</Label>
+        <Label htmlFor="code">
+          {t("Dialog.InputConfigWizard.InputActions.Common.CodeLabel")}
+        </Label>
         <Textarea
-          id="code"
-          placeholder={t("Dialog.InputConfigWizard.InputActions.Msfs.NoneCode")}
+          name="code"
+          placeholder={t("Dialog.InputConfigWizard.InputActions.Msfs.CodePlaceholder")}
           value={config?.Command ?? ""}
           onChange={(e) => {
             onConfigChange({
@@ -44,7 +75,11 @@ const MsfsInputActionPanel = ({
             } as MsfsInputAction)
           }}
         />
-        <div className="text-sm text-muted-foreground">{t("Dialog.InputConfigWizard.InputActions.Common.SupportedPlaceholders")}</div>
+        <div className="text-muted-foreground text-sm">
+          {t(
+            "Dialog.InputConfigWizard.InputActions.Common.SupportedPlaceholders",
+          )}
+        </div>
       </div>
     </div>
   )

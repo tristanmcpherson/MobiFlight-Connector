@@ -396,6 +396,8 @@
         "NoDeviceFound": "No device found."
       },
       "Action": {
+        "Title": "Actions",
+        "Description": "Define the actions for each event.",
         "Copy": "Copy action",
         "Paste": "Paste action"
       },
@@ -417,25 +419,71 @@
           "EventIdInputAction": "FSUIPC - EventID"
         }
       },
-      "Button": {
-        "Tabs": {
-          "onPress": "On Press",
-          "onRelease": "On Release",
-          "onHold": "On Hold",
-          "onLongRelease": "On Long Release"
+      "Event": {
+        "Edit": "Edit {{eventLabel}} action"
+      },
+      "button": {
+        "Event": {
+          "onPress": {
+            "label": "On Press",
+            "description": "The action will be executed once when the button is pressed."
+          },
+          "onRelease": {
+            "label": "On Release",
+            "description": "The action will be executed once when the button is released."
+          },
+          "onHold": {
+            "label": "On Hold",
+            "description": "This action is triggered when the button is held down for a certain duration and can repeat at the specified interval.",
+            "options": {
+              "holdDelay": {
+                "label": "Hold delay (ms)",
+                "description": "The duration in milliseconds that the button must be held down before the action is triggered."
+              },
+              "repeatDelay": {
+                "label": "Repeat delay (ms)",
+                "description": "The interval in milliseconds at which the action will be re-triggered while the button is held down. Set to 0 to disable repeating."
+              }
+            }
+          },
+          "onLongRelease": {
+            "label": "On Long Release",
+            "description": "The action will be executed once when the button is released after being held down for the specified duration.",
+            "options": {
+              "longReleaseDelay": {
+                "label": "Long release delay (ms)",
+                "description": "The duration in milliseconds that the button must be held down before a release will trigger this action."
+              }
+            }
+          }
         }
       },
-      "Encoder": {
-        "Tabs": {
-          "onLeft": "On Left",
-          "onRight": "On Right",
-          "onLeftFast": "On Left Fast",
-          "onRightFast": "On Right Fast"
+      "encoder": {
+        "Event": {
+          "onLeft": {
+            "label": "On Left",
+            "description": "The action will be executed once when the encoder is turned left."
+          },
+          "onRight": {
+            "label": "On Right",
+            "description": "The action will be executed once when the encoder is turned right."
+          },
+          "onLeftFast": {
+            "label": "On Left Fast",
+            "description": "The action will be executed once when the encoder is turned left quickly."
+          },
+          "onRightFast": {
+            "label": "On Right Fast",
+            "description": "The action will be executed once when the encoder is turned right quickly."
+          }
         }
       },
-      "Analog": {
-        "Tabs": {
-          "onChange": "On Change"
+      "analog": {
+        "Event": {
+          "onChange": {
+            "label": "On Change",
+            "description": "The action will be executed once the value of the input changes."
+          }
         }
       },
       "Preconditions": {
@@ -490,10 +538,13 @@
           "SelectPreset": "Select preset",
           "SearchPresets": "Search presets...",
           "PresetsFound": "{{count}} preset(s) found",
-          "SupportedPlaceholders": "Supports input value (@) and placeholders ($, #, etc.)"
+          "SupportedPlaceholders": "Supports input value (@) and placeholders ($, #, etc.)",
+          "PresetLabel": "Preset",
+          "ActionLabel": "Action"
         },
         "Msfs": {
-          "NoneCode": "None"
+          "NoneCode": "None",
+          "CodePlaceholder": "Enter RPN code"
         },
         "Xplane": {
           "InputTypeLabel": "Input Type:",
@@ -510,9 +561,12 @@
           "PathLabel": "Path:",
           "NoPresetSelected": "No preset selected",
           "ParameterLabel": "Parameter (optional):",
-          "ParameterPlaceholder": "Set parameter (optional)"
+          "ParameterPlaceholder": "Set parameter (optional)",
+          "ParameterNone": "None"
         },
         "VJoy": {
+          "Controller": "Controller",
+          "Device": "Device",
           "SelectDeviceLabel": "Select vJoy device",
           "SelectDevicePlaceholder": "Select vJoy device...",
           "ButtonTab": "Button",
@@ -533,6 +587,7 @@
           "ClearInput": "Clear input"
         },
         "FsuipcOffset": {
+          "TypeLabel": "Type",
           "SizeLabel": "Size",
           "OffsetLabel": "Offset",
           "MaskLabel": "Mask",
@@ -560,6 +615,8 @@
         },
         "Retrigger": {
           "Title": "Retrigger",
+          "Summary": "Sync input devices with sim.",
+          "NoteLabel": "Note",
           "Description1": "Use this input action to re-trigger all button states.",
           "Description2": "This is helpful to sync your virtual cockpit to the switch and button states of your physical controllers."
         },

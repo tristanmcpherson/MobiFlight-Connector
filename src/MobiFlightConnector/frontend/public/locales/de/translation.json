@@ -392,7 +392,7 @@
         "Title": "Auslöser",
         "Description": "Der Auslöser definiert die Bedingungen oder Ereignisse, die diese Konfiguration aktivieren.",
         "ScanForInput": "Eingabe suchen",
-        "UseAnyInput": "Beliebige Eingabe verwenden",
+        "UseAnyInput": "Warte auf Eingabe",
         "ClearInput": "Eingabe löschen",
         "SelectController": "Controller auswählen...",
         "SearchController": "Controller suchen...",
@@ -402,6 +402,8 @@
         "NoDeviceFound": "Kein Gerät gefunden."
       },
       "Action": {
+        "Title": "Aktionen",
+        "Description": "Definiere die Aktionen für die verschiedenen Ereignisse.",
         "Copy": "Aktion kopieren",
         "Paste": "Aktion einfügen"
       },
@@ -423,25 +425,71 @@
           "EventIdInputAction": "FSUIPC - EventID"
         }
       },
-      "Button": {
-        "Tabs": {
-          "onPress": "Bei Drücken",
-          "onRelease": "Bei Loslassen",
-          "onHold": "Bei Halten",
-          "onLongRelease": "Bei langem Loslassen"
+      "Event" : {
+        "Edit": "{{eventLabel}} Aktion bearbeiten"
+      },
+      "button": {
+        "Event": {
+          "onPress": {
+            "label": "Bei Drücken",
+            "description": "Die Aktion wird ausgeführt, wenn die Taste gedrückt wird."
+          },
+          "onRelease": {
+            "label": "Bei Loslassen",
+            "description": "Die Aktion wird ausgeführt, wenn die Taste losgelassen wird."
+          },
+          "onHold": {
+            "label": "Bei Halten",
+            "description": "Die Aktion wird wiederholt ausgeführt, solange die Taste gehalten wird.",
+            "options": {
+              "holdDelay": {
+                "label": "Verzögerung (ms)",
+                "description": "Die Dauer in Millisekunden, die die Taste gedrückt gehalten werden muss, bevor die Aktion ausgelöst wird."
+              },
+              "repeatDelay": {
+                "label": "Verzögerung für Wiederholungen (ms)",
+                "description": "Das Intervall in Millisekunden, in dem die Aktion erneut ausgelöst wird, solange die Taste gedrückt gehalten wird. Auf 0 setzen, um die Wiederholung zu deaktivieren."
+              }
+            }
+          },
+          "onLongRelease": {
+            "label": "Bei langem Loslassen",
+            "description": "Die Aktion wird ausgeführt, wenn die Taste nach einem langen Drücken losgelassen wird.",
+            "options": {
+              "longReleaseDelay": {
+                "label": "Verzögerung für langes Loslassen (ms)",
+                "description": "Die Dauer in Millisekunden, die die Taste gedrückt gehalten werden muss, bevor ein Loslassen diese Aktion auslöst."
+              }
+            }
+          }
         }
       },
-      "Encoder": {
-        "Tabs": {
-          "onLeft": "Nach links",
-          "onRight": "Nach rechts",
-          "onLeftFast": "Schnell links",
-          "onRightFast": "Schnell rechts"
+      "encoder": {
+        "Event": {
+          "onLeft": {
+            "label": "Nach links",
+            "description": "Die Aktion wird ausgeführt, wenn der Encoder nach links gedreht wird."
+          },
+          "onRight": {
+            "label": "Nach rechts",
+            "description": "Die Aktion wird ausgeführt, wenn der Encoder nach rechts gedreht wird."
+          },
+          "onLeftFast": {
+            "label": "Schnell links",
+            "description": "Die Aktion wird ausgeführt, wenn der Encoder schnell nach links gedreht wird."
+          },
+          "onRightFast": {
+            "label": "Schnell rechts",
+            "description": "Die Aktion wird ausgeführt, wenn der Encoder schnell nach rechts gedreht wird."
+          }
         }
       },
-      "Analog": {
-        "Tabs": {
-          "onChange": "Bei Änderung"
+      "analog": {
+        "Event": {
+          "onChange": {
+            "label": "Bei Änderung",
+            "description": "Die Aktion wird ausgeführt, wenn sich der Wert der Eingabe ändert."
+          }
         }
       },
       "Preconditions": {
@@ -496,10 +544,13 @@
           "SelectPreset": "Preset auswählen",
           "SearchPresets": "Presets suchen...",
           "PresetsFound": "{{count}} Preset(s) gefunden",
-          "SupportedPlaceholders": "Unterstützt Eingabewert (@) und Platzhalter ($, #, etc.)"
+          "SupportedPlaceholders": "Unterstützt Eingabewert (@) und Platzhalter ($, #, etc.)",
+          "PresetLabel": "Preset",
+          "ActionLabel": "Aktion"
         },
         "Msfs": {
-          "NoneCode": "Keiner"
+          "NoneCode": "Keiner",
+          "CodePlaceholder": "RPN-Code eingeben"
         },
         "Xplane": {
           "InputTypeLabel": "Eingabetyp:",
@@ -516,9 +567,12 @@
           "PathLabel": "Pfad:",
           "NoPresetSelected": "Kein Preset ausgewählt",
           "ParameterLabel": "Parameter (optional):",
-          "ParameterPlaceholder": "Parameter setzen (optional)"
+          "ParameterPlaceholder": "Parameter setzen (optional)",
+          "ParameterNone": "Kein Parameter"
         },
         "VJoy": {
+          "Controller": "Controller",
+          "Device": "Gerät",
           "SelectDeviceLabel": "vJoy-Gerät auswählen",
           "SelectDevicePlaceholder": "vJoy-Gerät auswählen...",
           "ButtonTab": "Taste",
@@ -566,6 +620,8 @@
         },
         "Retrigger": {
           "Title": "Retrigger",
+          "Summary": "Sync Eingabegeräte mit dem Simulator.",
+          "NoteLabel": "Bemerkung",
           "Description1": "Verwende diese Eingabeaktion, um alle Tastenstatus erneut auszulösen.",
           "Description2": "Dies ist hilfreich, um dein virtuelles Cockpit mit den Schalter- und Tastenstatus deiner physischen Controller zu synchronisieren."
         },

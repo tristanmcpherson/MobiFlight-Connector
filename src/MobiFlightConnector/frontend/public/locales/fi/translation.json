@@ -386,7 +386,7 @@
         "Title": "Laukaisin",
         "Description": "Laukaisin määrittää ehdot tai tapahtumat, jotka aktivoivat tämän määrityksen.",
         "ScanForInput": "Etsi syötettä",
-        "UseAnyInput": "Käytä mitä tahansa syötettä",
+        "UseAnyInput": "Skannataan...",
         "ClearInput": "Tyhjennä syöte",
         "SelectController": "Valitse ohjain...",
         "SearchController": "Etsi ohjainta...",
@@ -396,6 +396,8 @@
         "NoDeviceFound": "Laitetta ei löytynyt."
       },
       "Action": {
+        "Title": "Toiminnot",
+        "Description": "Määritä toiminnot jokaiselle tapahtumalle.",
         "Copy": "Kopioi toiminto",
         "Paste": "Liitä toiminto"
       },
@@ -417,25 +419,71 @@
           "EventIdInputAction": "FSUIPC - EventID"
         }
       },
-      "Button": {
-        "Tabs": {
-          "onPress": "Painettaessa",
-          "onRelease": "Vapautettaessa",
-          "onHold": "Pidettäessä",
-          "onLongRelease": "Pitkällä vapautuksella"
+      "Event" : {
+        "Edit": "Muokkaa toimintoa {{eventLabel}}"
+      },
+      "button": {
+        "Event": {
+          "onPress": {
+            "label": "Painettaessa",
+            "description": "Toiminto suoritetaan, kun painiketta painetaan."
+          },
+          "onRelease": {
+            "label": "Vapautettaessa",
+            "description": "Toiminto suoritetaan, kun painike vapautetaan."
+          },
+          "onHold": {
+            "label": "Pidettäessä",
+            "description": "Toiminto suoritetaan toistuvasti, kun painiketta pidetään painettuna.",
+            "options": {
+              "holdDelay": {
+                "label": "Painalluksen viive",
+                "description": "Kesto millisekunteina, jonka ajan painiketta on pidettävä painettuna ennen kuin toiminto aktivoituu."
+              },
+              "repeatDelay": {
+                "label": "Toistoviive (ms)",
+                "description": "Aikaväli millisekunteina, jonka välein toiminto aktivoituu uudelleen, kun painiketta pidetään painettuna. Aseta 0 poistaaksesi toiston käytöstä."
+              }
+            }
+          },
+          "onLongRelease": {
+            "label": "Pitkällä vapautuksella",
+            "description": "Toiminto suoritetaan, kun painike vapautetaan pitkän painalluksen jälkeen.",
+            "options": {
+              "longReleaseDelay": {
+                "label": "Pitkän vapautuksen viive (ms)",
+                "description": "Kesto millisekunteina, jonka ajan painiketta on pidettävä painettuna ennen kuin vapautus laukaisee tämän toiminnon."
+              }
+            }
+          }
         }
       },
-      "Encoder": {
-        "Tabs": {
-          "onLeft": "Vasemmalle",
-          "onRight": "Oikealle",
-          "onLeftFast": "Nopeasti vasemmalle",
-          "onRightFast": "Nopeasti oikealle"
+      "encoder": {
+        "Event": {
+          "onLeft": {
+            "label": "Vasemmalle",
+            "description": "Toiminto suoritetaan, kun enkooderia käännetään vasemmalle."
+          },
+          "onRight": {
+            "label": "Oikealle",
+            "description": "Toiminto suoritetaan, kun enkooderia käännetään oikealle."
+          },
+          "onLeftFast": {
+            "label": "Nopeasti vasemmalle",
+            "description": "Toiminto suoritetaan, kun enkooderia käännetään nopeasti vasemmalle."
+          },
+          "onRightFast": {
+            "label": "Nopeasti oikealle",
+            "description": "Toiminto suoritetaan, kun enkooderia käännetään nopeasti oikealle."
+          }
         }
       },
-      "Analog": {
-        "Tabs": {
-          "onChange": "Muutettaessa"
+      "analog": {
+        "Event": {
+          "onChange": {
+            "label": "Muutettaessa",
+            "description": "Toiminto suoritetaan, kun syötteen arvo muuttuu."
+          }
         }
       },
       "Preconditions": {
@@ -490,10 +538,13 @@
           "SelectPreset": "Valitse esiasetus",
           "SearchPresets": "Etsi esiasetuksia...",
           "PresetsFound": "{{count}} esiasetus(ta) löytyi",
-          "SupportedPlaceholders": "Tukee syötearvoa (@) ja paikkamerkkejä ($, #, jne.)"
+          "SupportedPlaceholders": "Tukee syötearvoa (@) ja paikkamerkkejä ($, #, jne.)",
+          "PresetLabel": "Esiasetus",
+          "ActionLabel": "Toiminto"
         },
         "Msfs": {
-          "NoneCode": "Ei mitään"
+          "NoneCode": "Ei mitään",
+          "CodePlaceholder": "Syötä RPN-koodi"
         },
         "Xplane": {
           "InputTypeLabel": "Syötetyyppi:",
@@ -510,9 +561,12 @@
           "PathLabel": "Polku:",
           "NoPresetSelected": "Ei esiasetusta valittuna",
           "ParameterLabel": "Parametri (valinnainen):",
-          "ParameterPlaceholder": "Aseta parametri (valinnainen)"
+          "ParameterPlaceholder": "Aseta parametri (valinnainen)",
+          "ParameterNone": "Ei mitään"
         },
         "VJoy": {
+          "Controller": "Ohjain",
+          "Device": "Laite",
           "SelectDeviceLabel": "Valitse vJoy-laite",
           "SelectDevicePlaceholder": "Valitse vJoy-laite...",
           "ButtonTab": "Painike",
@@ -560,6 +614,8 @@
         },
         "Retrigger": {
           "Title": "Retrigger",
+          "Summary": "Synkronoi syöttölaitteet simulaattorin kanssa.",
+          "NoteLabel": "Huomautus",
           "Description1": "Käytä tätä syötetoimintoa kaikkien painikkeiden tilojen uudelleenlaukaisemiseen.",
           "Description2": "Tämä on hyödyllistä virtuaalikokpitin synkronoimiseksi fyysisten ohjaimien kytkin- ja painiketiloihin."
         },

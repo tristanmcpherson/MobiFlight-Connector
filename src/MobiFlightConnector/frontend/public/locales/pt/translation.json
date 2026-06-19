@@ -386,7 +386,7 @@
         "Title": "Gatilho",
         "Description": "O gatilho define as condições ou eventos que ativarão esta configuração.",
         "ScanForInput": "Procurar entrada",
-        "UseAnyInput": "Usar qualquer entrada",
+        "UseAnyInput": "Usar entrada",
         "ClearInput": "Limpar entrada",
         "SelectController": "Selecionar controlador...",
         "SearchController": "Pesquisar controlador...",
@@ -396,6 +396,8 @@
         "NoDeviceFound": "Nenhum dispositivo encontrado."
       },
       "Action": {
+        "Title": "Ações",
+        "Description": "Defina as ações para cada evento.",
         "Copy": "Copiar ação",
         "Paste": "Colar ação"
       },
@@ -417,25 +419,71 @@
           "EventIdInputAction": "FSUIPC - EventID"
         }
       },
-      "Button": {
-        "Tabs": {
-          "onPress": "Ao pressionar",
-          "onRelease": "Ao soltar",
-          "onHold": "Ao segurar",
-          "onLongRelease": "Ao soltar por muito tempo"
+      "Event": {
+        "Edit": "Editar ação {{eventLabel}}"
+      },
+      "button": {
+        "Event": {
+          "onPress": {
+            "label": "Ao pressionar",
+            "description": "A ação será executada quando o botão for pressionado."
+          },
+          "onRelease": {
+            "label": "Ao soltar",
+            "description": "A ação será executada quando o botão for solto."
+          },
+          "onHold": {
+            "label": "Ao segurar",
+            "description": "A ação será executada repetidamente enquanto o botão estiver pressionado.",
+            "options": {
+              "holdDelay": {
+                "label": "Atraso de pressão (ms)",
+                "description": "A duração em milissegundos que o botão deve ser mantido pressionado antes que a ação seja ativada."
+              },
+              "repeatDelay": {
+                "label": "Intervalo de repetição (ms)",
+                "description": "O intervalo em milissegundos no qual a ação será reativada enquanto o botão estiver pressionado. Defina como 0 para desativar a repetição."
+              }
+            }
+          },
+          "onLongRelease": {
+            "label": "Ao soltar por muito tempo",
+            "description": "A ação será executada quando o botão for solto após ser pressionado por um longo período.",
+            "options": {
+              "longReleaseDelay": {
+                "label": "Atraso de liberação longa (ms)",
+                "description": "A duração em milissegundos que o botão deve ser mantido pressionado antes que a liberação acione esta ação."
+              }
+            }
+          }
         }
       },
-      "Encoder": {
-        "Tabs": {
-          "onLeft": "Para a esquerda",
-          "onRight": "Para a direita",
-          "onLeftFast": "Rapidamente para a esquerda",
-          "onRightFast": "Rapidamente para a direita"
+      "encoder": {
+        "Event": {
+          "onLeft": {
+            "label": "Para a esquerda",
+            "description": "A ação será executada quando o encoder for girado para a esquerda."
+          },
+          "onRight": {
+            "label": "Para a direita",
+            "description": "A ação será executada quando o encoder for girado para a direita."
+          },
+          "onLeftFast": {
+            "label": "Rapidamente para a esquerda",
+            "description": "A ação será executada quando o encoder for girado rapidamente para a esquerda."
+          },
+          "onRightFast": {
+            "label": "Rapidamente para a direita",
+            "description": "A ação será executada quando o encoder for girado rapidamente para a direita."
+          }
         }
       },
-      "Analog": {
-        "Tabs": {
-          "onChange": "Ao mudar"
+      "analog": {
+        "Event": {
+          "onChange": {
+            "label": "Ao mudar",
+            "description": "A ação será executada quando o valor da entrada mudar."
+          }
         }
       },
       "Preconditions": {
@@ -490,10 +538,13 @@
           "SelectPreset": "Selecionar predefinição",
           "SearchPresets": "Pesquisar predefinições...",
           "PresetsFound": "{{count}} predefinição(ões) encontrada(s)",
-          "SupportedPlaceholders": "Suporta valor de entrada (@) e espaços reservados ($, #, etc.)"
+          "SupportedPlaceholders": "Suporta valor de entrada (@) e espaços reservados ($, #, etc.)",
+          "PresetLabel": "Preset",
+          "ActionLabel": "Ação"
         },
         "Msfs": {
-          "NoneCode": "Nenhum"
+          "NoneCode": "Nenhum",
+          "CodePlaceholder": "Digite o código RPN"
         },
         "Xplane": {
           "InputTypeLabel": "Tipo de Entrada:",
@@ -510,9 +561,12 @@
           "PathLabel": "Caminho:",
           "NoPresetSelected": "Nenhuma predefinição selecionada",
           "ParameterLabel": "Parâmetro (opcional):",
-          "ParameterPlaceholder": "Definir parâmetro (opcional)"
+          "ParameterPlaceholder": "Definir parâmetro (opcional)",
+          "ParameterNone": "Nenhum"
         },
         "VJoy": {
+          "Controller": "Controlador",
+          "Device": "Dispositivo",
           "SelectDeviceLabel": "Selecionar dispositivo vJoy",
           "SelectDevicePlaceholder": "Selecionar dispositivo vJoy...",
           "ButtonTab": "Botão",
@@ -560,6 +614,8 @@
         },
         "Retrigger": {
           "Title": "Retrigger",
+          "Summary": "Sincronizar dispositivos de entrada.",
+          "NoteLabel": "Nota",
           "Description1": "Use esta ação de entrada para reativar todos os estados dos botões.",
           "Description2": "Isso é útil para sincronizar seu cockpit virtual com os estados dos interruptores e botões de seus controladores físicos."
         },
