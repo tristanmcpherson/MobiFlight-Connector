@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
+import { Kbd, KbdGroup } from "@/components/ui/kbd"
 import { KeyInputAction } from "@/types/config"
 import { IconTrash } from "@tabler/icons-react"
 import { useState } from "react"
@@ -16,18 +17,55 @@ const emptyConfig: KeyInputAction = {
   Control: false,
   Alt: false,
   Shift: false,
-  Key: 0,
+  Code: "",
+}
+
+const skipRenderKeys = [
+  "ControlLeft", "ControlRight", 
+  "ShiftLeft", "ShiftRight", 
+  "AltLeft", "AltRight"]
+
+
+const KeyboardShortCut = ({ keys }: { keys: KeyInputAction }) => {
+  const { t } = useTranslation()
+  return (
+    <KbdGroup>
+      {keys?.Control && (
+        <>
+          <Kbd>Ctrl</Kbd>
+          <span> + </span>
+        </>
+      )}
+      {keys?.Alt && (
+        <>
+          <Kbd>Alt</Kbd>
+          <span> + </span>
+        </>
+      )}
+      {keys?.Shift && (
+        <>
+          <Kbd>Shift</Kbd>
+          <span> + </span>
+        </>
+      )}
+      {keys?.Code !== "" && !skipRenderKeys.includes(keys?.Code) ? (
+        <Kbd>{keys?.Code?.replace("Key", "")}</Kbd>
+      ) : (
+        t("Dialog.InputConfigWizard.InputActions.Keyboard.None")
+      )}
+    </KbdGroup>
+  )
 }
 
 const KeyboardInputActionPanel = ({
   variant,
   config,
-  onConfigChange
+  onConfigChange,
 }: KeyboardInputActionPanelProps) => {
   const { t } = useTranslation()
   const [isScanning, setIsScanning] = useState(false)
   const [scannedKeys, setScannedKeys] = useState<KeyInputAction>(
-    config?.Key !== undefined ? config : emptyConfig,
+    config?.Code !== undefined ? config : emptyConfig,
   )
 
   const handleScanForInput = () => {
@@ -49,21 +87,20 @@ const KeyboardInputActionPanel = ({
         setIsScanning(false)
         return
       }
-      const scannedKey = event.key
-      const keyCode = event.keyCode
+      const scannedKey = event.code
       const key =
         scannedKey === "Control" ||
         scannedKey === "Shift" ||
         scannedKey === "Alt"
-          ? 0
-          : keyCode
+          ? ""
+          : scannedKey
 
       const newConfig: KeyInputAction = {
         Type: "KeyInputAction",
         Control: event.ctrlKey,
         Alt: event.altKey,
         Shift: event.shiftKey,
-        Key: key,
+        Code: key,
       }
       setScannedKeys(newConfig)
     }
@@ -73,15 +110,10 @@ const KeyboardInputActionPanel = ({
     event.stopPropagation()
     event.preventDefault()
 
-    if (isScanning) {
-      setScannedKeys({
-        Type: "KeyInputAction",
-        Control: event.ctrlKey,
-        Alt: event.altKey,
-        Shift: event.shiftKey,
-        Key: 0,
-      })
-    }
+    if (!isScanning) return
+
+    onConfigChange(scannedKeys)
+    setIsScanning(false)
   }
 
   if (variant === "summary") {
@@ -95,12 +127,7 @@ const KeyboardInputActionPanel = ({
               )}
             </Label>
             <div className="text-sm">
-              {config?.Control && "Ctrl + "}
-              {config?.Alt && "Alt + "}
-              {config?.Shift && "Shift + "}
-              {config?.Key !== 0
-                ? String.fromCharCode(config!.Key).toUpperCase()
-                : t("Dialog.InputConfigWizard.InputActions.Keyboard.None")}
+              <KeyboardShortCut keys={config ?? emptyConfig} />
             </div>
           </div>
         </div>
@@ -128,12 +155,7 @@ const KeyboardInputActionPanel = ({
             {t("Dialog.InputConfigWizard.InputActions.Keyboard.KeyComboLabel")}
           </div>
           <div className="text-sm">
-            {scannedKeys?.Control && "Ctrl + "}
-            {scannedKeys?.Alt && "Alt + "}
-            {scannedKeys?.Shift && "Shift + "}
-            {scannedKeys?.Key !== 0
-              ? String.fromCharCode(scannedKeys.Key).toUpperCase()
-              : t("Dialog.InputConfigWizard.InputActions.Keyboard.None")}
+            <KeyboardShortCut keys={scannedKeys} />
           </div>
         </div>
         <Button
