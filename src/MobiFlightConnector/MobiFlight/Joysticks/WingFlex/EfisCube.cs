@@ -1,15 +1,6 @@
-﻿using Device.Net;
-using Hid.Net;
-using Hid.Net.Windows;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace MobiFlight.Joysticks.WingFlex
+﻿namespace MobiFlight.Joysticks.WingFlex
 {
-    internal class FcuCube : BaseCube
+    internal class EfisCube : BaseCube
     {
         /// <summary>
         /// Provide same instance name as defined in the definition file.
@@ -17,7 +8,7 @@ namespace MobiFlight.Joysticks.WingFlex
         /// </summary>
         public override string Name
         {
-            get { return Definition?.InstanceName ?? "FcuCube"; }
+            get { return Definition?.InstanceName ?? "EFIS Cube"; }
         }
 
         /// <summary>
@@ -26,14 +17,15 @@ namespace MobiFlight.Joysticks.WingFlex
         /// </summary>
         public override string Serial
         {
-            get { return $"{Joystick.SerialPrefix}{Device?.ConnectedDeviceDefinition?.SerialNumber}" ?? "FCU-CUBE-1234-ABCD-12345678"; }
+            get { return $"{Joystick.SerialPrefix}{Device?.ConnectedDeviceDefinition?.SerialNumber}" ?? "EFIS-CUBE-1234-ABCD-12345678"; }
         }
 
         /// <summary>
         /// The constructor.
         /// </summary>
         /// <param name="definition">joystick definition file.</param>
-        public FcuCube(JoystickDefinition definition) : base(new FcuCubeReport(), definition)
+        public EfisCube(JoystickDefinition definition) 
+            : base(new EfisCubeReport(), definition)
         {
         }
     }

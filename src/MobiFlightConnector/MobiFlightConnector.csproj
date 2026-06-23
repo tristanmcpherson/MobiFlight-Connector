@@ -435,10 +435,14 @@
     <Compile Include="MobiFlight\Joysticks\VKB\VKBHidReport.cs" />
     <Compile Include="MobiFlight\Joysticks\VKB\VKBLed.cs" />
     <Compile Include="MobiFlight\Joysticks\VKB\VKBLedContainer.cs" />
+    <Compile Include="MobiFlight\Joysticks\WingFlex\BaseCube.cs" />
     <Compile Include="MobiFlight\Joysticks\WingFlex\Dap500.cs" />
+    <Compile Include="MobiFlight\Joysticks\WingFlex\EfisCube.cs" />
+    <Compile Include="MobiFlight\Joysticks\WingFlex\EfisCubeReport.cs" />
     <Compile Include="MobiFlight\Joysticks\WingFlex\FcuCube.cs" />
     <Compile Include="MobiFlight\Joysticks\WingFlex\Dap500Report.cs" />
     <Compile Include="MobiFlight\Joysticks\WingFlex\FcuCubeReport.cs" />
+    <Compile Include="MobiFlight\Joysticks\WingFlex\CubeReport.cs" />
     <Compile Include="MobiFlight\Joysticks\Winwing\WinwingBaseController.cs" />
     <Compile Include="MobiFlight\Joysticks\Winwing\WinwingRmp.cs" />
     <Compile Include="MobiFlight\Joysticks\Winwing\WinwingPap3.cs" />
@@ -1465,6 +1469,9 @@
     </None>
     <None Include="Joysticks\wingflex\projects\msfs\WingFlex - MSFS - Generic Plane.mfproj" />
     <None Include="Joysticks\wingflex\wingflex_dap500.joystick.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Joysticks\wingflex\wingflex_efiscube.joystick.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Joysticks\winwing\winwing_ecam.joystick.json">
