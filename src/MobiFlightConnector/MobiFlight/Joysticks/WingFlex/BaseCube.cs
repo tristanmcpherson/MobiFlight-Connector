@@ -45,7 +45,7 @@ namespace MobiFlight.Joysticks.WingFlex
         /// </summary>
         public override string Name
         {
-            get { return Definition?.InstanceName ?? "WingFlex Cube"; }
+            get { return Definition?.InstanceName ?? "WFCube"; }
         }
 
         /// <summary>
@@ -54,7 +54,13 @@ namespace MobiFlight.Joysticks.WingFlex
         /// </summary>
         public override string Serial
         {
-            get { return $"{Joystick.SerialPrefix}{Device?.ConnectedDeviceDefinition?.SerialNumber}" ?? "WFCUBE-1234-ABCD-12345678"; }
+            get
+            {
+                return
+                    (Device?.ConnectedDeviceDefinition?.SerialNumber != null) ?
+                    $"{Joystick.SerialPrefix}{Device?.ConnectedDeviceDefinition?.SerialNumber}"
+                    : $"{Name.ToUpper().Replace(" ", "-")}-1234-ABCD-12345678";
+            }
         }
 
         /// <summary>
@@ -95,7 +101,8 @@ namespace MobiFlight.Joysticks.WingFlex
                 Name = $"{Name}-HID-Reader"
             };
             readThread.Start();
-
+            Log.Instance.log($"Connected to {Name} with VID:{VendorId.ToString("X4")} and PID:{ProductId.ToString("X4")}", LogSeverity.Debug);
+            Log.Instance.log($"Starting read thread for HID reports. {Name}-HID-Reader", LogSeverity.Debug);
             return true;
         }
 
@@ -112,8 +119,10 @@ namespace MobiFlight.Joysticks.WingFlex
                     var data = HidReport.TransferResult.Data;
                     ProcessInputReportBuffer(HidReport.ReportId, data);
                 }
-                catch
+                catch (Exception ex) 
                 {
+                    Log.Instance.log($"Exception during read from {Name} ({ex.GetType().Name}): {ex.Message}", LogSeverity.Error);
+                    Log.Instance.log($"Stopping read thread and shutting down device {Name}.", LogSeverity.Error);
                     // Exception when disconnecting fcu while mobiflight is running.
                     Shutdown();
                     break;

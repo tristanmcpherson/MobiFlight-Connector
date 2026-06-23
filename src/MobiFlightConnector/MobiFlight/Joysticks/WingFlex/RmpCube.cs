@@ -1,6 +1,6 @@
 ﻿namespace MobiFlight.Joysticks.WingFlex
 {
-    internal class FcuCube : BaseCube
+    internal class RmpCube : BaseCube
     {
         /// <summary>
         /// Provide same instance name as defined in the definition file.
@@ -8,14 +8,15 @@
         /// </summary>
         public override string Name
         {
-            get { return Definition?.InstanceName ?? "FcuCube"; }
+            get { return Definition?.InstanceName ?? "RMP Cube"; }
         }
 
         /// <summary>
         /// The constructor.
         /// </summary>
         /// <param name="definition">joystick definition file.</param>
-        public FcuCube(JoystickDefinition definition) : base(new FcuCubeReport(), definition)
+        public RmpCube(JoystickDefinition definition)
+            : base(new RmpCubeReport(), definition)
         {
         }
     }
