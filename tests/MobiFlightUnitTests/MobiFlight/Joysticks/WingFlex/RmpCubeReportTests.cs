@@ -171,7 +171,7 @@ namespace MobiFlight.Joysticks.WingFlex.Tests
 
         #region LCD Display Tests
         [TestMethod]
-        public void FromOutputDeviceState_LcdDisplay_ParsesNumericValue_9()
+        public void FromOutputDeviceState_LcdDisplay_L_ParsesNumericValue_9()
         {
             // Arrange
             var lcdDisplay = new JoystickOutputDisplay
@@ -200,10 +200,13 @@ namespace MobiFlight.Joysticks.WingFlex.Tests
 
             // Assert active digits
             Assert.AreEqual(0x01, result[15], "There should be 1 digit set");
+            
+            // Assert display enable bits
+            Assert.AreEqual(0x02, result[8], "Left display should be enabled");
         }
 
         [TestMethod]
-        public void FromOutputDeviceState_LcdDisplay_ParsesNumericValue_99()
+        public void FromOutputDeviceState_LcdDisplay_L_ParsesNumericValue_99()
         {
             // Arrange
             var lcdDisplay = new JoystickOutputDisplay
@@ -232,10 +235,13 @@ namespace MobiFlight.Joysticks.WingFlex.Tests
 
             // Assert active digits
             Assert.AreEqual(0x03, result[15], "There should be 2 digits set");
+
+            // Assert display enable bits
+            Assert.AreEqual(0x02, result[8], "Left display should be enabled");
         }
 
         [TestMethod]
-        public void FromOutputDeviceState_LcdDisplay_ParsesNumericValue_999()
+        public void FromOutputDeviceState_LcdDisplay_L_ParsesNumericValue_999()
         {
             // Arrange
             var lcdDisplay = new JoystickOutputDisplay
@@ -264,10 +270,13 @@ namespace MobiFlight.Joysticks.WingFlex.Tests
 
             // Assert active digits
             Assert.AreEqual(0x07, result[15], "There should be 3 digits set");
+
+            // Assert display enable bits
+            Assert.AreEqual(0x02, result[8], "Left display should be enabled");
         }
 
         [TestMethod]
-        public void FromOutputDeviceState_LcdDisplay_ParsesNumericValue_9999()
+        public void FromOutputDeviceState_LcdDisplay_L_ParsesNumericValue_9999()
         {
             // Arrange
             var lcdDisplay = new JoystickOutputDisplay
@@ -296,10 +305,13 @@ namespace MobiFlight.Joysticks.WingFlex.Tests
 
             // Assert active digits
             Assert.AreEqual(0x0F, result[15], "There should be 4 digits set");
+
+            // Assert display enable bits
+            Assert.AreEqual(0x02, result[8], "Left display should be enabled");
         }
 
         [TestMethod]
-        public void FromOutputDeviceState_LcdDisplay_ParsesNumericValue_99999()
+        public void FromOutputDeviceState_LcdDisplay_L_ParsesNumericValue_99999()
         {
             // Arrange
             var lcdDisplay = new JoystickOutputDisplay
@@ -328,10 +340,13 @@ namespace MobiFlight.Joysticks.WingFlex.Tests
 
             // Assert active digits
             Assert.AreEqual(0x1F, result[15], "There should be all 5 digits set");
+
+            // Assert display enable bits
+            Assert.AreEqual(0x02, result[8], "Left display should be enabled");
         }
 
         [TestMethod]
-        public void FromOutputDeviceState_LcdDisplay_ParsesNumericValue_999999()
+        public void FromOutputDeviceState_LcdDisplay_L_ParsesNumericValue_999999()
         {
             // Arrange
             var lcdDisplay = new JoystickOutputDisplay
@@ -360,10 +375,13 @@ namespace MobiFlight.Joysticks.WingFlex.Tests
 
             // Assert active digits
             Assert.AreEqual(0x3F, result[15], "There should be all 6 digits set");
+
+            // Assert display enable bits
+            Assert.AreEqual(0x02, result[8], "Left display should be enabled");
         }
 
         [TestMethod]
-        public void FromOutputDeviceState_LcdDisplay_ParsesNumericValue_999dot999()
+        public void FromOutputDeviceState_LcdDisplay_L_ParsesNumericValue_999dot999()
         {
             // Arrange
             var lcdDisplay = new JoystickOutputDisplay
@@ -392,10 +410,13 @@ namespace MobiFlight.Joysticks.WingFlex.Tests
 
             // Assert active digits
             Assert.AreEqual(0x3F, result[15], "There should be all 6 digits set");
+
+            // Assert display enable bits
+            Assert.AreEqual(0x02, result[8], "Left display should be enabled");
         }
 
         [TestMethod]
-        public void FromOutputDeviceState_LcdDisplay_ParsesNumericValue_99dot99dot99()
+        public void FromOutputDeviceState_LcdDisplay_L_ParsesNumericValue_99dot99dot99()
         {
             // Arrange
             var lcdDisplay = new JoystickOutputDisplay
@@ -424,6 +445,9 @@ namespace MobiFlight.Joysticks.WingFlex.Tests
 
             // Assert active digits
             Assert.AreEqual(0x3F, result[15], "There should be all 6 digits set");
+
+            // Assert display enable bits
+            Assert.AreEqual(0x02, result[8], "Left display should be enabled");
         }
 
         [TestMethod]
@@ -518,6 +542,286 @@ namespace MobiFlight.Joysticks.WingFlex.Tests
             Assert.AreEqual(0x01, result[20], "Low byte should be 0x01");
             Assert.AreEqual(0x00, result[21], "High byte should be 0x00");
             Assert.AreEqual(0xEA, result[22], "Low byte should be 0xEA");
+        }
+
+        [TestMethod]
+        public void FromOutputDeviceState_LcdDisplay_R_ParsesNumericValue_9()
+        {
+            // Arrange
+            var lcdDisplay = new JoystickOutputDisplay
+            {
+                Name = "Active",
+                Type = DeviceType.LcdDisplay,
+                Byte = 23,
+                Cols = 6,
+                Text = "9"
+            };
+            var devices = new List<JoystickOutputDevice> { lcdDisplay };
+
+            // Act
+            var result = _report.FromOutputDeviceState(devices);
+
+            // Assert
+            // Left digit group will show nothing => 0x0000, so high byte = 0x00, low byte = 0x00
+            // Right digit group will show 9 => 0x0009, so high byte = 0x00, low byte = 0x09
+            Assert.AreEqual(0x00, result[23], "High byte should be 0x00");
+            Assert.AreEqual(0x00, result[24], "Low byte should be 0x00");
+            Assert.AreEqual(0x00, result[25], "High byte should be 0x00");
+            Assert.AreEqual(0x09, result[26], "Low byte should be 0x09");
+
+            // Assert dot position -> no dot!
+            Assert.AreEqual(0x00, result[14], "There should be no dot set");
+
+            // Assert active digits
+            Assert.AreEqual(0x01, result[16], "There should be 1 digit set");
+
+            // Assert display enable bits
+            Assert.AreEqual(0x04, result[8], "Right display should be enabled");
+        }
+
+        [TestMethod]
+        public void FromOutputDeviceState_LcdDisplay_R_ParsesNumericValue_99()
+        {
+            // Arrange
+            var lcdDisplay = new JoystickOutputDisplay
+            {
+                Name = "Active",
+                Type = DeviceType.LcdDisplay,
+                Byte = 23,
+                Cols = 6,
+                Text = "99"
+            };
+            var devices = new List<JoystickOutputDevice> { lcdDisplay };
+
+            // Act
+            var result = _report.FromOutputDeviceState(devices);
+
+            // Assert
+            // Left digit group will show 0 => 0x0000, so high byte = 0x00, low byte = 0x00
+            // Right digit group will show 99 => 0x0063, so high byte = 0x00, low byte = 0x63
+            Assert.AreEqual(0x00, result[23], "High byte should be 0x00");
+            Assert.AreEqual(0x00, result[24], "Low byte should be 0x00");
+            Assert.AreEqual(0x00, result[25], "High byte should be 0x00");
+            Assert.AreEqual(0x63, result[26], "Low byte should be 0x63");
+
+            // Assert dot position -> no dot!
+            Assert.AreEqual(0x00, result[14], "There should be no dot set");
+
+            // Assert active digits
+            Assert.AreEqual(0x03, result[16], "There should be 2 digits set");
+
+            // Assert display enable bits
+            Assert.AreEqual(0x04, result[8], "Right display should be enabled");
+        }
+
+        [TestMethod]
+        public void FromOutputDeviceState_LcdDisplay_R_ParsesNumericValue_999()
+        {
+            // Arrange
+            var lcdDisplay = new JoystickOutputDisplay
+            {
+                Name = "Active",
+                Type = DeviceType.LcdDisplay,
+                Byte = 23,
+                Cols = 6,
+                Text = "999"
+            };
+            var devices = new List<JoystickOutputDevice> { lcdDisplay };
+
+            // Act
+            var result = _report.FromOutputDeviceState(devices);
+
+            // Assert
+            // Left digit group will show 0 => 0x0000, so high byte = 0x00, low byte = 0x00
+            // Right digit group will show 999 => 0x03E7, so high byte = 0x03, low byte = 0xE7
+            Assert.AreEqual(0x00, result[23], "High byte should be 0x00");
+            Assert.AreEqual(0x00, result[24], "Low byte should be 0x00");
+            Assert.AreEqual(0x03, result[25], "High byte should be 0x03");
+            Assert.AreEqual(0xE7, result[26], "Low byte should be 0xE7");
+
+            // Assert dot position -> no dot!
+            Assert.AreEqual(0x00, result[14], "There should be no dot set");
+
+            // Assert active digits
+            Assert.AreEqual(0x07, result[16], "There should be 3 digits set");
+
+            // Assert display enable bits
+            Assert.AreEqual(0x04, result[8], "Right display should be enabled");
+        }
+
+        [TestMethod]
+        public void FromOutputDeviceState_LcdDisplay_R_ParsesNumericValue_9999()
+        {
+            // Arrange
+            var lcdDisplay = new JoystickOutputDisplay
+            {
+                Name = "Active",
+                Type = DeviceType.LcdDisplay,
+                Byte = 23,
+                Cols = 6,
+                Text = "9999"
+            };
+            var devices = new List<JoystickOutputDevice> { lcdDisplay };
+
+            // Act
+            var result = _report.FromOutputDeviceState(devices);
+
+            // Assert
+            // Left digit group will show 9 => 0x0009, so high byte = 0x00, low byte = 0x09
+            // Right digit group will show 999 => 0x03E7, so high byte = 0x03, low byte = 0xE7
+            Assert.AreEqual(0x00, result[23], "High byte should be 0x00");
+            Assert.AreEqual(0x09, result[24], "Low byte should be 0x09");
+            Assert.AreEqual(0x03, result[25], "High byte should be 0x03");
+            Assert.AreEqual(0xE7, result[26], "Low byte should be 0xE7");
+
+            // Assert dot position -> no dot!
+            Assert.AreEqual(0x00, result[14], "There should be no dot set");
+
+            // Assert active digits
+            Assert.AreEqual(0x0F, result[16], "There should be 4 digits set");
+
+            // Assert display enable bits
+            Assert.AreEqual(0x04, result[8], "Right display should be enabled");
+        }
+
+        [TestMethod]
+        public void FromOutputDeviceState_LcdDisplay_R_ParsesNumericValue_99999()
+        {
+            // Arrange
+            var lcdDisplay = new JoystickOutputDisplay
+            {
+                Name = "Active",
+                Type = DeviceType.LcdDisplay,
+                Byte = 23,
+                Cols = 6,
+                Text = "99999"
+            };
+            var devices = new List<JoystickOutputDevice> { lcdDisplay };
+
+            // Act
+            var result = _report.FromOutputDeviceState(devices);
+
+            // Assert
+            // Left digit group will show 99 => 0x0063, so high byte = 0x00, low byte = 0x63
+            // Right digit group will show 999 => 0x03E7, so high byte = 0x03, low byte = 0xE7
+            Assert.AreEqual(0x00, result[23], "High byte should be 0x00");
+            Assert.AreEqual(0x63, result[24], "Low byte should be 0x63");
+            Assert.AreEqual(0x03, result[25], "High byte should be 0x03");
+            Assert.AreEqual(0xE7, result[26], "Low byte should be 0xE7");
+
+            // Assert dot position -> no dot!
+            Assert.AreEqual(0x00, result[14], "There should be no dot set");
+
+            // Assert active digits
+            Assert.AreEqual(0x1F, result[16], "There should be all 5 digits set");
+
+            // Assert display enable bits
+            Assert.AreEqual(0x04, result[8], "Right display should be enabled");
+        }
+
+        [TestMethod]
+        public void FromOutputDeviceState_LcdDisplay_R_ParsesNumericValue_999999()
+        {
+            // Arrange
+            var lcdDisplay = new JoystickOutputDisplay
+            {
+                Name = "Active",
+                Type = DeviceType.LcdDisplay,
+                Byte = 23,
+                Cols = 6,
+                Text = "999999"
+            };
+            var devices = new List<JoystickOutputDevice> { lcdDisplay };
+
+            // Act
+            var result = _report.FromOutputDeviceState(devices);
+
+            // Assert
+            // Left digit group will show 999 => 0x03E7, so high byte = 0x03, low byte = 0xE7
+            // Right digit group will show 999 => 0x03E7, so high byte = 0x03, low byte = 0xE7
+            Assert.AreEqual(0x03, result[23], "High byte should be 0x03");
+            Assert.AreEqual(0xE7, result[24], "Low byte should be 0xE7");
+            Assert.AreEqual(0x03, result[25], "High byte should be 0x03");
+            Assert.AreEqual(0xE7, result[26], "Low byte should be 0xE7");
+
+            // Assert dot position -> no dot!
+            Assert.AreEqual(0x00, result[14], "There should be no dot set");
+
+            // Assert active digits
+            Assert.AreEqual(0x3F, result[16], "There should be all 6 digits set");
+
+            // Assert display enable bits
+            Assert.AreEqual(0x04, result[8], "Right display should be enabled");
+        }
+
+        [TestMethod]
+        public void FromOutputDeviceState_LcdDisplay_R_ParsesNumericValue_999dot999()
+        {
+            // Arrange
+            var lcdDisplay = new JoystickOutputDisplay
+            {
+                Name = "Active",
+                Type = DeviceType.LcdDisplay,
+                Byte = 23,
+                Cols = 6,
+                Text = "999.999"
+            };
+            var devices = new List<JoystickOutputDevice> { lcdDisplay };
+
+            // Act
+            var result = _report.FromOutputDeviceState(devices);
+
+            // Assert
+            // Left digit group will show 999 => 0x03E7, so high byte = 0x03, low byte = 0xE7
+            // Right digit group will show 999 => 0x03E7, so high byte = 0x03, low byte = 0xE7
+            Assert.AreEqual(0x03, result[23], "High byte should be 0x03");
+            Assert.AreEqual(0xE7, result[24], "Low byte should be 0xE7");
+            Assert.AreEqual(0x03, result[25], "High byte should be 0x03");
+            Assert.AreEqual(0xE7, result[26], "Low byte should be 0xE7");
+
+            // Assert dot position
+            Assert.AreEqual(0x03, result[14], "Dot position byte should indicate dot after 3rd digit");
+
+            // Assert active digits
+            Assert.AreEqual(0x3F, result[16], "There should be all 6 digits set");
+
+            // Assert display enable bits
+            Assert.AreEqual(0x04, result[8], "Right display should be enabled");
+        }
+
+        [TestMethod]
+        public void FromOutputDeviceState_LcdDisplay_R_ParsesNumericValue_99dot99dot99()
+        {
+            // Arrange
+            var lcdDisplay = new JoystickOutputDisplay
+            {
+                Name = "Active",
+                Type = DeviceType.LcdDisplay,
+                Byte = 23,
+                Cols = 6,
+                Text = "99.99.99"
+            };
+            var devices = new List<JoystickOutputDevice> { lcdDisplay };
+
+            // Act
+            var result = _report.FromOutputDeviceState(devices);
+
+            // Assert
+            // Left digit group will show 999 => 0x03E7, so high byte = 0x03, low byte = 0xE7
+            // Right digit group will show 999 => 0x03E7, so high byte = 0x03, low byte = 0xE7
+            Assert.AreEqual(0x03, result[23], "High byte should be 0x03");
+            Assert.AreEqual(0xE7, result[24], "Low byte should be 0xE7");
+            Assert.AreEqual(0x03, result[25], "High byte should be 0x03");
+            Assert.AreEqual(0xE7, result[26], "Low byte should be 0xE7");
+
+            // Assert dot position, only first dot is rendered
+            Assert.AreEqual(0x02, result[14], "Dot position byte should indicate dot after 2rd digit");
+
+            // Assert active digits
+            Assert.AreEqual(0x3F, result[16], "There should be all 6 digits set");
+
+            // Assert display enable bits
+            Assert.AreEqual(0x04, result[8], "Right display should be enabled");
         }
 
         #endregion
