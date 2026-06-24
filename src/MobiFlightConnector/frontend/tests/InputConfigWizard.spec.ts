@@ -27,6 +27,21 @@ FCU_HDGKNOB_PRESS:6:FCU Heading Knob Press
 FCU_HDGKNOB_LONGPRESS:7:FCU Heading Knob Long Press
 AP_ENGAGE:8:Autopilot Engage`
 
+const actionTypeOptionLabels = {
+  MSFS2020CustomInputAction: "Microsoft Flight Simulator (all versions)",
+  XplaneInputAction: "X-Plane (all versions)",
+  ProSimInputAction: "ProSim",
+  VariableInputAction: "MobiFlight - Variable",
+  RetriggerInputAction: "MobiFlight - Retrigger switches",
+  KeyInputAction: "MobiFlight - Keyboard Input",
+  VJoyInputAction: "MobiFlight - Virtual Joystick input (vJoy)",
+  FsuipcOffsetInputAction: "FSUIPC - Offset",
+  PmdgEventIdInputAction: "FSUIPC - PMDG - Event ID",
+  LuaMacroInputAction: "FSUIPC - Lua Macro",
+  JeehellInputAction: "FSUIPC - Jeehell - Events",
+  EventIdInputAction: "FSUIPC - EventID",
+} as Record<string, string>
+
 // Helper: open the dialog for a given row and return the action-panel locator
 // (onPress tab is active by default for button inputs)
 const openWizardAndReturnActionPanel = async (
@@ -602,22 +617,6 @@ test.describe("Input Config Wizard - Action Type Panel", () => {
         Features: { ProSim: false, FSUIPC: true },
       },
     ]
-
-    const actionTypeOptionLabels = {
-      MSFS2020CustomInputAction: "Microsoft Flight Simulator (all versions)",
-      XplaneInputAction: "X-Plane (all versions)",
-      ProSimInputAction: "ProSim",
-      VariableInputAction: "MobiFlight - Variable",
-      RetriggerInputAction: "MobiFlight - Retrigger switches",
-      KeyInputAction: "MobiFlight - Keyboard Input",
-      VJoyInputAction: "MobiFlight - Virtual Joystick input (vJoy)",
-      FsuipcOffsetInputAction: "FSUIPC - Offset",
-      PmdgEventIdInputAction: "FSUIPC - PMDG - Event ID",
-      LuaMacroInputAction: "FSUIPC - Lua Macro",
-      JeehellInputAction: "FSUIPC - Jeehell - Events",
-      EventIdInputAction: "FSUIPC - EventID",
-    } as Record<string, string>
-
     const inputActionOption = ActionTypeOptions
 
     for (const projectSettings of projectSettingsToTest) {
@@ -887,7 +886,7 @@ test.describe("Input Config Wizard - MSFS Input Action Panel", () => {
     configListPage,
     page,
   }) => {
-    const actionEditor = await CreateNewInputConfigItemAndReturnActionPanel(
+    const actionEditor = await CreateNewInputConfigItemAndReturnActionEditor(
       configListPage,
       page,
     )
@@ -1161,7 +1160,7 @@ test.describe("Input Config Wizard - X-Plane Input Action Panel", () => {
     configListPage,
     page,
   }) => {
-    const actionEditor = await CreateNewInputConfigItemAndReturnActionPanel(
+    const actionEditor = await CreateNewInputConfigItemAndReturnActionEditor(
       configListPage,
       page,
       "Button",
@@ -1224,7 +1223,7 @@ test.describe("Input Config Wizard - X-Plane Input Action Panel", () => {
     configListPage,
     page,
   }) => {
-    const actionEditor = await CreateNewInputConfigItemAndReturnActionPanel(
+    const actionEditor = await CreateNewInputConfigItemAndReturnActionEditor(
       configListPage,
       page,
       "Button",
@@ -1347,7 +1346,7 @@ test.describe("Input Config Wizard - Variable Input Action Panel", () => {
     const type = "Button"
     const eventType = "On Press"
 
-    const actionEditor = await CreateNewInputConfigItemAndReturnActionPanel(
+    const actionEditor = await CreateNewInputConfigItemAndReturnActionEditor(
       configListPage,
       page,
       type,
@@ -1409,7 +1408,7 @@ test.describe("Input Config Wizard - Variable Input Action Panel", () => {
     const type = "Button"
     const eventType = "On Press"
 
-    const actionEditor = await CreateNewInputConfigItemAndReturnActionPanel(
+    const actionEditor = await CreateNewInputConfigItemAndReturnActionEditor(
       configListPage,
       page,
       type,
@@ -1503,7 +1502,7 @@ test.describe("Input Config Wizard - Retrigger Input Action Panel", () => {
     configListPage,
     page,
   }) => {
-    const actionEditor = await CreateNewInputConfigItemAndReturnActionPanel(
+    const actionEditor = await CreateNewInputConfigItemAndReturnActionEditor(
       configListPage,
       page,
     )
@@ -1712,7 +1711,7 @@ test.describe("Input Config Wizard - Keyboard Input Action Panel", () => {
     configListPage,
     page,
   }) => {
-    const actionEditor = await CreateNewInputConfigItemAndReturnActionPanel(
+    const actionEditor = await CreateNewInputConfigItemAndReturnActionEditor(
       configListPage,
       page,
     )
@@ -1889,7 +1888,7 @@ test.describe("Input Config Wizard - vJoy Input Action Panel", () => {
     configListPage,
     page,
   }) => {
-    const actionEditor = await CreateNewInputConfigItemAndReturnActionPanel(
+    const actionEditor = await CreateNewInputConfigItemAndReturnActionEditor(
       configListPage,
       page,
     )
@@ -1964,7 +1963,7 @@ test.describe("Input Config Wizard - vJoy Input Action Panel", () => {
     configListPage,
     page,
   }) => {
-    const actionEditor = await CreateNewInputConfigItemAndReturnActionPanel(
+    const actionEditor = await CreateNewInputConfigItemAndReturnActionEditor(
       configListPage,
       page,
     )
@@ -2082,7 +2081,7 @@ test.describe("Input Config Wizard - FSUIPC Offset Input Action Panel", () => {
     configListPage,
     page,
   }) => {
-    const actionEditor = await CreateNewInputConfigItemAndReturnActionPanel(
+    const actionEditor = await CreateNewInputConfigItemAndReturnActionEditor(
       configListPage,
       page,
     )
@@ -2161,7 +2160,7 @@ test.describe("Input Config Wizard - FSUIPC Offset Input Action Panel", () => {
     configListPage,
     page,
   }) => {
-    const actionEditor = await CreateNewInputConfigItemAndReturnActionPanel(
+    const actionEditor = await CreateNewInputConfigItemAndReturnActionEditor(
       configListPage,
       page,
     )
@@ -2240,7 +2239,7 @@ test.describe("Input Config Wizard - FSUIPC Offset Input Action Panel", () => {
     configListPage,
     page,
   }) => {
-    const actionEditor = await CreateNewInputConfigItemAndReturnActionPanel(
+    const actionEditor = await CreateNewInputConfigItemAndReturnActionEditor(
       configListPage,
       page,
     )
@@ -2317,7 +2316,7 @@ test.describe("Input Config Wizard - FSUIPC Offset Input Action Panel", () => {
     configListPage,
     page,
   }) => {
-    const actionEditor = await CreateNewInputConfigItemAndReturnActionPanel(
+    const actionEditor = await CreateNewInputConfigItemAndReturnActionEditor(
       configListPage,
       page,
     )
@@ -2424,7 +2423,7 @@ test.describe("Input Config Wizard - FSUIPC EventID Input Action Panel", () => {
     configListPage,
     page,
   }) => {
-    const actionEditor = await CreateNewInputConfigItemAndReturnActionPanel(
+    const actionEditor = await CreateNewInputConfigItemAndReturnActionEditor(
       configListPage,
       page,
     )
@@ -2552,7 +2551,7 @@ test.describe("Input Config Wizard - FSUIPC PMDG EventID Input Action Panel", ()
     configListPage,
     page,
   }) => {
-    const actionEditor = await CreateNewInputConfigItemAndReturnActionPanel(
+    const actionEditor = await CreateNewInputConfigItemAndReturnActionEditor(
       configListPage,
       page,
     )
@@ -2710,7 +2709,7 @@ test.describe("Input Config Wizard - FSUIPC Jeehell Input Action Panel", () => {
     configListPage,
     page,
   }) => {
-    const actionEditor = await CreateNewInputConfigItemAndReturnActionPanel(
+    const actionEditor = await CreateNewInputConfigItemAndReturnActionEditor(
       configListPage,
       page,
     )
@@ -2841,7 +2840,7 @@ test.describe("Input Config Wizard - FSUIPC Lua Macro Input Action Panel", () =>
     configListPage,
     page,
   }) => {
-    const actionEditor = await CreateNewInputConfigItemAndReturnActionPanel(
+    const actionEditor = await CreateNewInputConfigItemAndReturnActionEditor(
       configListPage,
       page,
     )
@@ -2980,7 +2979,7 @@ test.describe("Input Config Wizard - ProSim Input Action Panel", () => {
     configListPage,
     page,
   }) => {
-    const actionEditor = await CreateNewInputConfigItemAndReturnActionPanel(
+    const actionEditor = await CreateNewInputConfigItemAndReturnActionEditor(
       configListPage,
       page,
     )
@@ -3143,7 +3142,7 @@ test.describe("Input Config Wizard - Action Binding Panels", () => {
     const type = "Button"
     const eventType = "On Hold"
 
-    const actionEditor = await CreateNewInputConfigItemAndReturnActionPanel(
+    const actionEditor = await CreateNewInputConfigItemAndReturnActionEditor(
       configListPage,
       page,
       type,
@@ -3191,7 +3190,7 @@ test.describe("Input Config Wizard - Action Binding Panels", () => {
     const type = "Button"
     const eventType = "On Long Release"
 
-    const actionEditor = await CreateNewInputConfigItemAndReturnActionPanel(
+    const actionEditor = await CreateNewInputConfigItemAndReturnActionEditor(
       configListPage,
       page,
       type,
@@ -3224,8 +3223,143 @@ test.describe("Input Config Wizard - Action Binding Panels", () => {
     const payload = commands?.pop()?.payload
     expect(payload.item.button?.LongReleaseDelay).toBe(500)
   })
+
+  test("Existing action can be removed correctly using delete button", async ({
+    configListPage,
+    page,
+  }) => {
+    test.slow()
+    // For all of our 13 different input action config items
+    // open and remove the action, then save and verify that the action is removed from the config item
+    const maxConfigItems = 13
+    for (
+      let currentConfigItemIndex = 1;
+      currentConfigItemIndex <= maxConfigItems;
+      currentConfigItemIndex++
+    ) {
+      const actionDialog = await openWizardAndReturnActionPanel(
+        configListPage,
+        page,
+        currentConfigItemIndex,
+      )
+      const actionEditButton = actionDialog.getByRole("button", {
+        name: "Edit On Press Action",
+      })
+      const deleteActionButton = actionDialog.getByRole("button", {
+        name: "Remove On Press Action",
+      })
+
+      await expect(actionEditButton).toBeVisible()
+      await actionEditButton.hover()
+      await expect(deleteActionButton).toBeVisible()
+      await deleteActionButton.click()
+
+      await configListPage.mobiFlightPage.trackCommand(
+        "CommandUpdateConfigItem",
+      )
+
+      const saveButton = page.getByRole("button", { name: "Save" })
+      await expect(saveButton).toBeVisible()
+      await saveButton.click()
+
+      const commands = await configListPage.mobiFlightPage.getTrackedCommands()
+      expect(commands).toBeDefined()
+      const payload = commands?.pop()?.payload
+      expect(payload.item.button.onPress).toBeNull()
+      await configListPage.mobiFlightPage.clearTrackedCommands()
+    }
+  })
+
+  test("Action can be removed correctly using deselecting the action type", async ({
+    configListPage,
+    page,
+  }) => {
+    test.setTimeout(120_000)
+    const actionTypeOptions = Object.keys(actionTypeOptionLabels).map(
+      (key) => ({
+        actionTypeOption: key,
+        actionTypeLabel: actionTypeOptionLabels[key],
+      }),
+    )
+
+    for (const { actionTypeOption, actionTypeLabel } of actionTypeOptions) {
+      const projectOptions = {
+        Sim: actionTypeOption != "XplaneInputAction" ? "msfs" : "xplane",
+      } as Partial<Project>
+      const actionEditor = await CreateNewInputConfigItemAndReturnActionEditor(
+        configListPage,
+        page,
+        "Button",
+        "On Press",
+        projectOptions,
+      )
+
+      const actionTypeComboBox = actionEditor.getByTestId(
+        "action-type-combobox",
+      )
+      // Open the action type combobox
+      await expect(actionTypeComboBox).toBeVisible()
+      await actionTypeComboBox.click()
+
+      const actionInputOption = page.getByRole("option", {
+        name: actionTypeLabel,
+      })
+      // Click on the current action option
+      await expect(actionInputOption).toBeVisible()
+      await actionInputOption.click()
+
+      const backButton = page.getByRole("button", { name: "Go back" })
+      // Close the side panel with back button
+      await expect(backButton).toBeVisible()
+      await backButton.click()
+      await expect(actionEditor).not.toBeVisible()
+
+      // Now the action is stored in the config item
+      // If we save now, it will be saved with the action, so we need to remove it first
+      const actionPanel = page.getByTestId("action-panel")
+      // expect it to become visible
+      // this ensures that react render has completed and, e.g., useEffects have run
+      await expect(actionPanel).toBeVisible()
+
+      const actionEditButton = actionPanel.getByRole("button", {
+        name: "Edit On Press Action",
+      })
+      await expect(actionEditButton).toBeVisible()
+      await actionEditButton.click()
+
+      const actionEditorAfterEdit = page.getByTestId("action-editor")
+      await expect(actionEditorAfterEdit).toBeVisible()
+
+      // Open the action type combobox
+      await expect(actionTypeComboBox).toBeVisible()
+      await actionTypeComboBox.click()
+
+      // Click on the current action option
+      await expect(actionInputOption).toBeVisible()
+      await actionInputOption.click()
+
+      // Close the side panel with back button
+      await expect(backButton).toBeVisible()
+      await backButton.click()
+      await expect(actionEditor).not.toBeVisible()
+
+      await configListPage.mobiFlightPage.trackCommand(
+        "CommandUpdateConfigItem",
+      )
+
+      const saveButton = page.getByRole("button", { name: "Save" })
+      await expect(saveButton).toBeVisible()
+      await saveButton.click()
+
+      const commands = await configListPage.mobiFlightPage.getTrackedCommands()
+      expect(commands).toBeDefined()
+      const payload = commands?.pop()?.payload
+      expect(payload.item.button?.onPress).toBeNull()
+    }
+  })
 })
-async function CreateNewInputConfigItemAndReturnActionPanel(
+
+async function CreateNewInputConfigItemAndReturnActionEditor(
   configListPage: ConfigListPage,
   page: Page,
   type: string = "Button",
