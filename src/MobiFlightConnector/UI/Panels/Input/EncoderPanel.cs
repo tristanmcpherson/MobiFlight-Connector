@@ -295,6 +295,7 @@ namespace MobiFlight.UI.Panels.Input
                 // For backward compatibility this is now combined and MSFS2020EventIdInputAction was removed
                 case MSFS2020CustomInputAction.Label:
                     panel = new MSFS2020CustomInputPanel();
+                    (panel as MSFS2020CustomInputPanel).LoadPresets(ProjectInfo);
                     if (isLeft && !isFast && config != null && config.onLeft != null)
                     {
                         if (config.onLeft is MSFS2020CustomInputAction)
