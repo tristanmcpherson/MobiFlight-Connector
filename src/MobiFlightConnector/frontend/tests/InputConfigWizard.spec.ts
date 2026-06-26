@@ -184,6 +184,45 @@ test.describe("General Input Config Wizard Tests", () => {
   })
 })
 
+test.describe("Input Config Wizard - Edit name", () => {
+  test("Editing name works correctly", async ({ configListPage, page }) => {
+    // Add new config
+    const addInputConfigButton = page.getByRole("button", {
+      name: "Add Input Config",
+    })
+    await configListPage.gotoPage()
+    await configListPage.mobiFlightPage.initWithTestData("inputaction")
+    await addInputConfigButton.click()
+    await configListPage.addNewConfigItem("InputConfigItem", 0, "inputaction")
+    await expect(page.getByText("Edit Input Configuration")).toBeVisible()
+
+    // click on the Name label to enter edit mode
+    const nameLabel = page.getByTestId("dialog-config-name").getByRole("button")
+    const nameInput = page
+      .getByTestId("dialog-config-name")
+      .getByRole("textbox")
+    const testLabel = "My new input config"
+
+    await expect(nameInput).not.toBeVisible()
+    await expect(nameLabel).toBeVisible()
+    await nameLabel.dblclick()
+
+    await expect(nameInput).toBeVisible()
+    await nameInput.fill(testLabel)
+
+    await configListPage.mobiFlightPage.trackCommand("CommandUpdateConfigItem")
+
+    const saveButton = page.getByRole("button", { name: "Save" })
+    await expect(saveButton).toBeVisible()
+    await saveButton.click()
+
+    const commands = await configListPage.mobiFlightPage.getTrackedCommands()
+    expect(commands).toBeDefined()
+    const payload = commands?.pop()?.payload
+    expect(payload.item.Name).toEqual(testLabel)
+  })
+})
+
 test.describe("Input Config Wizard - Trigger Panel", () => {
   test("Trigger panel interactions work correctly - Scan for input", async ({
     configListPage,
@@ -595,6 +634,7 @@ test.describe("Input Config Wizard - Action Type Panel", () => {
     configListPage,
     page,
   }) => {
+    test.slow()
     const projectSettingsToTest: Partial<Project>[] = [
       {
         Sim: "msfs",
@@ -1039,7 +1079,7 @@ test.describe("Input Config Wizard - X-Plane Input Action Panel", () => {
       page,
       2,
       undefined,
-      { Sim: "xplane" }
+      { Sim: "xplane" },
     )
 
     const actionEditButton = actionDialog.getByRole("button", {
@@ -3175,6 +3215,7 @@ test.describe("Input Config Wizard - Action Binding Panels", () => {
     configListPage,
     page,
   }) => {
+    test.slow()
     const actionTestData = [
       {
         type: "Button",
