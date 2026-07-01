@@ -40,7 +40,9 @@ const VJoyInputActionPanel = ({
   }
 
   const vJoyOptions = vJoyDefinitions.map((def) => ({
-    label: `vJoy Device ${def.Id}`,
+    label: t("Dialog.InputConfigWizard.InputActions.VJoy.ControllerLabel", {
+      index: def.Id,
+    }),
     value: def.Id,
   }))
 
@@ -64,6 +66,12 @@ const VJoyInputActionPanel = ({
 
   const activeTab = config?.axisString ? "axis" : "button"
 
+  const controllerLabel = config?.vJoyID
+    ? t("Dialog.InputConfigWizard.InputActions.VJoy.ControllerLabel", {
+        index: config?.vJoyID,
+      })
+    : t("Dialog.InputConfigWizard.InputActions.VJoy.None")
+
   if (variant === "summary") {
     return (
       <div className="flex grow flex-row items-center justify-between gap-8">
@@ -71,7 +79,7 @@ const VJoyInputActionPanel = ({
           <Label>
             {t("Dialog.InputConfigWizard.InputActions.VJoy.Controller")}:
           </Label>
-          <div className="text-sm">{selectedDeviceOption?.label}</div>
+          <div className="text-sm">{controllerLabel}</div>
         </div>
         <div className="flex flex-col gap-1">
           <Label>
@@ -101,9 +109,7 @@ const VJoyInputActionPanel = ({
             <Label>
               {t("Dialog.InputConfigWizard.InputActions.VJoy.AxisValueLabel")}
             </Label>
-            <CodeValueLabel>
-              {config?.sendValue ?? "-"}
-            </CodeValueLabel>
+            <CodeValueLabel>{config?.sendValue ?? "-"}</CodeValueLabel>
           </div>
         )}
       </div>
