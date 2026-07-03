@@ -1,6 +1,4 @@
-﻿using System.Runtime.Serialization;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
+using System.Runtime.Serialization;
 
 namespace MobiFlight.BrowserMessages.Incoming
 {
@@ -14,7 +12,6 @@ namespace MobiFlight.BrowserMessages.Incoming
     }
     public class CommandRefreshPresets
     {
-        [JsonConverter(typeof(StringEnumConverter))]
         public PresetType type;
     }
 }

@@ -562,7 +562,7 @@ namespace MobiFlight
             {
                 if (message.type == PresetType.PROSIM)
                 {
-                    RunProSimRefreshAndPublishAsync().LogOnFault("Error refreshing ProSim presets");
+                    RunTaskWithLogging(RunProSimRefreshAndPublishAsync(), "Error refreshing ProSim presets");
                 }
                 else if (message.type == PresetType.VJOY)
                 {
@@ -714,7 +714,15 @@ namespace MobiFlight
             _proSimConnectionAttempts = 0;
             _proSimConnectionDisabled = false;
             this.OnSimCacheConnected(sender, e);
-            RunProSimRefreshAndPublishAsync().LogOnFault("Error refreshing ProSim data definitions after connect");
+            RunTaskWithLogging(RunProSimRefreshAndPublishAsync(), "Error refreshing ProSim data definitions after connect");
+        }
+
+        private void RunTaskWithLogging(Task task, string errorMessage)
+        {
+            task.ContinueWith(t =>
+            {
+                Log.Instance.log($"{errorMessage}: {t.Exception?.GetBaseException().Message}", LogSeverity.Error);
+            }, TaskContinuationOptions.OnlyOnFaulted);
         }
 
         private async Task RunProSimRefreshAndPublishAsync()

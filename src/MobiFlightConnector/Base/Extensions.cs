@@ -1,23 +1,11 @@
 ﻿using System;
 using System.IO;
-using System.Threading.Tasks;
 using Hid.Net;
 
 namespace MobiFlight.Base
 {
     public static class Extensions
     {
-        /// <summary>
-        /// Observes a fire-and-forget task and logs its exception if it faults.
-        /// </summary>
-        public static void LogOnFault(this Task task, string errorMessage, LogSeverity severity = LogSeverity.Error)
-        {
-            task.ContinueWith(t =>
-            {
-                Log.Instance.log($"{errorMessage}: {t.Exception?.GetBaseException().Message}", severity);
-            }, TaskContinuationOptions.OnlyOnFaulted);
-        }
-
         public static string Truncate(this string value, int maxLength)
         {
             if (string.IsNullOrEmpty(value)) return value;

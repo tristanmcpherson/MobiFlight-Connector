@@ -7,7 +7,6 @@ using System.Timers;
 using GraphQL.Client.Abstractions.Websocket;
 using GraphQL.Client.Http;
 using GraphQL.Client.Serializer.Newtonsoft;
-using MobiFlight.Base;
 
 namespace MobiFlight.ProSim
 {
@@ -160,7 +159,15 @@ namespace MobiFlight.ProSim
 
         private void HeartbeatTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
-            RunHeartbeatAsync().LogOnFault("Heartbeat task failed", LogSeverity.Debug);
+            LogTaskFault(RunHeartbeatAsync(), "Heartbeat task failed", LogSeverity.Debug);
+        }
+
+        private static void LogTaskFault(Task task, string errorMessage, LogSeverity severity = LogSeverity.Error)
+        {
+            task.ContinueWith(t =>
+            {
+                Log.Instance.log($"{errorMessage}: {t.Exception?.GetBaseException().Message}", severity);
+            }, TaskContinuationOptions.OnlyOnFaulted);
         }
 
         private async Task RunHeartbeatAsync()
@@ -324,11 +331,11 @@ mutation ($name: String!, $value: {graphqlType}) {{
                 return;
             }
 
-            connection.SendMutationAsync<object>(new GraphQL.GraphQLRequest
+            LogTaskFault(connection.SendMutationAsync<object>(new GraphQL.GraphQLRequest
             {
                 Query = query,
                 Variables = new { name = datarefPath, value }
-            }).LogOnFault($"Failed to write ProSim dataref {datarefPath}");
+            }), $"Failed to write ProSim dataref {datarefPath}");
         }
 
         public Task<bool> RefreshDataDefinitionsAsync()
@@ -630,7 +637,7 @@ mutation ($name: String!, $value: {graphqlType}) {{
 
         private void TriggerRefreshInBackground()
         {
-            RefreshAndWarnAsync().LogOnFault("Background ProSim refresh failed");
+            LogTaskFault(RefreshAndWarnAsync(), "Background ProSim refresh failed");
         }
 
         private async Task RefreshAndWarnAsync()
