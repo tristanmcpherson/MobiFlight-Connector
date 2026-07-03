@@ -205,11 +205,20 @@ namespace MobiFlight.ProSim
 
         private void SubscribeToDataRef(string datarefPath)
         {
-            // Skip if we already have a subscription for this dataref
-            if (_subscriptions.ContainsKey(datarefPath))
-                return;
+            lock (_subscriptions)
+            {
+                // Skip if we already have a subscription for this dataref
+                if (_subscriptions.ContainsKey(datarefPath))
+                    return;
 
-            var subscription = @"
+                // Disconnect flips the connection state before it takes this lock to
+                // clean up, so a null check here keeps us off a disposed client and
+                // prevents entries from being added behind Disconnect's back.
+                var connection = _connection;
+                if (!IsConnected() || connection == null)
+                    return;
+
+                var subscription = @"
                 subscription ($names: [String!]!) {
                   dataRefs(names: $names) {
                     name
@@ -217,27 +226,28 @@ namespace MobiFlight.ProSim
                   }
                 }";
 
-            var variables = new
-            {
-                names = new[] { datarefPath }
-            };
-
-            var dataRefObservable = _connection.CreateSubscriptionStream<DataRefSubscriptionResult>(new GraphQL.GraphQLRequest
-            {
-                Query = subscription,
-                Variables = variables
-            });
-
-            var disposable = dataRefObservable.Subscribe(response =>
-            {
-                if (response?.Data != null)
+                var variables = new
                 {
-                    var dataRef = response.Data.DataRefs;
-                    UpdateCachedValue(dataRef.Name, dataRef.Value);
-                }
-            });
+                    names = new[] { datarefPath }
+                };
 
-            _subscriptions[datarefPath] = disposable;
+                var dataRefObservable = connection.CreateSubscriptionStream<DataRefSubscriptionResult>(new GraphQL.GraphQLRequest
+                {
+                    Query = subscription,
+                    Variables = variables
+                });
+
+                var disposable = dataRefObservable.Subscribe(response =>
+                {
+                    if (response?.Data != null)
+                    {
+                        var dataRef = response.Data.DataRefs;
+                        UpdateCachedValue(dataRef.Name, dataRef.Value);
+                    }
+                });
+
+                _subscriptions[datarefPath] = disposable;
+            }
 
             Log.Instance.log($"Created subscription for dataref: {datarefPath}", LogSeverity.Debug);
         }
@@ -503,12 +513,15 @@ mutation ($name: String!, $value: {graphqlType}) {{
                 // Stop heartbeat timer
                 StopHeartbeat();
 
-                foreach (var subscription in _subscriptions.Values)
+                lock (_subscriptions)
                 {
-                    subscription.Dispose();
+                    foreach (var subscription in _subscriptions.Values)
+                    {
+                        subscription.Dispose();
+                    }
+                    // Remove the disposed entries so datarefs re-subscribe after a reconnect
+                    _subscriptions.Clear();
                 }
-                // Remove the disposed entries so datarefs re-subscribe after a reconnect
-                _subscriptions.Clear();
 
                 Closed?.Invoke(this, new EventArgs());
             }
@@ -529,7 +542,13 @@ mutation ($name: String!, $value: {graphqlType}) {{
 
             try
             {
-                if (!_subscriptions.ContainsKey(datarefPath))
+                bool isSubscribed;
+                lock (_subscriptions)
+                {
+                    isSubscribed = _subscriptions.ContainsKey(datarefPath);
+                }
+
+                if (!isSubscribed)
                 {
                     SubscribeToDataRef(datarefPath);
                     return (double)0;
