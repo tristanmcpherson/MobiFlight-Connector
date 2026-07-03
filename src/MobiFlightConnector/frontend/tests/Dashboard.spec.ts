@@ -1,5 +1,7 @@
 import { ExecutionState } from "../src/types/messages"
 import { test, expect } from "./fixtures"
+import msfsPresetsResponse from "./data/inputaction/msfspresets.testdata.json" with { type: "json" }
+import xplanePresetsResponse from "./data/inputaction/xplanepresets.testdata.json" with { type: "json" }
 
 test.describe("Project view tests", () => {
   test("Confirm empty project view content and actions", async ({
@@ -302,6 +304,10 @@ test.describe("Project settings modal features", () => {
         simLabel: "Microsoft Flight Simulator",
         fsuipc: { click: false, use: false },
         prosim: { click: false, use: false },
+        aircraft: [
+          { Vendor: "Asobo", Name: "Generic" },
+          { Vendor: "Microsoft", Name: "Generic" },
+        ],
       },
       {
         name: "MSFS with FSUIPC",
@@ -309,6 +315,10 @@ test.describe("Project settings modal features", () => {
         simLabel: "Microsoft Flight Simulator",
         fsuipc: { click: true, use: true },
         prosim: { click: false, use: false },
+        aircraft: [
+          { Vendor: "Asobo", Name: "Generic" },
+          { Vendor: "Microsoft", Name: "Generic" },
+        ],
       },
       {
         name: "X-Plane",
@@ -316,6 +326,7 @@ test.describe("Project settings modal features", () => {
         simLabel: "X-Plane",
         fsuipc: { click: false, use: false },
         prosim: { click: false, use: false },
+        aircraft: [{ Vendor: "Laminar Research", Name: "Generic" }],
       },
       {
         name: "Prepar3D",
@@ -323,6 +334,7 @@ test.describe("Project settings modal features", () => {
         simLabel: "Prepar3D",
         fsuipc: { click: false, use: true },
         prosim: { click: false, use: false },
+        aircraft: [],
       },
       {
         name: "FSX / FS2004",
@@ -330,6 +342,7 @@ test.describe("Project settings modal features", () => {
         simLabel: "FSX / FS2004",
         fsuipc: { click: false, use: true },
         prosim: { click: false, use: false },
+        aircraft: [],
       },
       {
         name: "MSFS with ProSim",
@@ -337,6 +350,10 @@ test.describe("Project settings modal features", () => {
         simLabel: "Microsoft Flight Simulator",
         fsuipc: { click: false, use: false },
         prosim: { click: true, use: true },
+        aircraft: [
+          { Vendor: "Asobo", Name: "Generic" },
+          { Vendor: "Microsoft", Name: "Generic" },
+        ],
       },
     ]
 
@@ -362,6 +379,19 @@ test.describe("Project settings modal features", () => {
         await prosimCheckbox.check()
       }
 
+      for (const aircraft of option.aircraft ?? []) {
+        const badgeLabel = `${aircraft.Vendor} - ${aircraft.Name}`
+        const aircraftOption = createProjectDialog.getByText(badgeLabel)
+        await expect(aircraftOption).toBeVisible()
+      }
+
+      if (option.aircraft?.length === 0) {
+        const noAircraftOptionHint = createProjectDialog.getByText(
+          "Aircraft selection is not supported for this sim.",
+        )
+        await expect(noAircraftOptionHint).toBeVisible()
+      }
+
       await createButton.click()
       await expect(createProjectDialog).not.toBeVisible()
       const postedCommands =
@@ -378,6 +408,12 @@ test.describe("Project settings modal features", () => {
       expect(lastCommand.payload.options.project.Features.ProSim).toEqual(
         option.prosim.use,
       )
+
+      if (option.aircraft.length > 0) {
+        expect(lastCommand.payload.options.project.Aircraft).toEqual(
+          option.aircraft,
+        )
+      }
     }
   })
 
@@ -528,6 +564,87 @@ test.describe("Project settings modal features", () => {
     await projectNameInput.press("Backspace")
 
     await expect(projectNameInput).toHaveValue("Test Project With ")
+  })
+
+  test("Edit aircraft list selection", async ({ dashboardPage, page }) => {
+    await dashboardPage.gotoPage()
+    await page.route(
+      "*/**/presets/msfs2020_hubhop_presets.json",
+      async (route) => {
+        await route.fulfill({ json: msfsPresetsResponse })
+      },
+    )
+    await page.route(
+      "*/**/presets/xplane_hubhop_presets.json",
+      async (route) => {
+        await route.fulfill({ json: xplanePresetsResponse })
+      },
+    )
+
+    const createProjectButton = page.getByRole("button", { name: "Project" })
+    const createProjectDialog = page.getByRole("dialog", {
+      name: "Create New Project",
+    })
+    const projectNameInput = createProjectDialog.getByLabel("Project Name")
+    await createProjectButton.click()
+    await projectNameInput.fill("Aircraft selection test")
+
+    // verify badges are showing
+    const msGenericBadge = createProjectDialog.getByText("Microsoft - Generic")
+    const asoboGenericBadge = createProjectDialog.getByText("Asobo - Generic")
+    await expect(msGenericBadge).toBeVisible()
+    await expect(asoboGenericBadge).toBeVisible()
+
+    const editAircraftButton = createProjectDialog.getByRole("button", {
+      name: "Edit aircraft list",
+    })
+    await editAircraftButton.click()
+
+    const projectAircraftDialog = page.getByTestId("project-aircraft-drawer")
+    await expect(projectAircraftDialog).toBeVisible()
+
+    const selectedAircraftList = projectAircraftDialog.getByRole("listbox", {
+      name: "Selected Aircraft",
+    })
+    const availableAircraftList = projectAircraftDialog.getByRole("listbox", {
+      name: "Available Aircraft",
+    })
+    const selectedAircraftOptions = selectedAircraftList.getByRole("option")
+    const availableAircraftOptions = availableAircraftList.getByRole("option")
+
+    
+    
+    await expect(selectedAircraftList).toBeVisible()
+    await expect(availableAircraftList).toBeVisible()
+    await expect(selectedAircraftOptions).toHaveCount(2)
+    await expect(availableAircraftOptions).toHaveCount(1)
+    
+    await availableAircraftOptions.first().click()
+    await expect(selectedAircraftOptions).toHaveCount(3)
+    await expect(availableAircraftOptions).toHaveCount(0)
+
+    await selectedAircraftOptions.first().click()
+    await expect(selectedAircraftOptions).toHaveCount(2)
+    await expect(availableAircraftOptions).toHaveCount(1)
+    
+    await selectedAircraftOptions.first().click()
+    await expect(selectedAircraftOptions).toHaveCount(1)
+    await expect(availableAircraftOptions).toHaveCount(2)
+    
+    const goBackButton = page.getByRole("button", {
+      name: "Go back",
+    })
+
+    await goBackButton.click()
+    await expect(projectAircraftDialog).not.toBeVisible()
+
+    await expect(msGenericBadge).not.toBeVisible()
+    await expect(asoboGenericBadge).not.toBeVisible()
+    const c172Badge = createProjectDialog.getByText("Microsoft - C172")
+    await expect(c172Badge).toBeVisible()
+
+    // we don't check for correct project message
+    // this is covered by the "Create new project in modal" test
   })
 })
 

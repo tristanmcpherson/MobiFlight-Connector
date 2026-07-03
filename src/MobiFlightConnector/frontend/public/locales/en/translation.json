@@ -23,8 +23,9 @@
       "Placeholder": "Select...",
       "SearchPlaceholder": "Search..."
     },
-    "Copy" : "Copy",
-    "Paste" : "Paste"
+    "Copy": "Copy",
+    "Paste": "Paste",
+    "NewFeature": "New"
   },
   "MainMenu": {
     "File": {
@@ -48,6 +49,10 @@
           "In": "Ctrl++",
           "Out": "Ctrl+-"
         }
+      },
+      "Log": {
+        "Show": "Show Log Panel",
+        "Hide": "Hide Log Panel"
       }
     },
     "Extras": {
@@ -183,7 +188,26 @@
       },
       "Aircraft": {
         "Label": "Aircraft",
-        "HelpText": "Select the aircraft for this project."
+        "HelpText": "Select the aircraft for this project.",
+        "Description": "Select one or more aircraft that are enabled for this project. Presets will be limited to the selected aircraft.",
+        "Dialog" : {
+          "Title": "Aircraft Settings",
+          "Description": "Select one or more aircraft that should be enabled for this project.",
+          "SelectedAircraft": {
+            "Title": "Selected Aircraft",
+            "Count": "{{count}} selected",
+            "None": "No aircraft selected. No filter will apply. All presets will be available."
+          },
+          "AvailableAircraft": {
+            "Title": "Available Aircraft",
+            "Count": "{{count}} available",
+            "None": "No aircraft available."
+          },
+          "SearchPlaceholder": "Search aircraft...",
+          "NoAircraftFound": "No additional aircraft available."
+        },
+        "EditList": "Edit aircraft list",
+        "NotSupported": "Aircraft selection is not supported for this sim."
       },
       "Buttons": {
         "Create": "Create project",
@@ -349,11 +373,13 @@
   },
   "Dialog": {
     "General": {
+      "GoBack": "Go back",
       "Cancel": "Cancel",
       "Close": "Close",
       "Save": "Save",
       "SaveChanges": "Save changes",
-      "ApplyChanges": "Apply changes"
+      "ApplyChanges": "Apply changes",
+      "ResetFilters": "Reset filters"
     },
     "ControllerBinding": {
       "Title": "Controller Bindings",
@@ -375,8 +401,7 @@
     "InputConfigWizard": {
       "Title": "Edit input configuration",
       "Description": "Edit all settings for this input configuration in this dialog.",
-      "GoBack": "Go back",
-      "DrawerTitle": "Preconditions",
+      "DrawerTitle": "Settings",
       "ConfigTrigger": {
         "Title": "Trigger",
         "Description": "The trigger defines the conditions or events that will activate this configuration.",
@@ -391,6 +416,8 @@
         "NoDeviceFound": "No device found."
       },
       "Action": {
+        "Title": "Actions",
+        "Description": "Define the actions for each event.",
         "Copy": "Copy action",
         "Paste": "Paste action"
       },
@@ -398,39 +425,122 @@
         "Title": "Action Type",
         "Description": "Select the type of action you want to perform",
         "Options": {
-          "MSFS2020CustomInputAction": "Microsoft Flight Simulator (all versions)",
-          "XplaneInputAction": "X-Plane (all versions)",
-          "ProSimInputAction": "ProSim",
-          "VariableInputAction": "MobiFlight - Variable",
-          "RetriggerInputAction": "MobiFlight - Retrigger switches",
-          "KeyInputAction": "MobiFlight - Keyboard Input",
-          "VJoyInputAction": "MobiFlight - Virtual Joystick input (vJoy)",
-          "FsuipcOffsetInputAction": "FSUIPC - Offset",
-          "PmdgEventIdInputAction": "FSUIPC - PMDG - Event ID",
-          "LuaMacroInputAction": "FSUIPC - Lua Macro",
-          "JeehellInputAction": "FSUIPC - Jeehell - Events",
-          "EventIdInputAction": "FSUIPC - EventID"
+          "MSFS2020CustomInputAction": { 
+            "label": "Microsoft Flight Simulator (all versions)",
+            "short": "MSFS Preset"
+          },
+          "XplaneInputAction": {
+            "label": "X-Plane (all versions)",
+            "short": "X-Plane Preset"
+          },
+          "ProSimInputAction": {
+            "label": "ProSim",
+            "short": "ProSim Preset"
+          },
+          "VariableInputAction": {
+            "label": "MobiFlight - Variable",
+            "short": "Variable"
+          },
+          "RetriggerInputAction": {
+            "label": "MobiFlight - Retrigger switches",
+            "short": "Retrigger"
+          },
+          "KeyInputAction": {
+            "label": "MobiFlight - Keyboard Input",
+            "short": "Keyboard"
+          },
+          "VJoyInputAction": {
+            "label": "MobiFlight - Virtual Joystick input (vJoy)",
+            "short": "vJoy"
+          },
+          "FsuipcOffsetInputAction": {
+            "label": "FSUIPC - Offset",
+            "short": "FSUIPC Offset"
+          },
+          "PmdgEventIdInputAction": {
+            "label": "FSUIPC - PMDG - Event ID",
+            "short": "PMDG Event ID"
+          },
+          "LuaMacroInputAction": {
+            "label": "FSUIPC - Lua Macro",
+            "short": "Lua Macro"
+          },
+          "JeehellInputAction": {
+            "label": "FSUIPC - Jeehell - Events",
+            "short": "Jeehell Events"
+          },
+          "EventIdInputAction": {
+            "label": "FSUIPC - EventID",
+            "short": "EventID"
+          }
         }
       },
-      "Button": {
-        "Tabs": {
-          "onPress": "On Press",
-          "onRelease": "On Release",
-          "onHold": "On Hold",
-          "onLongRelease": "On Long Release"
+      "Event": {
+        "Edit": "Edit {{eventLabel}} action",
+        "Remove": "Remove {{eventLabel}} action"
+      },
+      "button": {
+        "Event": {
+          "onPress": {
+            "label": "On Press",
+            "description": "The action will be executed once when the button is pressed."
+          },
+          "onRelease": {
+            "label": "On Release",
+            "description": "The action will be executed once when the button is released."
+          },
+          "onHold": {
+            "label": "On Hold",
+            "description": "This action is triggered when the button is held down for a certain duration and can repeat at the specified interval.",
+            "options": {
+              "holdDelay": {
+                "label": "Hold delay (ms)",
+                "description": "The duration in milliseconds that the button must be held down before the action is triggered."
+              },
+              "repeatDelay": {
+                "label": "Repeat delay (ms)",
+                "description": "The interval in milliseconds at which the action will be re-triggered while the button is held down. Set to 0 to disable repeating."
+              }
+            }
+          },
+          "onLongRelease": {
+            "label": "On Long Release",
+            "description": "The action will be executed once when the button is released after being held down for the specified duration.",
+            "options": {
+              "longReleaseDelay": {
+                "label": "Long release delay (ms)",
+                "description": "The duration in milliseconds that the button must be held down before a release will trigger this action."
+              }
+            }
+          }
         }
       },
-      "Encoder": {
-        "Tabs": {
-          "onLeft": "On Left",
-          "onRight": "On Right",
-          "onLeftFast": "On Left Fast",
-          "onRightFast": "On Right Fast"
+      "encoder": {
+        "Event": {
+          "onLeft": {
+            "label": "On Left",
+            "description": "The action will be executed once when the encoder is turned left."
+          },
+          "onRight": {
+            "label": "On Right",
+            "description": "The action will be executed once when the encoder is turned right."
+          },
+          "onLeftFast": {
+            "label": "On Left Fast",
+            "description": "The action will be executed once when the encoder is turned left quickly."
+          },
+          "onRightFast": {
+            "label": "On Right Fast",
+            "description": "The action will be executed once when the encoder is turned right quickly."
+          }
         }
       },
-      "Analog": {
-        "Tabs": {
-          "onChange": "On Change"
+      "analog": {
+        "Event": {
+          "onChange": {
+            "label": "On Change",
+            "description": "The action will be executed once the value of the input changes."
+          }
         }
       },
       "Preconditions": {
@@ -485,25 +595,37 @@
           "SelectPreset": "Select preset",
           "SearchPresets": "Search presets...",
           "PresetsFound": "{{count}} preset(s) found",
-          "SupportedPlaceholders": "Supports input value (@) and placeholders ($, #, etc.)"
+          "SupportedPlaceholders": "Supports input value (@) and placeholders ($, #, etc.)",
+          "PresetLabel": "Preset",
+          "ActionLabel": "Action"
         },
         "Msfs": {
-          "NoneCode": "None"
+          "NoneCode": "None",
+          "CodePlaceholder": "Enter RPN code",
+          "CustomPreset": "Custom Preset"
         },
         "Xplane": {
-          "InputTypeLabel": "Input Type:",
+          "InputTypeLabel": "Input Type",
           "SelectInputTypePlaceholder": "Select input type",
-          "CodePlaceholder": "Enter path for DataRef or Command, or select a preset above"
+          "PathLabel": "Path",
+          "PathPlaceholder": "Enter path for DataRef or Command, or select a preset above",
+          "PathDescription": "Hint: Use index notation for access of Arrays, e.g. sim/cockpit2/annunciators/fuel_pressure_low[0] for 1st engine.",
+          "ValueLabel": "Value",
+          "ValuePlaceholder": "Enter value",
+          "CustomPreset": "Custom Preset"
         },
         "ProSim": {
           "Title": "ProSim Input Action",
           "Description": "Select a preset to configure your input actions.",
-          "PathLabel": "Path:",
+          "PathLabel": "Path",
           "NoPresetSelected": "No preset selected",
-          "ParameterLabel": "Parameter (optional):",
-          "ParameterPlaceholder": "Set parameter (optional)"
+          "ParameterLabel": "Parameter (optional)",
+          "ParameterPlaceholder": "Set parameter (optional)",
+          "ParameterNone": "None"
         },
         "VJoy": {
+          "Controller": "Controller",
+          "Device": "Device",
           "SelectDeviceLabel": "Select vJoy device",
           "SelectDevicePlaceholder": "Select vJoy device...",
           "ButtonTab": "Button",
@@ -514,27 +636,32 @@
           "Pressed": "Pressed",
           "Released": "Released",
           "SelectAxisPlaceholder": "Select axis...",
-          "AxisValueLabel": "Axis value"
+          "AxisValueLabel": "Axis value",
+          "ControllerLabel": "vJoy Joystick {{index}}",
+          "None": "None"
         },
         "Keyboard": {
           "StopScanning": "Stop scanning",
           "ScanForKeyboard": "Scan for keyboard",
-          "KeyComboLabel": "Key combo:",
+          "KeyComboLabel": "Key combo",
           "None": "None",
           "ClearInput": "Clear input"
         },
         "FsuipcOffset": {
+          "TypeLabel": "Type",
           "SizeLabel": "Size",
           "OffsetLabel": "Offset",
           "MaskLabel": "Mask",
-          "BcdModeLabel": "BCD Mode"
+          "BcdModeLabel": "BCD Mode",
+          "ValueLabel": "Value",
+          "ValuePlaceholder": "Enter value"
         },
         "LuaMacro": {
           "Title": "Lua Macro Input Action",
           "Description": "Invoke your Lua macro with an optional parameter. Requires an existing Lua macro in FSUIPC.",
-          "MacroNameLabel": "Macro Name:",
+          "MacroNameLabel": "Macro Name",
           "MacroNamePlaceholder": "Set macro name",
-          "MacroValueLabel": "Macro Value:",
+          "MacroValueLabel": "Macro Value",
           "MacroValuePlaceholder": "Set macro value"
         },
         "Jeehell": {
@@ -551,6 +678,8 @@
         },
         "Retrigger": {
           "Title": "Retrigger",
+          "Summary": "Sync input devices with sim.",
+          "NoteLabel": "Note",
           "Description1": "Use this input action to re-trigger all button states.",
           "Description2": "This is helpful to sync your virtual cockpit to the switch and button states of your physical controllers."
         },
@@ -605,5 +734,10 @@
     "Action": {
       "Upgrade": "Upgrade"
     }
+  },
+  "LogPanel": {
+    "Title": "Log",
+    "Empty": "Waiting for log entries",
+    "LoggingDisabled": "Logging is disabled. Enable logging in Settings to see logs here."
   }
 }

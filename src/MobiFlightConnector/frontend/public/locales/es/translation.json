@@ -19,10 +19,13 @@
       "Unknown": "Ocurrió un error desconocido."
     },
     "ComboBox": {
-      "NoResults": "No se encontraron elementos.",
+      "NoOptions": "No hay opciones.",
       "Placeholder": "Seleccionar...",
       "SearchPlaceholder": "Buscar..."
-    }
+    },
+    "Copy" : "Copiar",
+    "Paste" : "Pegar",
+    "NewFeature": "Nuevo"
   },
   "MainMenu": {
     "File": {
@@ -46,6 +49,10 @@
           "In": "Ctrl++",
           "Out": "Ctrl+-"
         }
+      },
+      "Log": {
+        "Show": "Mostrar registro",
+        "Hide": "Ocultar registro"
       }
     },
     "Extras": {
@@ -187,7 +194,26 @@
       },
       "Aircraft": {
         "Label": "Avión",
-        "HelpText": "Selecciona el avión para este proyecto."
+        "HelpText": "Selecciona el avión para este proyecto.",
+        "Description": "Selecciona uno o varios aviones que quieres usar para este proyecto. Las configuraciones predefinidas se limitarán a los aviones seleccionados.",
+        "Dialog" : {
+          "Title": "Configuración de Aviones",
+          "Description": "Selecciona uno o varios aviones que quieres usar para este proyecto.",
+          "SelectedAircraft": {
+            "Title": "Aviones Seleccionados",
+            "Count": "{{count}} seleccionados",
+            "None": "No se han seleccionado aviones. No se aplicará ningún filtro. Todas las configuraciones estarán disponibles."
+          },
+          "AvailableAircraft": {
+            "Title": "Aviones Disponibles",
+            "Count": "{{count}} disponibles",
+            "None": "No hay aviones disponibles."
+          },
+          "SearchPlaceholder": "Buscar aviones...",
+          "NoAircraftFound": "No hay aviones adicionales disponibles."
+        },
+        "EditList": "Editar lista de aviones",
+        "NotSupported": "La selección de aviones no existe para este simulador."
       },
       "Buttons": {
         "Create": "Crear proyecto",
@@ -353,11 +379,13 @@
   },
   "Dialog": {
     "General": {
+      "GoBack": "Volver",
       "Cancel": "Cancelar",
       "Close": "Cerrar",
       "Save": "Guardar",
       "SaveChanges": "Guardar cambios",
-      "ApplyChanges": "Aplicar cambios"
+      "ApplyChanges": "Aplicar cambios",
+      "ResetFilters": "Borrar filtros"
     },
     "ControllerBinding": {
       "Title": "Vincular controladores",
@@ -379,13 +407,12 @@
     "InputConfigWizard": {
       "Title": "Editar configuración de entrada",
       "Description": "Edita todos los ajustes de esta configuración de entrada en este diálogo.",
-      "GoBack": "Volver",
-      "DrawerTitle": "Precondiciones",
+      "DrawerTitle": "Preferencias",
       "ConfigTrigger": {
         "Title": "Disparador",
         "Description": "El disparador define las condiciones o eventos que activarán esta configuración.",
         "ScanForInput": "Buscar entrada",
-        "UseAnyInput": "Usar cualquier entrada",
+        "UseAnyInput": "Usar entrada",
         "ClearInput": "Borrar entrada",
         "SelectController": "Seleccionar controlador...",
         "SearchController": "Buscar controlador...",
@@ -394,43 +421,132 @@
         "SearchDevice": "Buscar dispositivo...",
         "NoDeviceFound": "No se encontró ningún dispositivo."
       },
+      "Action": {
+        "Title": "Acciones",
+        "Description": "Define las acciones para cada evento.",
+        "Copy": "Copiar acción",
+        "Paste": "Pegar acción"
+      },
       "ActionType": {
         "Title": "Tipo de acción",
         "Description": "Selecciona el tipo de acción que deseas realizar",
         "Options": {
-          "MSFS2020CustomInputAction": "Microsoft Flight Simulator (todas las versiones)",
-          "XplaneInputAction": "X-Plane (todas las versiones)",
-          "ProSimInputAction": "ProSim",
-          "VariableInputAction": "MobiFlight - Variable",
-          "RetriggerInputAction": "MobiFlight - Reactivar interruptores",
-          "KeyInputAction": "MobiFlight - Entrada de teclado",
-          "VJoyInputAction": "MobiFlight - Joystick virtual (vJoy)",
-          "FsuipcOffsetInputAction": "FSUIPC - Offset",
-          "PmdgEventIdInputAction": "FSUIPC - PMDG - Event ID",
-          "LuaMacroInputAction": "FSUIPC - Macro Lua",
-          "JeehellInputAction": "FSUIPC - Jeehell - Events",
-          "EventIdInputAction": "FSUIPC - EventID"
+          "MSFS2020CustomInputAction": {
+            "label": "Microsoft Flight Simulator (todas las versiones)",
+            "short": "MSFS"
+          },
+          "XplaneInputAction": {
+            "label": "X-Plane (todas las versiones)",
+            "short": "X-Plane"
+          },
+          "ProSimInputAction": {
+            "label": "ProSim",
+            "short": "ProSim"
+          },
+          "VariableInputAction": {
+            "label": "MobiFlight - Variable",
+            "short": "Variable"
+          },
+          "RetriggerInputAction": {
+            "label": "MobiFlight - Reactivar interruptores",
+            "short": "Reactivar interruptores"
+          },
+          "KeyInputAction": {
+            "label": "MobiFlight - Entrada de teclado",
+            "short": "Entrada de teclado"
+          },
+          "VJoyInputAction": {
+            "label": "MobiFlight - Joystick virtual (vJoy)",
+            "short": "vJoy"
+          },
+          "FsuipcOffsetInputAction": {
+            "label": "FSUIPC - Offset",
+            "short": "Offset"
+          },
+          "PmdgEventIdInputAction": {
+            "label": "FSUIPC - PMDG - Event ID",
+            "short": "PMDG Event ID"
+          },
+          "LuaMacroInputAction": {
+            "label": "FSUIPC - Macro Lua",
+            "short": "Macro Lua"
+          },
+          "JeehellInputAction": {
+            "label": "FSUIPC - Jeehell - Events",
+            "short": "Jeehell Events"
+          },
+          "EventIdInputAction": {
+            "label": "FSUIPC - EventID",
+            "short": "EventID"
+          }
         }
       },
-      "Button": {
-        "Tabs": {
-          "onPress": "Al presionar",
-          "onRelease": "Al soltar",
-          "onHold": "Al mantener",
-          "onLongRelease": "Al soltar prolongado"
+      "Event" : {
+        "Edit": "Editar acción {{eventLabel}}",
+        "Remove": "Remover acción {{eventLabel}}"
+      },
+      "button": {
+        "Event": {
+          "onPress": {
+            "label": "Al presionar",
+            "description": "La acción se ejecuta cuando se presiona el botón."
+          },
+          "onRelease": {
+            "label": "Al soltar",
+            "description": "La acción se ejecuta cuando se suelta el botón."
+          },
+          "onHold": {
+            "label": "Al mantener",
+            "description": "La acción se ejecuta repetidamente mientras se mantiene presionado el botón.",
+            "options": {
+              "holdDelay": {
+                "label": "Retraso de presión (ms)",
+                "description": "La duración en milisegundos que el botón debe mantenerse presionado antes de que se active la acción."
+              },
+              "repeatDelay": {
+                "label": "Intervalo de repetición (ms)",
+                "description": "El intervalo en milisegundos en el que la acción se volverá a activar mientras se mantiene presionado el botón. Establecer en 0 para desactivar la repetición."
+              }
+            }
+          },
+          "onLongRelease": {
+            "label": "Al soltar prolongado",
+            "description": "La acción se ejecuta cuando se suelta el botón después de una pulsación prolongada.",
+            "options": {
+              "longReleaseDelay": {
+                "label": "Long release delay (ms)",
+                "description": "The duration in milliseconds that the button must be held down before a release will trigger this action."
+              }
+            }
+          }
         }
       },
-      "Encoder": {
-        "Tabs": {
-          "onLeft": "A la izquierda",
-          "onRight": "A la derecha",
-          "onLeftFast": "Rápido izquierda",
-          "onRightFast": "Rápido derecha"
+      "encoder": {
+        "Event": {
+          "onLeft": {
+            "label": "A la izquierda",
+            "description": "La acción se ejecuta cuando el codificador se gira a la izquierda."
+          },
+          "onRight": {
+            "label": "A la derecha",
+            "description": "La acción se ejecuta cuando el codificador se gira a la derecha."
+          },
+          "onLeftFast": {
+            "label": "Rápido izquierda",
+            "description": "La acción se ejecuta cuando el codificador se gira rápidamente a la izquierda."
+          },
+          "onRightFast": {
+            "label": "Rápido derecha",
+            "description": "La acción se ejecuta cuando el codificador se gira rápidamente a la derecha."
+          }
         }
       },
-      "Analog": {
-        "Tabs": {
-          "onChange": "Al cambiar"
+      "analog": {
+        "Event": {
+          "onChange": {
+            "label": "Al cambiar",
+            "description": "La acción se ejecuta cuando el valor de la entrada cambia."
+          }
         }
       },
       "Preconditions": {
@@ -485,25 +601,37 @@
           "SelectPreset": "Seleccionar preset",
           "SearchPresets": "Buscar presets...",
           "PresetsFound": "{{count}} preset(s) encontrado(s)",
-          "SupportedPlaceholders": "Admite valor de entrada (@) y marcadores de posición ($, #, etc.)"
+          "SupportedPlaceholders": "Admite valor de entrada (@) y marcadores de posición ($, #, etc.)",
+          "PresetLabel": "Preset",
+          "ActionLabel": "Acción"
         },
         "Msfs": {
-          "NoneCode": "Ninguno"
+          "NoneCode": "Ninguno",
+          "CodePlaceholder": "Ingresar código RPN",
+          "CustomPreset": "Preset personalizado"
         },
         "Xplane": {
-          "InputTypeLabel": "Tipo de entrada:",
+          "InputTypeLabel": "Tipo de entrada",
           "SelectInputTypePlaceholder": "Seleccionar tipo de entrada",
-          "CodePlaceholder": "Ingresa la ruta para DataRef o Comando, o selecciona un preset arriba"
+          "PathLabel": "Ruta",
+          "PathPlaceholder": "Ingresa la ruta para DataRef o Comando, o selecciona un preset arriba",
+          "PathDescription": "Nota: Usa la notación de índice para acceder a los arrays, p. ej., sim/cockpit2/annunciators/fuel_pressure_low[0] para el 1er motor.",
+          "ValueLabel": "Valor",
+          "ValuePlaceholder": "Ingresa el valor",
+          "CustomPreset": "Preset personalizado"
         },
         "ProSim": {
           "Title": "Acción de entrada ProSim",
           "Description": "Selecciona un preset para configurar tus acciones de entrada.",
-          "PathLabel": "Ruta:",
+          "PathLabel": "Ruta",
           "NoPresetSelected": "No hay preset seleccionado",
-          "ParameterLabel": "Parámetro (opcional):",
-          "ParameterPlaceholder": "Establecer parámetro (opcional)"
+          "ParameterLabel": "Parámetro (opcional)",
+          "ParameterPlaceholder": "Establecer parámetro (opcional)",
+          "ParameterNone": "Ninguno"
         },
         "VJoy": {
+          "Controller": "Controlador",
+          "Device": "Dispositivo",
           "SelectDeviceLabel": "Seleccionar dispositivo vJoy",
           "SelectDevicePlaceholder": "Seleccionar dispositivo vJoy...",
           "ButtonTab": "Botón",
@@ -514,27 +642,32 @@
           "Pressed": "Presionado",
           "Released": "Soltado",
           "SelectAxisPlaceholder": "Seleccionar eje...",
-          "AxisValueLabel": "Valor del eje"
+          "AxisValueLabel": "Valor del eje",
+          "ControllerLabel": "vJoy Joystick {{index}}",
+          "None": "Ninguno"
         },
         "Keyboard": {
           "StopScanning": "Detener búsqueda",
           "ScanForKeyboard": "Buscar teclado",
-          "KeyComboLabel": "Combinación de teclas:",
+          "KeyComboLabel": "Combinación de teclas",
           "None": "Ninguno",
           "ClearInput": "Borrar entrada"
         },
         "FsuipcOffset": {
+          "TypeLabel": "Tipo",
           "SizeLabel": "Tamaño",
           "OffsetLabel": "Offset",
           "MaskLabel": "Máscara",
-          "BcdModeLabel": "Modo BCD"
+          "BcdModeLabel": "Modo BCD",
+          "ValueLabel": "Valor",
+          "ValuePlaceholder": "Ingresar valor"
         },
         "LuaMacro": {
           "Title": "Acción de entrada de macro Lua",
           "Description": "Invoca tu macro Lua con un parámetro opcional. Requiere una macro Lua existente en FSUIPC.",
-          "MacroNameLabel": "Nombre de macro:",
+          "MacroNameLabel": "Nombre de macro",
           "MacroNamePlaceholder": "Establecer nombre de macro",
-          "MacroValueLabel": "Valor de macro:",
+          "MacroValueLabel": "Valor de macro",
           "MacroValuePlaceholder": "Establecer valor de macro"
         },
         "Jeehell": {
@@ -551,6 +684,8 @@
         },
         "Retrigger": {
           "Title": "Retrigger",
+          "Summary": "Sincronizar dispositivos de entrada.",
+          "NoteLabel": "Nota",
           "Description1": "Usa esta acción de entrada para reactivar todos los estados de botón.",
           "Description2": "Esto es útil para sincronizar tu cabina virtual con los estados de interruptores y botones de tus controladores físicos."
         },
@@ -605,5 +740,10 @@
     "Action": {
       "Upgrade": "Mejorar plan"
     }
+  },
+  "LogPanel": {
+    "Title": "Log",
+    "Empty": "Esperando entradas de registro",
+    "LoggingDisabled": "El registro está desactivado. Actívalo en la Configuración para ver los registros aquí."
   }
 }

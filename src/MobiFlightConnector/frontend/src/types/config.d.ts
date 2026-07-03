@@ -66,18 +66,26 @@ export interface ConfigFile {
 }
 
 export interface Action {
-  Type: string
+  Type: string | null
 }
 
-export interface ButtonTrigger {
+export type ButtonHoldOptions = {
+  HoldDelay: number
+  RepeatDelay: number
+}
+
+export type ButtonLongReleaseOptions = {
+  LongReleaseDelay: number
+}
+
+export type ButtonTrigger = {
   onPress?: Action
   onRelease?: Action
   onHold?: Action
   onLongRelease?: Action
-  HoldDelay?: number
-  LongReleaseDelay?: number
-  RepeatDelay?: number
 }
+
+export type ButtonTrigger = ButtonTrigger & Partial<ButtonHoldOptions> & Partial<ButtonLongReleaseOptions>
 
 export interface EncoderTrigger {
   onLeft?: Action
@@ -118,7 +126,7 @@ export interface MobiFlightVariable {
 }
 
 export interface VJoyInputAction extends Action {
-  Type: "vJoyInputAction"
+  Type: "VJoyInputAction"
   vJoyID: number
   buttonNr: number
   axisString: string
@@ -155,7 +163,7 @@ export interface LuaMacroInputAction extends Action {
 
 export interface KeyInputAction extends Action {
   Type: "KeyInputAction"
-  Key: number
+  Code: string
   Control: boolean
   Alt: boolean
   Shift: boolean
@@ -170,7 +178,7 @@ export type FsuipcOffset = {
   Size: number
   Mask: number
   BcdMode: boolean
-  OffsetType: "Integer" | "Float" | "String"
+  OffsetType: 0 | 1 | 2 // 0 = Integer, 1 = Float, 2 = String
 }
 
 export interface FsuipcOffsetInputAction extends Action {

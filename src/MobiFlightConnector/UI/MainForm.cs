@@ -120,15 +120,10 @@ namespace MobiFlight.UI
 
         private void InitializeLogging()
         {
-            LogAppenderLogPanel logAppenderTextBox = new LogAppenderLogPanel(logPanel1);
-
-            Log.Instance.AddAppender(logAppenderTextBox);
             Log.Instance.AddAppender(logAppenderFile);
             Log.Instance.AddAppender(new Base.LogAppender.MessageExchangeAppender());
             Log.Instance.LogJoystickAxis = Properties.Settings.Default.LogJoystickAxis;
             Log.Instance.Enabled = Properties.Settings.Default.LogEnabled;
-            logPanel1.Visible = Log.Instance.Enabled;
-            logSplitter.Visible = Log.Instance.Enabled;
 
             try
             {
@@ -849,7 +844,6 @@ namespace MobiFlight.UI
             execManager.Shutdown();
             SaveWindowPositionAndZoomLevel();
             Properties.Settings.Default.Save();
-            logPanel1.Shutdown();
             runningStateBadge?.Dispose();
         } //Form1_FormClosed
 
@@ -1170,11 +1164,6 @@ namespace MobiFlight.UI
                 AppTelemetry.Instance.Enabled = Properties.Settings.Default.CommunityFeedback;
             }
 
-            if (e.SettingName == "LogEnabled")
-            {
-                logPanel1.Visible = (bool)e.NewValue;
-                logSplitter.Visible = (bool)e.NewValue;
-            }
         }
 
         private void _autoloadConfig()
@@ -1579,7 +1568,6 @@ namespace MobiFlight.UI
                 execManager.Start();
                 if (Properties.Settings.Default.MinimizeOnAutoRun)
                 {
-                    this.WindowState = FormWindowState.Minimized;
                     minimizeMainForm(true);
                 }
             }
@@ -1831,6 +1819,10 @@ namespace MobiFlight.UI
             if (minimized)
             {
                 notifyIcon.Visible = true;
+                notifyIcon.BalloonTipTitle = i18n._tr("uiMessageMFConnectorInterfaceActive");
+                notifyIcon.BalloonTipText = i18n._tr("uiMessageApplicationIsRunningInBackgroundMode");
+                notifyIcon.ShowBalloonTip(1000);
+                this.Hide();
             }
             else
             {
@@ -1839,6 +1831,9 @@ namespace MobiFlight.UI
                 if (this.WindowState != FormWindowState.Normal)
                     this.WindowState = FormWindowState.Normal;
                 ForceToFront();
+                // Hide() destroys the taskbar button, which takes the overlay with it.
+                // Re-apply the badge now that Show() has created a fresh button.
+                updateNotifyContextMenu(execManager?.IsStarted() ?? false);
             }
 
             execManager?.OnMinimize(minimized);

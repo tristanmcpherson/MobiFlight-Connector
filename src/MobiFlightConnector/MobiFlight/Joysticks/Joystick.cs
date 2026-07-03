@@ -5,6 +5,7 @@ using SharpDX.DirectInput;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using JoystickState = MobiFlight.Joysticks.JoystickState;
 
 namespace MobiFlight
 {
@@ -31,11 +32,11 @@ namespace MobiFlight
         protected readonly SharpDX.DirectInput.Joystick DIJoystick;
         protected readonly JoystickDefinition Definition;
 
-        private HidDevice Device;
+        protected HidStream Stream;
+        protected HidDevice Device;
         protected bool RequiresOutputUpdate = false;
         private object StateLock = new object();
         protected JoystickState State = null;
-        private HidStream Stream;
 
         /// <summary>
         /// This map defines how a usageId maps to a JoystickState property name.
@@ -329,7 +330,7 @@ namespace MobiFlight
             {
                 DIJoystick.Poll();
 
-                JoystickState newState = DIJoystick.GetCurrentState();
+                JoystickState newState = JoystickState.Create(DIJoystick.GetCurrentState());
                 lock (StateLock)
                 {
                     UpdateButtons(newState);
@@ -380,7 +381,7 @@ namespace MobiFlight
 
                     OnButtonPressed?.Invoke(this, new InputEventArgs()
                     {
-                        Controller = new Base.Controller() { Serial = SerialPrefix + DIJoystick.Information.InstanceGuid.ToString(), Name = Name },
+                        Controller = new Base.Controller() { Serial = Serial, Name = Name },
                         Device = new Base.DeviceReference() { Type = POV[index].Type, Name = POV[index].Name, Label = POV[index].Label },
                         InputType = DeviceType.Button,
                         Value = (int)MobiFlightButton.InputEvent.RELEASE
@@ -395,7 +396,7 @@ namespace MobiFlight
 
                     OnButtonPressed?.Invoke(this, new InputEventArgs()
                     {
-                        Controller = new Base.Controller() { Serial = SerialPrefix + DIJoystick.Information.InstanceGuid.ToString(), Name = Name },
+                        Controller = new Base.Controller() { Serial = Serial, Name = Name },
                         Device = new Base.DeviceReference() { Type = POV[index].Type, Name = POV[index].Name, Label = POV[index].Label },
                         InputType = DeviceType.Button,
                         Value = (int)MobiFlightButton.InputEvent.PRESS

@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Collections.Generic;
 
 namespace MobiFlight.Base.Tests
 {
@@ -144,5 +145,23 @@ namespace MobiFlight.Base.Tests
             // Assert
             Assert.AreEqual(hash1, hash2);
         }
+
+        #region Serialization tests
+        [TestMethod()]
+        public void OnSerialization_EmptyDevices_IsNotSerialized()
+        {
+            // Arrange
+            var controller = new Controller() { Name = "TestBoard", Serial = "SN-123", Devices = new List<DeviceReference>() };
+            
+            // Act
+            var result = Newtonsoft.Json.JsonConvert.SerializeObject(controller);
+
+            // Assert
+            var json = Newtonsoft.Json.Linq.JObject.Parse(result);
+            Assert.AreEqual("TestBoard", (string)json["Name"]);
+            Assert.AreEqual("SN-123", (string)json["Serial"]);
+            Assert.IsFalse(json.ContainsKey("Devices"), "Devices should not be serialized when empty");
+        }
+        #endregion
     }
 }

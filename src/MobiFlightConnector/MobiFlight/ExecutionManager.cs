@@ -634,8 +634,12 @@ namespace MobiFlight
             var configItemIndex = ConfigItems.FindIndex(i => i.GUID == item.GUID);
             if (configItemIndex == -1) return;
 
+            if (ConfigItems[configItemIndex] is InputConfigItem oldInputConfig)
+                oldInputConfig.button?.StopTimers();
+
             ConfigItems[configItemIndex] = item;
             MessageExchange.Instance.Publish(new ConfigValuePartialUpdate(item));
+            OnInputConfigSettingsChanged(item, null);
             OnConfigHasChanged?.Invoke(new IConfigItem[] { item }, null);
         }
 
@@ -869,6 +873,8 @@ namespace MobiFlight
             mobiFlightCache.StopKeepAwake();
 
             isExecuting = false;
+            foreach (var executor in _inputEventExecutors.Values)
+                executor.StopAllHoldTimers();
 #if ARCAZE
             arcazeCache.Clear();
 #endif
